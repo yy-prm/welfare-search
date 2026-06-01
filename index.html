@@ -299,12 +299,12 @@
             </div>
           </div>
           <div class="filter-group">
-            <strong>前座高： <span id="height-min-val" class="val-display">35</span> cm 〜 <span id="height-max-val" class="val-display">52</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="52" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="52" step="1" value="52" oninput="updateDualSlider('height', this.id)"></div>
+            <strong>前座高： <span id="height-min-val" class="val-display">35</span> cm 〜 <span id="height-max-val" class="val-display">55</span> cm</strong>
+            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="55" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="55" step="1" value="55" oninput="updateDualSlider('height', this.id)"></div>
           </div>
           <div class="filter-group">
-            <strong>座幅： <span id="width-min-val" class="val-display">40</span> cm 〜 <span id="width-max-val" class="val-display">52</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="width-fill"></div><input type="range" id="width-min" min="40" max="52" step="1" value="40" oninput="updateDualSlider('width', this.id)"><input type="range" id="width-max" min="40" max="52" step="1" value="52" oninput="updateDualSlider('width', this.id)"></div>
+            <strong>座幅： <span id="width-min-val" class="val-display">35</span> cm 〜 <span id="width-max-val" class="val-display">50</span> cm</strong>
+            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="width-fill"></div><input type="range" id="width-min" min="35" max="50" step="1" value="35" oninput="updateDualSlider('width', this.id)"><input type="range" id="width-max" min="35" max="50" step="1" value="50" oninput="updateDualSlider('width', this.id)"></div>
           </div>
         </div>
 
@@ -410,13 +410,25 @@
             <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="out-handrail-step-fill"></div><input type="range" id="out-handrail-step-min" min="10" max="30" step="1" value="10" oninput="updateDualSlider('out-handrail-step', this.id)"><input type="range" id="out-handrail-step-max" min="10" max="30" step="1" value="30" oninput="updateDualSlider('out-handrail-step', this.id)"></div>
           </div>
         </div>
-        
-        <div class="search-wrapper" id="main-search-wrap" style="margin-top: 15px; position: relative; width: 100%;">
-          <input type="text" id="free-word" class="search-box" placeholder="キーワードで検索" oninput="handleSearchInput(event, 'free-word')" style="width: 100%; border: 1px solid #ddd; box-shadow: none;">
-          <span class="material-icons search-clear" id="free-word-clear" onclick="clearSearch('free-word')">cancel</span>
-        </div>
-
       </div>
+    </div>
+
+    <div id="compare-view">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+        <h4 style="margin:0; color: var(--theme-dark); font-size:16px;">
+          <span class="material-icons" style="vertical-align:middle; font-size:20px; color:var(--theme-color);">balance</span> 類似商品を比較
+        </h4>
+        <button onclick="exitCompare()" class="btn-small" style="background:#757575; color:white; border:none; padding:6px 12px;">終了して戻る</button>
+      </div>
+      <div id="compare-base-container" class="compare-base-container"></div>
+      <div id="compare-tags-area" style="display:none; background:#fff; padding:15px; border-radius:12px; margin-bottom:15px;">
+        <p style="font-size:13px; font-weight:bold; color:#555; margin:0 0 10px 0;">基準商品と同じ「機能・タグ」を持つ商品に絞る</p>
+        <div id="compare-tags-container" class="checkbox-grid"></div>
+      </div>
+      <p style="font-size:13px; font-weight:bold; color:#555; margin:0 0 5px 0;">さらに数値条件で絞り込む...</p>
+      <div class="compare-cond-row"><select id="comp-prop-1" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-1" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
+      <div class="compare-cond-row"><select id="comp-prop-2" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-2" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
+      <div class="compare-cond-row"><select id="comp-prop-3" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-3" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
     </div>
 
     <div id="shared-results-area">
@@ -447,12 +459,7 @@
         </select>
       </div>
 
-      <div id="sm-top-search-container" style="margin-bottom: 15px; display:none;">
-        <div class="search-wrapper" id="sm-search-wrap" style="display: none;">
-          <input type="text" id="sm-keyword" class="search-box" placeholder="キーワードで検索" oninput="handleSearchInput(event, 'sm-keyword')" style="width: 100%; border: 1px solid #ddd; box-shadow: none;">
-          <span class="material-icons search-clear" id="sm-keyword-clear" onclick="clearSearch('sm-keyword')">cancel</span>
-        </div>
-      </div>
+      <div id="sm-top-search-container" style="margin-bottom: 15px; display:none;"></div>
 
       <div style="background:var(--theme-light); border:2px solid var(--theme-color); border-radius: var(--card-radius); padding:15px; margin-bottom:15px;">
         <div style="font-weight:bold; color:var(--theme-dark); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -500,8 +507,8 @@
 
 
   <script>
-    // ★重要★ GAS側でデプロイした後に発行される「ウェブアプリのURL（https://script.google.com/.../exec）」をここに貼り付けてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbyyuGnAOa6qil7GE76Eu18vzD0GaLkxjjJ1k-U2wDbBEbi1o9gxEMd7nLV5LAVVqByaug/exec";
+    // ★重要★ GASで発行した「ウェブアプリのURL」をここに貼り付けてください
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBk29vXmxs6NJz-Ehx_zrlFNGPQdf8t_cYnQCZEOdcqyHtYGDeyi3Fw73BvFnuQgKy/exec";
 
     let masterData = [];
     let appMode = "home"; 
@@ -528,20 +535,18 @@
       }
     };
 
-    /* ★修正点：外部サーバーから動かすために google.script.run を廃止し、fetch 通信に張り替えました */
+    // ★ fetch通信に変更
     function loadDataFromSheet() {
       document.getElementById('results').innerHTML = '<div style="text-align:center; padding: 40px 20px; color: var(--theme-color);"><span class="material-icons" style="font-size: 40px; animation: spin 1.5s linear infinite;">autorenew</span><p style="font-weight:bold; margin-top:15px; color:#555;">初回データを取得中...</p></div>';
       
       if (API_URL === "YOUR_GAS_WEB_APP_URL_HERE" || API_URL === "") {
-        document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">GASのAPI URLが設定されていません。コードの1行目にある API_URL にウェブアプリのURLを貼り付けてください。</p>';
+        document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">GASのAPI URLが設定されていません。コードの1行目付近にある API_URL を書き換えてください。</p>';
         return;
       }
 
       fetch(API_URL)
         .then(response => {
-          if (!response.ok) {
-            throw new Error('ネットワーク接続エラー');
-          }
+          if (!response.ok) throw new Error('ネットワークエラー');
           return response.json();
         })
         .then(data => {
@@ -597,7 +602,7 @@
         })
         .catch(error => {
           console.error('Error:', error);
-          document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">データの取得に失敗しました。GASのURL共有設定、またはURLが正しいか確認してください。</p>';
+          document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">データの取得に失敗しました。GASのURLをご確認ください。</p>';
         });
     }
 
@@ -609,8 +614,8 @@
     function resetAllFilters() {
       document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
       const defaultSliders = [
-        {id: 'height-min', val: 35}, {id: 'height-max', val: 52},
-        {id: 'width-min', val: 40}, {id: 'width-max', val: 52},
+        {id: 'height-min', val: 35}, {id: 'height-max', val: 55},
+        {id: 'width-min', val: 35}, {id: 'width-max', val: 50},
         {id: 'cushion-thick-min', val: 2}, {id: 'cushion-thick-max', val: 15},
         {id: 'walker-h-min', val: 55}, {id: 'walker-h-max', val: 115},
         {id: 'walker-out-w-min', val: 40}, {id: 'walker-out-w-max', val: 80},
@@ -1046,7 +1051,7 @@
 
       if (appMode === "side") {
          sideFilteredData = masterData.filter(item => {
-           let rawCat = String(getVal(item, ["カテゴリー", "カテゴリ"])).replace(/[\s　]/g, "");
+           let rawCat = String(getVal(item, ["カテゴリー", "カテゴリ", "分類"])).replace(/[\s　]/g, "");
            const matchCat = rawCat.includes(currentSideCategory.replace(/[\s　]/g, "")) || String(getVal(item, ["商品名"])).includes(currentSideCategory);
            if (!matchCat) return false;
            
@@ -1310,29 +1315,13 @@
           <span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>
           ${outWStr}
         `;
-      } else if (catDisplay === "室内手すり") {
+      } else if (catDisplay === "室内手すり" || catDisplay === "室外・玄関手すり") {
         let minH = item._raw.minH;
         let maxH = item._raw.maxH;
         let hDisplay = "-";
         if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
         else if (minH !== "-") hDisplay = `${minH}cm`;
         contentHtml = `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>`;
-      } else if (catDisplay === "室外・玄関手すり") {
-        let minH = item._raw.minH;
-        let maxH = item._raw.maxH;
-        let hDisplay = "-";
-        if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-        else if (minH !== "-") hDisplay = `${minH}cm`;
-        let kMin = getVal(item, ["最小かまち対応高さ", "かまち対応最小高さ", "対応段差", "かまち"]);
-        let kMax = getVal(item, ["最大かまち対応高さ", "かまち対応最大高さ", "対応段差", "かまち"]);
-        let kamachiText = "";
-        if(kMin && kMax && kMin !== kMax) kamachiText = `${kMin}〜${kMax}`;
-        else if (kMax) kamachiText = kMax;
-        else if (kMin) kamachiText = kMin;
-        let stepH = getVal(item, ["ステップ台高さ", "ステップ高さ"]);
-        contentHtml = `<span class="spec-line"><strong>手すり高さ:</strong> ${hDisplay}</span>`;
-        if (kamachiText) contentHtml += `<span class="spec-line"><strong>対応段差:</strong> ${kamachiText}cm</span>`;
-        if (stepH) contentHtml += `<span class="spec-line"><strong>ステップ台:</strong> ${stepH}cm</span>`;
       } else {
         let specTexts = [];
         if (typeStr) specTexts.push(`<span class="spec-line"><strong>タイプ:</strong> ${typeStr}</span>`);
@@ -1803,7 +1792,7 @@
         let wLabel = "幅";
         if(cat === "車椅子") wLabel = "座幅";
         else if(cat === "歩行器") wLabel = "外寸幅";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">幅</td>`;
+        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">${wLabel}</td>`;
         specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${s.rawWidth !== "-" ? s.rawWidth + 'cm' : '-'}</td>`; });
         tableHtml += `</tr>`;
       }
