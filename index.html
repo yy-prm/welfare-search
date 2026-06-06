@@ -23,8 +23,8 @@
       --card-radius: 12px;   
     }
 
-    /* ▼ 指が届きやすいように、padding-top の 15px を 40px に増やして上部に余裕を持たせました ▼ */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); padding: 15px; padding-top: calc(40px + env(safe-area-inset-top)); color: #333; margin: 0; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+    /* ▼ ノッチ対応：padding-top に env(safe-area-inset-top) を追加 ▼ */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); padding: 15px; padding-top: calc(15px + env(safe-area-inset-top)); color: #333; margin: 0; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
     
     /* ▼ ノッチ対応：下部の余白に env(safe-area-inset-bottom) を追加 ▼ */
     .view-container { display: none; padding-bottom: calc(80px + env(safe-area-inset-bottom)); } 
@@ -622,7 +622,7 @@
     let smSelectedItems = [];
     let isResetting = false; 
 
-    // ★★★ 指定していただいた固定URL ★★★
+    // ★★★ 重要：ここにGASのウェブアプリURLを貼り付けます ★★★
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwCnuKaTIBTbp30usxdO2fNr2S7HgErnKhVRVivlG2GmXXo-lOISDAoEYCiGiFR1jK2/exec";
 
     window.onload = function() {
@@ -2045,4 +2045,9 @@
 
       document.getElementById('sm-report-text').innerHTML = report;
       document.getElementById('sm-report-area').style.display = 'block';
-      document.getElementById('floating-run-btn-container').style.display = 'none
+      document.getElementById('floating-run-btn-container').style.display = 'none';
+      document.getElementById('sm-report-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+</html>
