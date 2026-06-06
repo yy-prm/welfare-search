@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <meta name="referrer" content="no-referrer">
   <base target="_top">
   <meta charset="UTF-8">
   <title>WelSync（福祉用具検索）</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,12 +20,14 @@
       --theme-light: #E8F3F6; 
       --theme-dark:  #2D6A7A; 
       --bg-color:    #F4F7F8; 
-      --card-radius: 12px;    
+      --card-radius: 12px;   
     }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); padding: 15px; color: #333; margin: 0; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+    /* ▼ ノッチ対応：padding-top に env(safe-area-inset-top) を追加 ▼ */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); padding: 15px; padding-top: calc(15px + env(safe-area-inset-top)); color: #333; margin: 0; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
     
-    .view-container { display: none; padding-bottom: 80px; } 
+    /* ▼ ノッチ対応：下部の余白に env(safe-area-inset-bottom) を追加 ▼ */
+    .view-container { display: none; padding-bottom: calc(80px + env(safe-area-inset-bottom)); } 
     .view-container.active { display: block; }
 
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
@@ -34,9 +37,9 @@
     .side-overlay.active { opacity: 1; visibility: visible; }
     .side-menu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: #fff; box-shadow: 2px 0 15px rgba(0,0,0,0.1); z-index: 10001; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
     .side-menu.active { left: 0; }
-    .side-menu-header { padding: 20px; background: var(--theme-color); color: #fff; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--theme-dark); }
+    .side-menu-header { padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); background: var(--theme-color); color: #fff; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--theme-dark); }
     .side-menu-close { cursor: pointer; font-size: 24px; transition: 0.2s; }
-    .side-menu-list { flex: 1; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+    .side-menu-list { flex: 1; overflow-y: auto; padding: 0; margin: 0; list-style: none; padding-bottom: env(safe-area-inset-bottom); }
     .side-menu-item { display: flex; align-items: center; padding: 16px 20px; font-size: 14px; font-weight: bold; color: #555; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
     .side-menu-item:active { background: var(--theme-light); color: var(--theme-dark); padding-left: 25px; }
     .side-menu-item .material-icons { margin-right: 15px; font-size: 24px; color: var(--theme-color); width: 24px; text-align: center; display: inline-block; flex-shrink: 0; }
@@ -78,7 +81,7 @@
     .search-box { width: 100%; padding: 14px 35px 14px 20px; border-radius: 30px; border: 2px solid transparent; font-size: 16px; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.06); outline: none; transition: 0.2s; background: #fff; margin-bottom: 0 !important; }
     .search-box:focus { border-color: var(--theme-color); box-shadow: 0 4px 12px rgba(75, 156, 179, 0.15); }
     .search-clear { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer; font-size: 22px; display: none; height: 22px; line-height: 22px; text-align: center; }
-    .search-area-box .search-wrapper { margin-top: 15px; border-top: 1px dashed #eee; padding-top: 18px; }
+    .search-area-box .search-wrapper { margin-top: 5px; }
 
     .result-card { background: white; padding: 18px; margin-top: 12px; border-radius: var(--card-radius); box-shadow: 0 3px 10px rgba(0,0,0,0.04); max-width: 600px; margin-left: auto; margin-right: auto; position: relative; width: 100%; box-sizing: border-box; border: 2px solid var(--theme-color); }
     
@@ -97,14 +100,15 @@
     .card-details { flex-grow: 1; min-width: 0; }
 
     #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); }
-    #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); }
-    .modal-close { color: white; font-size: 40px; position: absolute; top: 20px; right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); margin-top: env(safe-area-inset-top); margin-bottom: env(safe-area-inset-bottom); }
+    .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
     .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
     .btn-compare:active { background: var(--theme-light); transform: scale(0.98); }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 999; border-top-left-radius: 12px; border-top-right-radius: 12px; }
-    .nav-item { flex: 1; text-align: center; color: #999; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding-top: 5px; }
+    /* ▼ ノッチ対応：ナビゲーションバーの高さと余白を調整 ▼ */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(60px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #fff; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 999; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+    .nav-item { flex: 1; text-align: center; color: #999; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; padding-top: 5px; }
     .nav-item:active { background: #f0f0f0; }
     .nav-item.active { color: var(--theme-color); }
     .nav-item .material-icons { font-size: 24px; margin-bottom: 2px; }
@@ -125,7 +129,8 @@
     .btn-sel-add.added { background: var(--theme-color); color: #fff; }
     .btn-sel-remove { background: #ffebee; color: #d32f2f; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
-    .floating-btn-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 10000; display: none; }
+    /* ▼ ノッチ対応：フローティングボタンの位置調整 ▼ */
+    .floating-btn-container { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 10000; display: none; }
     .floating-btn-container button { width: 100%; padding: 16px; border-radius: 30px; font-size: 16px; box-shadow: 0 6px 20px rgba(75, 156, 179, 0.4); font-weight: bold; color: white; border: none; background: var(--theme-color); transition: 0.2s; cursor: pointer; }
     .floating-btn-container button:active { transform: scale(0.96); }
 
@@ -147,11 +152,11 @@
         <span class="material-icons side-menu-close" onclick="closeSideMenu()">close</span>
       </div>
       <ul class="side-menu-list">
-        <li class="side-menu-item" onclick="selectSideCategory('特殊寝台付属品')"><span class="material-icons">bed</span>特殊寝台付属品</li>
-        <li class="side-menu-item" onclick="selectSideCategory('車椅子付属品')"><span class="material-icons">accessible</span>車椅子付属品</li>
-        <li class="side-menu-item" onclick="selectSideCategory('体位変換器')"><span class="material-icons">swap_horiz</span>体位変換器</li>
-        <li class="side-menu-item" onclick="selectSideCategory('スロープ')"><span class="material-icons">grade</span>スロープ</li>
-        <li class="side-menu-item" onclick="selectSideCategory('移動用リフト')"><span class="material-icons">airline_seat_recline_extra</span>移動用リフト</li>
+        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('特殊寝台付属品')"><span class="material-icons">bed</span>特殊寝台付属品</li>
+        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('車椅子付属品')"><span class="material-icons">accessible</span>車椅子付属品</li>
+        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('体位変換器')"><span class="material-icons">swap_horiz</span>体位変換器</li>
+        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('スロープ')"><span class="material-icons">grade</span>スロープ</li>
+        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('移動用リフト')"><span class="material-icons">airline_seat_recline_extra</span>移動用リフト</li>
         <li class="side-menu-item" onclick="selectSideCategory('徘徊感知器')"><span class="material-icons">elderly</span>徘徊感知器</li>
         <li class="side-menu-item side-menu-action" onclick="forceRefreshSide()"><span class="material-icons">sync</span>最新データを取得</li>
       </ul>
@@ -237,6 +242,83 @@
           </div>
         </div>
 
+        <div id="bed-acc-search-area" class="search-area-box">
+          <h4 style="margin-top:0; color: var(--theme-dark);">特殊寝台付属品の絞り込み</h4>
+          <div class="filter-group"><strong>種類：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="bed-acc-type-check" value="サイドレール" onchange="filterData()"> サイドレール</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="介助バー・グリップ系" onchange="filterData()"> 介助バー・グリップ系</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="テーブル" onchange="filterData()"> テーブル</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="キャスター" onchange="filterData()"> キャスター</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="延長フレーム・マット" onchange="filterData()"> 延長フレーム・マット</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="移乗ボード" onchange="filterData()"> 移乗ボード</label>
+              <label><input type="checkbox" class="bed-acc-type-check" value="点滴棒" onchange="filterData()"> 点滴棒</label>
+            </div>
+          </div>
+          <div class="filter-group"><strong>メーカー：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="bed-acc-maker-check" value="プラッツ" onchange="filterData()"> プラッツ</label>
+              <label><input type="checkbox" class="bed-acc-maker-check" value="パラマウント" onchange="filterData()"> パラマウント</label>
+              <label><input type="checkbox" class="bed-acc-maker-check" value="シーホネンス" onchange="filterData()"> シーホネンス</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="wheelchair-acc-search-area" class="search-area-box">
+          <h4 style="margin-top:0; color: var(--theme-dark);">車椅子付属品の絞り込み</h4>
+          <div class="filter-group"><strong>種類：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ボンベ架" onchange="filterData()"> ボンベ架</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ガートル架" onchange="filterData()"> ガートル架</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="杖入れ" onchange="filterData()"> 杖入れ</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ブレーキ延長棒" onchange="filterData()"> ブレーキ延長棒</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="テーブル" onchange="filterData()"> テーブル</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="シートベルト" onchange="filterData()"> シートベルト</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="エレベーティング" onchange="filterData()"> エレベーティング</label>
+              <label><input type="checkbox" class="wheelchair-acc-type-check" value="転倒防止バー" onchange="filterData()"> 転倒防止バー</label>
+            </div>
+          </div>
+          <div class="filter-group"><strong>メーカー：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="松永製作所" onchange="filterData()"> 松永製作所</label>
+              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="カワムラサイクル" onchange="filterData()"> カワムラサイクル</label>
+              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="日進医療器" onchange="filterData()"> 日進医療器</label>
+              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="ミキ" onchange="filterData()"> ミキ</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="positioning-search-area" class="search-area-box">
+          <h4 style="margin-top:0; color: var(--theme-dark);">体位変換器の絞り込み</h4>
+          <div class="filter-group"><strong>種類：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="pos-type-check" value="クッション" onchange="filterData()"> クッション</label>
+              <label><input type="checkbox" class="pos-type-check" value="スライディングシート" onchange="filterData()"> スライディングシート</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="slope-search-area" class="search-area-box">
+          <h4 style="margin-top:0; color: var(--theme-dark);">スロープの絞り込み</h4>
+          <div class="filter-group"><strong>利用環境：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="slope-env-check" value="室内" onchange="filterData()"> 室内</label>
+              <label><input type="checkbox" class="slope-env-check" value="室外" onchange="filterData()"> 室外</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="lift-search-area" class="search-area-box">
+          <h4 style="margin-top:0; color: var(--theme-dark);">移動用リフトの絞り込み</h4>
+          <div class="filter-group"><strong>種類：</strong>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" class="lift-type-check" value="昇降リフト" onchange="filterData()"> 昇降リフト</label>
+              <label><input type="checkbox" class="lift-type-check" value="移乗用リフト" onchange="filterData()"> 移乗用リフト</label>
+              <label><input type="checkbox" class="lift-type-check" value="座椅子" onchange="filterData()"> 座椅子</label>
+            </div>
+          </div>
+        </div>
+
         <div id="mattress-search-area" class="search-area-box">
           <h4 style="margin-top:0; color: var(--theme-dark);">マットレスの絞り込み</h4>
           <div class="filter-group"><strong>種類：</strong>
@@ -312,6 +394,8 @@
           <h4 style="margin-top:0; color: var(--theme-dark);">クッションの絞り込み</h4>
           <div class="filter-group"><strong>機能：</strong>
             <div class="checkbox-grid">
+              <label><input type="checkbox" class="cushion-func-check" value="座クッション" onchange="filterData()"> 座クッション</label>
+              <label><input type="checkbox" class="cushion-func-check" value="背クッション" onchange="filterData()"> 背クッション</label>
               <label><input type="checkbox" class="cushion-func-check" value="姿勢保持" onchange="filterData()"> 姿勢保持</label>
               <label><input type="checkbox" class="cushion-func-check" value="エアー" onchange="filterData()"> エアー</label>
               <label><input type="checkbox" class="cushion-func-check" value="除圧" onchange="filterData()"> 除圧</label>
@@ -414,21 +498,39 @@
     </div>
 
     <div id="compare-view">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-        <h4 style="margin:0; color: var(--theme-dark); font-size:16px;">
-          <span class="material-icons" style="vertical-align:middle; font-size:20px; color:var(--theme-color);">balance</span> 類似商品を比較
-        </h4>
-        <button onclick="exitCompare()" class="btn-small" style="background:#757575; color:white; border:none; padding:6px 12px;">終了して戻る</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0; color:var(--theme-dark); display:flex; align-items:center; gap:6px;">
+          <span class="material-icons" style="color:var(--theme-color);">balance</span> 類似商品を比較
+        </h3>
+        <button onclick="exitCompare()" class="btn-small" style="border:1px solid #bbb; color:#777; background:#fff;">やめる</button>
       </div>
       <div id="compare-base-container" class="compare-base-container"></div>
-      <div id="compare-tags-area" style="display:none; background:#fff; padding:15px; border-radius:12px; margin-bottom:15px;">
-        <p style="font-size:13px; font-weight:bold; color:#555; margin:0 0 10px 0;">基準商品と同じ「機能・タグ」を持つ商品に絞る</p>
-        <div id="compare-tags-container" class="checkbox-grid"></div>
+      <div id="compare-tags-area" style="margin-bottom:15px; display:none;">
+        <strong style="font-size:13px; color:#555;">共通タグで絞る:</strong>
+        <div id="compare-tags-container" class="checkbox-grid" style="margin-top:5px;"></div>
       </div>
-      <p style="font-size:13px; font-weight:bold; color:#555; margin:0 0 5px 0;">さらに数値条件で絞り込む...</p>
-      <div class="compare-cond-row"><select id="comp-prop-1" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-1" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
-      <div class="compare-cond-row"><select id="comp-prop-2" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-2" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
-      <div class="compare-cond-row"><select id="comp-prop-3" class="comp-select" onchange="runCompareSearch()"></select><select id="comp-op-3" class="comp-select" onchange="runCompareSearch()"><option value=">=">以上</option><option value="<=">以下</option></select></div>
+      <strong style="font-size:13px; color:#555;">条件で絞る:</strong>
+      <div class="compare-cond-row" style="margin-top:5px;">
+        <select id="comp-prop-1" class="comp-select" onchange="runCompareSearch()"></select>
+        <select id="comp-op-1" class="comp-select" onchange="runCompareSearch()">
+          <option value=">=">以上</option>
+          <option value="<=">以下</option>
+        </select>
+      </div>
+      <div class="compare-cond-row">
+        <select id="comp-prop-2" class="comp-select" onchange="runCompareSearch()"></select>
+        <select id="comp-op-2" class="comp-select" onchange="runCompareSearch()">
+          <option value=">=">以上</option>
+          <option value="<=">以下</option>
+        </select>
+      </div>
+      <div class="compare-cond-row">
+        <select id="comp-prop-3" class="comp-select" onchange="runCompareSearch()"></select>
+        <select id="comp-op-3" class="comp-select" onchange="runCompareSearch()">
+          <option value=">=">以上</option>
+          <option value="<=">以下</option>
+        </select>
+      </div>
     </div>
 
     <div id="shared-results-area">
@@ -492,7 +594,6 @@
     <div id="side-category-results" style="max-width: 600px; margin: 0 auto;"></div>
   </div>
 
-
   <div class="bottom-nav">
     <div id="nav-home" class="nav-item active" onclick="switchView('home')">
       <span class="material-icons">home</span><span class="nav-item-text">ホーム</span>
@@ -505,11 +606,7 @@
     </div>
   </div>
 
-
   <script>
-    // ★重要★ GASで発行した「ウェブアプリのURL」をここに貼り付けてください
-    const API_URL = "https://script.google.com/macros/s/AKfycbyBk29vXmxs6NJz-Ehx_zrlFNGPQdf8t_cYnQCZEOdcqyHtYGDeyi3Fw73BvFnuQgKy/exec";
-
     let masterData = [];
     let appMode = "home"; 
     let currentCategory = "";
@@ -523,6 +620,10 @@
     const RENDER_CHUNK = 20;
     let renderTimer = null; 
     let smSelectedItems = [];
+    let isResetting = false; 
+
+    // ★★★ 重要：ここにGASのウェブアプリURLを貼り付けます ★★★
+    const GAS_URL = "★ここにデプロイで取得したURLを貼り付ける★";
 
     window.onload = function() {
       const cached = localStorage.getItem('welfare_data_cache');
@@ -535,20 +636,17 @@
       }
     };
 
-    // ★ fetch通信に変更
     function loadDataFromSheet() {
       document.getElementById('results').innerHTML = '<div style="text-align:center; padding: 40px 20px; color: var(--theme-color);"><span class="material-icons" style="font-size: 40px; animation: spin 1.5s linear infinite;">autorenew</span><p style="font-weight:bold; margin-top:15px; color:#555;">初回データを取得中...</p></div>';
       
-      if (API_URL === "YOUR_GAS_WEB_APP_URL_HERE" || API_URL === "") {
-        document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">GASのAPI URLが設定されていません。コードの1行目付近にある API_URL を書き換えてください。</p>';
+      if (GAS_URL.includes("★")) {
+        alert("エラー：HTML内にGAS_URLが設定されていません。コードを書き換えてください。");
         return;
       }
 
-      fetch(API_URL)
-        .then(response => {
-          if (!response.ok) throw new Error('ネットワークエラー');
-          return response.json();
-        })
+      // ▼ GitHub用に fetch を使ったデータ取得に変更 ▼
+      fetch(GAS_URL)
+        .then(response => response.json())
         .then(data => {
           data.forEach(item => {
             item._cat = getCatDisplay(item);
@@ -601,8 +699,8 @@
           alert("データを最新に更新しました");
         })
         .catch(error => {
-          console.error('Error:', error);
-          document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:red; font-weight:bold;">データの取得に失敗しました。GASのURLをご確認ください。</p>';
+          console.error("データ取得エラー:", error);
+          alert("データの取得に失敗しました。通信環境を確認してください。");
         });
     }
 
@@ -612,6 +710,7 @@
     }
 
     function resetAllFilters() {
+      isResetting = true; 
       document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
       const defaultSliders = [
         {id: 'height-min', val: 35}, {id: 'height-max', val: 55},
@@ -641,22 +740,23 @@
       const smwc = document.getElementById('sm-keyword-clear');
       if (smwc) smwc.style.display = 'none';
       currentTagFilter = "";
+      isResetting = false; 
     }
 
     function resetSearchBoxes() {
       const mainWrap = document.getElementById('main-search-wrap');
-      const smWrap = document.getElementById('sm-search-wrap');
       if (mainWrap) {
         document.getElementById('top-search-container').appendChild(mainWrap);
-      }
-      if (smWrap) {
-        document.getElementById('sm-top-search-container').appendChild(smWrap);
-        smWrap.style.display = 'none'; 
       }
     }
 
     function getActiveSearchArea(cat) {
       if (cat === '特殊寝台') return document.getElementById('bed-search-area');
+      if (cat === '特殊寝台付属品') return document.getElementById('bed-acc-search-area');
+      if (cat === '車椅子付属品') return document.getElementById('wheelchair-acc-search-area');
+      if (cat === '体位変換器') return document.getElementById('positioning-search-area');
+      if (cat === 'スロープ') return document.getElementById('slope-search-area');
+      if (cat === '移動用リフト') return document.getElementById('lift-search-area');
       if (cat === 'マットレス') return document.getElementById('mattress-search-area');
       if (cat === '車椅子') return document.getElementById('wheelchair-search-area');
       if (cat === 'クッション') return document.getElementById('cushion-search-area');
@@ -668,7 +768,10 @@
     }
 
     function switchView(viewName) {
+      isResetting = true; 
       resetAllFilters();
+      isResetting = false; 
+
       document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('floating-run-btn-container').style.display = 'none';
@@ -686,17 +789,17 @@
         if (isCompareMode) exitCompare();
         document.getElementById('normal-filter-injection').appendChild(document.getElementById('filter-wrapper'));
       } else if (viewName === 'compare') {
+        if (isCompareMode) exitCompare();
         appMode = "select";
         document.getElementById('view-compare').classList.add('active');
         document.getElementById('nav-compare').classList.add('active');
-        closeSideMenu();
-        if (isCompareMode) exitCompare();
-        
         document.getElementById('sm-category').value = "";
         document.getElementById('sm-filter-injection').appendChild(document.getElementById('filter-wrapper'));
         applyCategoryUI("");
+        closeSideMenu();
       }
       window.scrollTo(0,0);
+      filterData(); 
     }
 
     function openSideMenu() {
@@ -759,7 +862,10 @@
         return; 
       }
       
+      isResetting = true; 
       resetAllFilters();
+      isResetting = false; 
+
       currentCategory = category;
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       const activePanel = document.getElementById('panel-' + category);
@@ -781,8 +887,12 @@
     }
 
     function changeSmCategory() {
-      resetAllFilters();
       const cat = document.getElementById('sm-category').value;
+      
+      isResetting = true; 
+      resetAllFilters();
+      isResetting = false; 
+
       currentCategory = cat;
       applyCategoryUI(cat);
       resetSearchBoxes();
@@ -790,8 +900,7 @@
       if (cat !== "") {
         let activeBox = getActiveSearchArea(cat);
         if (activeBox) {
-          activeBox.appendChild(document.getElementById('sm-search-wrap'));
-          document.getElementById('sm-search-wrap').style.display = 'block';
+          activeBox.appendChild(document.getElementById('main-search-wrap'));
         }
         setTimeout(() => {
           document.getElementById('filter-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -801,18 +910,21 @@
       smSelectedItems = [];
       updateSmPool();
       document.getElementById('sm-report-area').style.display = 'none';
-      filterData();
+      
+      setTimeout(() => {
+        filterData();
+      }, 10);
     }
 
     function handleSearchInput(e, inputId) {
-      const clearBtn = document.getElementById(inputId + '-clear');
+      const clearBtn = document.getElementById('free-word-clear');
       if (clearBtn) clearBtn.style.display = e.target.value.length > 0 ? 'block' : 'none';
       filterData();
     }
     
     function clearSearch(inputId) {
-      document.getElementById(inputId).value = "";
-      document.getElementById(inputId + '-clear').style.display = 'none';
+      document.getElementById('free-word').value = "";
+      document.getElementById('free-word-clear').style.display = 'none';
       filterData();
     }
 
@@ -843,7 +955,7 @@
 
     function getCatDisplay(item) {
       if (!item) return "";
-      const catStr = String(getVal(item, ["カテゴリー", "カテゴリ"])).replace(/[\s　]/g, "");
+      const catStr = String(getVal(item, ["カテゴリー", "カテゴリ"])).replace(/[\s ]/g, "");
       
       if (catStr.includes("特殊寝台付属品")) return "特殊寝台付属品";
       if (catStr.includes("特殊寝台")) return "特殊寝台";
@@ -871,7 +983,7 @@
       let s = String(str).replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(c) {
         return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
       });
-      return s.replace(/．/g, '.').replace(/[\s　]/g, "");
+      return s.replace(/．/g, '.').replace(/[\s ]/g, "");
     }
     function getVal(item, keys) {
       if (!item) return "";
@@ -955,7 +1067,8 @@
         minSlider.style.zIndex = "3";
         maxSlider.style.zIndex = "4";
       }
-      if(masterData.length > 0 && !isCompareMode) {
+      
+      if(masterData.length > 0 && !isCompareMode && !isResetting) {
         filterData();
       }
     }
@@ -1026,7 +1139,7 @@
       if (isCompareMode) return; 
       if (masterData.length === 0) return;
 
-      const freeWordObj = appMode === "select" ? document.getElementById('sm-keyword') : document.getElementById('free-word');
+      const freeWordObj = appMode === "select" ? document.getElementById('free-word') : document.getElementById('free-word');
       const freeWord = freeWordObj ? freeWordObj.value.toLowerCase() : "";
 
       if (appMode === "select" && currentCategory === "") {
@@ -1051,8 +1164,8 @@
 
       if (appMode === "side") {
          sideFilteredData = masterData.filter(item => {
-           let rawCat = String(getVal(item, ["カテゴリー", "カテゴリ", "分類"])).replace(/[\s　]/g, "");
-           const matchCat = rawCat.includes(currentSideCategory.replace(/[\s　]/g, "")) || String(getVal(item, ["商品名"])).includes(currentSideCategory);
+           let rawCat = String(getVal(item, ["カテゴリー", "カテゴリ", "分類"])).replace(/[\s ]/g, "");
+           const matchCat = rawCat.includes(currentSideCategory.replace(/[\s ]/g, "")) || String(getVal(item, ["商品名"])).includes(currentSideCategory);
            if (!matchCat) return false;
            
            if (currentTagFilter !== "" && !item._str.tags.includes(currentTagFilter)) return false;
@@ -1103,6 +1216,7 @@
           const matchWidth = isWithinSlider(itemWidthStr, 'width-min', 'width-max');
           return matchType && matchFunc && matchHeight && matchWidth;
         }
+        
         if (currentCategory === "特殊寝台") {
           const selectedMotors = Array.from(document.querySelectorAll('.motor-check:checked')).map(el => el.value);
           const selectedBedWidths = Array.from(document.querySelectorAll('.bed-width-check:checked')).map(el => el.value);
@@ -1118,6 +1232,72 @@
           if (isSuperLow && minHeight > 15) return false;
           return matchMotor && matchBedWidth && matchBedFunc;
         }
+
+        if (currentCategory === "特殊寝台付属品") {
+          const selectedTypes = Array.from(document.querySelectorAll('.bed-acc-type-check:checked')).map(el => el.value);
+          let matchType = true;
+          if (selectedTypes.length > 0) {
+            matchType = selectedTypes.some(t => {
+              if (t === "介助バー・グリップ系") {
+                return itemTags.includes("介助バー") || itemTags.includes("グリップ");
+              }
+              if (t === "延長フレーム・マット") {
+                return itemTags.includes("延長フレーム") || itemTags.includes("延長マット");
+              }
+              return itemTags.includes(t);
+            });
+          }
+
+          const selectedMakers = Array.from(document.querySelectorAll('.bed-acc-maker-check:checked')).map(el => el.value);
+          let matchMaker = true;
+          if (selectedMakers.length > 0) {
+            matchMaker = selectedMakers.some(m => item._str.maker.includes(m) || itemTags.includes(m));
+          }
+
+          return matchType && matchMaker;
+        }
+
+        if (currentCategory === "車椅子付属品") {
+          const selectedTypes = Array.from(document.querySelectorAll('.wheelchair-acc-type-check:checked')).map(el => el.value);
+          let matchType = true;
+          if (selectedTypes.length > 0) {
+            matchType = selectedTypes.some(t => itemTags.includes(t));
+          }
+          const selectedMakers = Array.from(document.querySelectorAll('.wheelchair-acc-maker-check:checked')).map(el => el.value);
+          let matchMaker = true;
+          if (selectedMakers.length > 0) {
+            matchMaker = selectedMakers.some(m => item._str.maker.includes(m) || itemTags.includes(m));
+          }
+          return matchType && matchMaker;
+        }
+
+        if (currentCategory === "体位変換器") {
+          const selectedTypes = Array.from(document.querySelectorAll('.pos-type-check:checked')).map(el => el.value);
+          let matchType = true;
+          if (selectedTypes.length > 0) {
+            matchType = selectedTypes.some(t => itemTags.includes(t));
+          }
+          return matchType;
+        }
+
+        if (currentCategory === "スロープ") {
+          const selectedEnvs = Array.from(document.querySelectorAll('.slope-env-check:checked')).map(el => el.value);
+          let matchEnv = true;
+          if (selectedEnvs.length > 0) {
+            matchEnv = selectedEnvs.some(e => itemTags.includes(e));
+          }
+          return matchEnv;
+        }
+
+        if (currentCategory === "移動用リフト") {
+          const selectedTypes = Array.from(document.querySelectorAll('.lift-type-check:checked')).map(el => el.value);
+          let matchType = true;
+          if (selectedTypes.length > 0) {
+            matchType = selectedTypes.some(t => itemTags.includes(t));
+          }
+          return matchType;
+        }
+
         if (currentCategory === "マットレス") {
           const selectedMatTypes = Array.from(document.querySelectorAll('.mat-type-check:checked')).map(el => el.value);
           const selectedW = Array.from(document.querySelectorAll('.mat-w-check:checked')).map(el => el.value);
@@ -1252,7 +1432,11 @@
       const masterIndex = masterData.indexOf(item);
       let catDisplay = item._cat;
       let imgUrl = item._str.imgUrl;
-      let imgHtml = imgUrl ? `<img class="thumb-img" src="${imgUrl}" loading="lazy" onclick="openImageModal('${imgUrl}')">` : "";
+
+      // ▼ 画像読み込み速度改善コード ▼
+      let thumbUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w200") : "";
+      let largeUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w800") : "";
+      let imgHtml = thumbUrl ? `<img class="thumb-img" src="${thumbUrl}" onclick="openImageModal('${largeUrl}')">` : "";
 
       let contentHtml = "";
       let typeStr = item._str.type;
@@ -1315,17 +1499,33 @@
           <span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>
           ${outWStr}
         `;
-      } else if (catDisplay === "室内手すり" || catDisplay === "室外・玄関手すり") {
+      } else if (catDisplay === "室内手すり") {
         let minH = item._raw.minH;
         let maxH = item._raw.maxH;
         let hDisplay = "-";
         if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
         else if (minH !== "-") hDisplay = `${minH}cm`;
         contentHtml = `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>`;
+      } else if (catDisplay === "室外・玄関手すり") {
+        let minH = item._raw.minH;
+        let maxH = item._raw.maxH;
+        let hDisplay = "-";
+        if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
+        else if (minH !== "-") hDisplay = `${minH}cm`;
+        let kMin = getVal(item, ["最小かまち対応高さ", "かまち対応最小高さ", "対応段差", "かまち"]);
+        let kMax = getVal(item, ["最大かまち対応高さ", "かまち対応最大高さ", "対応段差", "かまち"]);
+        let kamachiText = "";
+        if(kMin && kMax && kMin !== kMax) kamachiText = `${kMin}〜${kMax}`;
+        else if (kMax) kamachiText = kMax;
+        else if (kMin) kamachiText = kMin;
+        let stepH = getVal(item, ["ステップ台高さ", "ステップ高さ"]);
+        contentHtml = `<span class="spec-line"><strong>手すり高さ:</strong> ${hDisplay}</span>`;
+        if (kamachiText) contentHtml += `<span class="spec-line"><strong>対応段差:</strong> ${kamachiText}cm</span>`;
+        if (stepH) contentHtml += `<span class="spec-line"><strong>ステップ台:</strong> ${stepH}cm</span>`;
       } else {
         let specTexts = [];
         if (typeStr) specTexts.push(`<span class="spec-line"><strong>タイプ:</strong> ${typeStr}</span>`);
-        if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line"><strong>特徴/機能:</strong> ${funcStr}</span>`);
+        if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr}</span>`);
         if (weightStr !== "-") {
            let unit = catDisplay === "歩行補助杖" ? "g" : "kg";
            specTexts.push(`<span class="spec-line"><strong>重量:</strong> ${String(weightStr).match(/[a-zA-Zｇｋ]/i) ? weightStr : weightStr + unit}</span>`);
@@ -1341,7 +1541,7 @@
       let rawTags = item._str.tags;
       if (rawTags.trim() !== "") {
         let cleanTags = rawTags.replace(/^\/+/, '').trim();
-        let tagArray = cleanTags.split(/[,\s、　]+/).filter(t => t.trim() !== "");
+        let tagArray = cleanTags.split(/[,\s、 ]+/).filter(t => t.trim() !== "");
         if (tagArray.length > 0) {
           tagHtml = `<div class="tag-container">`;
           tagArray.forEach(tag => {
@@ -1401,9 +1601,9 @@
             ${imgHtml}
             <div class="card-details">
               ${contentHtml}
-              ${tagHtml}
             </div>
           </div>
+          ${tagHtml}
           ${bottomActionBtnHtml}
         </div>
       `;
@@ -1489,7 +1689,7 @@
       document.getElementById('compare-base-container').innerHTML = previewHtml;
 
       let baseTagsStr = compareBaseItem._str.tags;
-      let baseTags = baseTagsStr.replace(/^\/+/, '').split(/[,\s、　]+/).filter(t => t.trim() !== "");
+      let baseTags = baseTagsStr.replace(/^\/+/, '').split(/[,\s、 ]+/).filter(t => t.trim() !== "");
       if (baseTags.length > 0) {
         let tagsHtml = "";
         baseTags.forEach(tag => {
@@ -1792,7 +1992,7 @@
         let wLabel = "幅";
         if(cat === "車椅子") wLabel = "座幅";
         else if(cat === "歩行器") wLabel = "外寸幅";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">${wLabel}</td>`;
+        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">幅</td>`;
         specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${s.rawWidth !== "-" ? s.rawWidth + 'cm' : '-'}</td>`; });
         tableHtml += `</tr>`;
       }
