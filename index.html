@@ -379,8 +379,8 @@
             </div>
           </div>
           <div class="filter-group">
-            <strong>前座高： <span id="height-min-val" class="val-display">35</span> cm 〜 <span id="height-max-val" class="val-display">55</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="55" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="55" step="1" value="55" oninput="updateDualSlider('height', this.id)"></div>
+            <strong>前座高： <span id="height-min-val" class="val-display">35</span> cm 〜 <span id="height-max-val" class="val-display">52</span> cm</strong>
+            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="52" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="52" step="1" value="52" oninput="updateDualSlider('height', this.id)"></div>
           </div>
           <div class="filter-group">
             <strong>座幅： <span id="width-min-val" class="val-display">35</span> cm 〜 <span id="width-max-val" class="val-display">50</span> cm</strong>
@@ -710,7 +710,7 @@
       isResetting = true; 
       document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
       const defaultSliders = [
-        {id: 'height-min', val: 35}, {id: 'height-max', val: 55},
+        {id: 'height-min', val: 35}, {id: 'height-max', val: 52},
         {id: 'width-min', val: 35}, {id: 'width-max', val: 50},
         {id: 'cushion-thick-min', val: 2}, {id: 'cushion-thick-max', val: 15},
         {id: 'walker-h-min', val: 55}, {id: 'walker-h-max', val: 115},
