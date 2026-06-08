@@ -383,8 +383,8 @@
             <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="52" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="52" step="1" value="52" oninput="updateDualSlider('height', this.id)"></div>
           </div>
           <div class="filter-group">
-            <strong>座幅： <span id="width-min-val" class="val-display">35</span> cm 〜 <span id="width-max-val" class="val-display">50</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="width-fill"></div><input type="range" id="width-min" min="35" max="50" step="1" value="35" oninput="updateDualSlider('width', this.id)"><input type="range" id="width-max" min="35" max="50" step="1" value="50" oninput="updateDualSlider('width', this.id)"></div>
+            <strong>座幅： <span id="width-min-val" class="val-display">40</span> cm 〜 <span id="width-max-val" class="val-display">52</span> cm</strong>
+            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="width-fill"></div><input type="range" id="width-min" min="40" max="52" step="1" value="40" oninput="updateDualSlider('width', this.id)"><input type="range" id="width-max" min="40" max="52" step="1" value="52" oninput="updateDualSlider('width', this.id)"></div>
           </div>
         </div>
 
@@ -711,7 +711,7 @@
       document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
       const defaultSliders = [
         {id: 'height-min', val: 35}, {id: 'height-max', val: 52},
-        {id: 'width-min', val: 35}, {id: 'width-max', val: 50},
+        {id: 'width-min', val: 40}, {id: 'width-max', val: 52},
         {id: 'cushion-thick-min', val: 2}, {id: 'cushion-thick-max', val: 15},
         {id: 'walker-h-min', val: 55}, {id: 'walker-h-max', val: 115},
         {id: 'walker-out-w-min', val: 40}, {id: 'walker-out-w-max', val: 80},
