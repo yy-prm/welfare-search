@@ -1514,22 +1514,26 @@
   contentHtml = (hDisplay ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>` : "")
     + (funcFormatted ? `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>` : "");
 } else if (catDisplay === "室外・玄関手すり") {
-        let minH = item._raw.minH;
-        let maxH = item._raw.maxH;
-        let hDisplay = "-";
-        if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-        else if (minH !== "-") hDisplay = `${minH}cm`;
-        let kMin = getVal(item, ["最小かまち対応高さ", "かまち対応最小高さ", "対応段差", "かまち"]);
-        let kMax = getVal(item, ["最大かまち対応高さ", "かまち対応最大高さ", "対応段差", "かまち"]);
-        let kamachiText = "";
-        if(kMin && kMax && kMin !== kMax) kamachiText = `${kMin}〜${kMax}`;
-        else if (kMax) kamachiText = kMax;
-        else if (kMin) kamachiText = kMin;
-        let stepH = getVal(item, ["ステップ台高さ", "ステップ高さ"]);
-        contentHtml = `<span class="spec-line"><strong>手すり高さ:</strong> ${hDisplay}</span>`;
-        if (kamachiText) contentHtml += `<span class="spec-line"><strong>対応段差:</strong> ${kamachiText}cm</span>`;
-        if (stepH) contentHtml += `<span class="spec-line"><strong>ステップ台:</strong> ${stepH}cm</span>`;
-      } else {
+  let minH = item._raw.minH;
+  let maxH = item._raw.maxH;
+  let hDisplay = "";
+  if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
+  else if (minH !== "-") hDisplay = `${minH}cm`;
+  else if (maxH !== "-") hDisplay = `${maxH}cm`;
+  let kMin = getVal(item, ["最小かまち対応高さ", "かまち対応最小高さ", "対応段差", "かまち"]);
+  let kMax = getVal(item, ["最大かまち対応高さ", "かまち対応最大高さ", "対応段差", "かまち"]);
+  let kamachiText = "";
+  if(kMin && kMax && kMin !== kMax) kamachiText = `${kMin}〜${kMax}`;
+  else if (kMax) kamachiText = kMax;
+  else if (kMin) kamachiText = kMin;
+  let stepH = getVal(item, ["ステップ台高さ", "ステップ高さ"]);
+  const funcFormatted = funcStr ? funcStr.replace(/\n/g, "<br>") : "";
+  contentHtml = "";
+  if (hDisplay) contentHtml += `<span class="spec-line"><strong>手すり高さ:</strong> ${hDisplay}</span>`;
+  if (kamachiText) contentHtml += `<span class="spec-line"><strong>対応段差:</strong> ${kamachiText}cm</span>`;
+  if (stepH) contentHtml += `<span class="spec-line"><strong>ステップ台:</strong> ${stepH}cm</span>`;
+  if (funcFormatted) contentHtml += `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>`;
+} else {
         let specTexts = [];
         if (typeStr) specTexts.push(`<span class="spec-line"><strong>タイプ:</strong> ${typeStr}</span>`);
         if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr.replace(/\n/g, "<br>")}</span>`);
