@@ -460,8 +460,9 @@
           <div class="filter-group"><strong>設置箇所：</strong>
             <div class="checkbox-grid">
               <label><input type="checkbox" id="in-handrail-func-okigata" onchange="filterData()"> 置き型</label>
-              <label><input type="checkbox" id="in-handrail-func-tsuppari" onchange="filterData()"> 突っ張り</label>
-              <label><input type="checkbox" id="in-handrail-func-toilet" onchange="filterData()"> トイレ用</label>
+<label><input type="checkbox" id="in-handrail-func-tsuppari" onchange="filterData()"> 突っ張り</label>
+<label><input type="checkbox" id="in-handrail-func-toilet" onchange="filterData()"> トイレ用</label>
+<label><input type="checkbox" id="in-handrail-func-option" onchange="filterData()"> オプション</label>
             </div>
           </div>
           <div class="filter-group">
@@ -1356,19 +1357,25 @@
           return true;
         }
         if (currentCategory === "室内手すり") {
-          const selectedTags = [];
-          if (document.getElementById('in-handrail-func-okigata').checked) selectedTags.push("置き型");
-          if (document.getElementById('in-handrail-func-tsuppari').checked) selectedTags.push("突っ張り");
-          if (document.getElementById('in-handrail-func-toilet').checked) selectedTags.push("トイレ用");
-          if (selectedTags.length > 0) {
-             const hasTag = selectedTags.some(tag => itemTags.includes(tag));
-             if (!hasTag) return false;
-          }
-          const itemMinH = item._raw.minH;
-          const itemMaxH = item._raw.maxH;
-          if (!isOverlap(itemMinH, itemMaxH, 'in-handrail-h-min', 'in-handrail-h-max')) return false;
-          return true;
-        }
+  const selectedTags = [];
+  if (document.getElementById('in-handrail-func-okigata').checked) selectedTags.push("置き型");
+  if (document.getElementById('in-handrail-func-tsuppari').checked) selectedTags.push("突っ張り");
+  if (document.getElementById('in-handrail-func-toilet').checked) selectedTags.push("トイレ用");
+  if (document.getElementById('in-handrail-func-option').checked) selectedTags.push("オプション");
+  if (selectedTags.length > 0) {
+    const hasTag = selectedTags.some(tag => itemTags.includes(tag));
+    if (!hasTag) return false;
+  }
+  const itemMinH = item._raw.minH;
+  const itemMaxH = item._raw.maxH;
+  const hasHeight = itemMinH !== "-" || itemMaxH !== "-";
+  const sliderMoved =
+    parseFloat(document.getElementById('in-handrail-h-min').value) !== 50 ||
+    parseFloat(document.getElementById('in-handrail-h-max').value) !== 300;
+  if (sliderMoved && !hasHeight) return false;
+  if (hasHeight && !isOverlap(itemMinH, itemMaxH, 'in-handrail-h-min', 'in-handrail-h-max')) return false;
+  return true;
+}
         if (currentCategory === "室外・玄関手すり") {
           const selectedTypes = Array.from(document.querySelectorAll('.out-handrail-type-check:checked')).map(el => el.value);
           if (selectedTypes.length > 0) {
@@ -1497,13 +1504,16 @@
           ${outWStr}
         `;
       } else if (catDisplay === "室内手すり") {
-        let minH = item._raw.minH;
-        let maxH = item._raw.maxH;
-        let hDisplay = "-";
-        if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-        else if (minH !== "-") hDisplay = `${minH}cm`;
-        contentHtml = `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>`;
-      } else if (catDisplay === "室外・玄関手すり") {
+  let minH = item._raw.minH;
+  let maxH = item._raw.maxH;
+  let hDisplay = "";
+  if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
+  else if (minH !== "-") hDisplay = `${minH}cm`;
+  else if (maxH !== "-") hDisplay = `${maxH}cm`;
+  contentHtml = hDisplay
+    ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>`
+    : "";
+} else if (catDisplay === "室外・玄関手すり") {
         let minH = item._raw.minH;
         let maxH = item._raw.maxH;
         let hDisplay = "-";
