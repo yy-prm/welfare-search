@@ -1510,9 +1510,9 @@
   if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
   else if (minH !== "-") hDisplay = `${minH}cm`;
   else if (maxH !== "-") hDisplay = `${maxH}cm`;
-  contentHtml = hDisplay
-    ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>`
-    : "";
+  const funcFormatted = funcStr ? funcStr.replace(/\n/g, "<br>") : "";
+  contentHtml = (hDisplay ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>` : "")
+    + (funcFormatted ? `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>` : "");
 } else if (catDisplay === "室外・玄関手すり") {
         let minH = item._raw.minH;
         let maxH = item._raw.maxH;
@@ -1532,7 +1532,7 @@
       } else {
         let specTexts = [];
         if (typeStr) specTexts.push(`<span class="spec-line"><strong>タイプ:</strong> ${typeStr}</span>`);
-        if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr}</span>`);
+        if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr.replace(/\n/g, "<br>")}</span>`);
         if (weightStr !== "-") {
            let unit = catDisplay === "歩行補助杖" ? "g" : "kg";
            specTexts.push(`<span class="spec-line"><strong>重量:</strong> ${String(weightStr).match(/[a-zA-Zｇｋ]/i) ? weightStr : weightStr + unit}</span>`);
