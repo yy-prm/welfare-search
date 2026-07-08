@@ -1,2064 +1,405 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta name="referrer" content="no-referrer">
-  <base target="_top">
-  <meta charset="UTF-8">
-  <title>WelSync（福祉用具検索）</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-  
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <style>
-    /* ==========================================
-       ★ WelSync テーマカラー
-    ========================================== */
-    :root { 
-      --theme-color: #4B9CB3; 
-      --theme-light: #E8F3F6; 
-      --theme-dark:  #2D6A7A; 
-      --bg-color:    #F4F7F8; 
-      --card-radius: 12px;   
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
+<title>配送件数入力</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --theme-color: #4B9CB3;
+    --theme-light: #E8F3F6;
+    --theme-dark: #2D6A7A;
+    --bg-color: #F4F7F8;
+    --card-radius: 12px;
+    --amber: #E8B33D;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-color); color: #333;
+    min-height: 100vh; min-height: 100dvh;
+    padding: 20px 15px calc(20px + env(safe-area-inset-bottom));
+  }
+  .wrap { max-width: 480px; margin: 0 auto; }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); padding: 15px; color: #333; margin: 0; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-    
-    /* ▼ 修正：すべての画面の上部に物理的な60pxの空白を強制的に作る ▼ */
-    .view-container { display: none; padding-top: 60px; padding-bottom: calc(80px + env(safe-area-inset-bottom)); } 
-    .view-container.active { display: block; }
+  .header { text-align: center; margin-bottom: 14px; }
+  .header h1 { font-size: 19px; font-weight: bold; color: var(--theme-dark); margin: 0 0 4px; }
+  .header .sub { font-size: 12px; color: #888; }
 
-    .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
-    .logo-img { max-width: 280px; height: auto; display: block; margin: 0 auto; }
-    
-    .side-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(2px); }
-    .side-overlay.active { opacity: 1; visibility: visible; }
-    .side-menu { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: #fff; box-shadow: 2px 0 15px rgba(0,0,0,0.1); z-index: 10001; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-    .side-menu.active { left: 0; }
-    /* ▼ 修正：サイドメニューの上部にも物理的な60pxの空白を作る ▼ */
-    .side-menu-header { padding: 20px; padding-top: 60px; background: var(--theme-color); color: #fff; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--theme-dark); }
-    .side-menu-close { cursor: pointer; font-size: 24px; transition: 0.2s; }
-    .side-menu-list { flex: 1; overflow-y: auto; padding: 0; margin: 0; list-style: none; padding-bottom: env(safe-area-inset-bottom); }
-    .side-menu-item { display: flex; align-items: center; padding: 16px 20px; font-size: 14px; font-weight: bold; color: #555; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
-    .side-menu-item:active { background: var(--theme-light); color: var(--theme-dark); padding-left: 25px; }
-    .side-menu-item .material-icons { margin-right: 15px; font-size: 24px; color: var(--theme-color); width: 24px; text-align: center; display: inline-block; flex-shrink: 0; }
-    
-    .side-menu-action { background: #fff3e0; color: #E65100; margin-top: auto; border-top: 1px solid #ffe0b2; }
-    .side-menu-action .material-icons { color: #FF9800; }
-    
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 10px; max-width: 600px; margin: 0 auto 15px auto; }
-    
-    .panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #fff; padding: 12px 2px; border-radius: var(--card-radius); text-align: center; cursor: pointer; border: 2px solid transparent; border-top: 4px solid var(--theme-color); font-weight: bold; font-size: 11px; box-shadow: 0 3px 6px rgba(0,0,0,0.04); transition: 0.2s; color: #555; }
-    .panel:active { background: #f0f0f0; transform: scale(0.95); }
-    .panel.active { background: var(--theme-light); border-color: var(--theme-color); color: var(--theme-dark); box-shadow: 0 4px 10px rgba(75, 156, 179, 0.15); }
-    .panel .material-icons { font-size: 28px; color: var(--theme-color); } 
-    
-    #filter-wrapper { display: none; background: #fff; padding: 18px; border-radius: var(--card-radius); max-width: 600px; margin: 0 auto 20px auto; border: none; border-top: 4px solid var(--theme-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box; }
-    .search-area-box { display: none; padding-bottom: 10px; }
-    
-    .filter-group { margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px dashed #eee; }
-    .filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .val-display { font-size: 1.1em; font-weight: bold; color: var(--theme-dark); }
-    
-    .checkbox-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 14px; }
-    .checkbox-grid label { cursor: pointer; display: flex; align-items: center; color: #444; font-weight: bold; }
-    .checkbox-grid input[type="checkbox"] { margin-right: 6px; transform: scale(1.2); accent-color: var(--theme-color); }
-    
-    .btn-small { background: #fff; border-radius: 20px; padding: 6px 15px; font-size: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .btn-small:active { transform: scale(0.95); }
-    .btn-check-all { border: 1px solid var(--theme-color); color: var(--theme-color); }
-    .btn-clear-all { border: 1px solid #bbb; color: #777; margin-left: 5px; }
+  .login-area { text-align: center; margin-bottom: 14px; }
+  #googleSignInBtn { display: inline-block; }
+  #loginStatus { font-size: 12px; color: #777; margin-top: 6px; }
 
-    .slider-container { position: relative; width: 100%; height: 40px; margin-top: 5px; }
-    .slider-track { position: absolute; width: 100%; height: 6px; background: #e0e0e0; border-radius: 3px; top: 50%; transform: translateY(-50%); z-index: 1; }
-    .slider-fill { position: absolute; height: 6px; background: var(--theme-color); border-radius: 3px; top: 50%; transform: translateY(-50%); z-index: 2; }
-    .slider-container input[type="range"] { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); background: transparent; pointer-events: none; -webkit-appearance: none; appearance: none; margin: 0; z-index: 3; }
-    .slider-container input[type="range"]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; appearance: none; width: 26px; height: 26px; background: #fff; border: 3px solid var(--theme-color); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; }
-    .slider-container input[type="range"]::-moz-range-thumb { pointer-events: auto; width: 26px; height: 26px; background: #fff; border: 3px solid var(--theme-color); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; }
+  .card {
+    background: #fff; padding: 16px 16px 18px; margin-bottom: 14px;
+    border-radius: var(--card-radius); box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    border-top: 4px solid var(--theme-color);
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: bold;
+    color: var(--theme-dark); margin-bottom: 12px; letter-spacing: .03em;
+  }
+  .card-title .material-icons { font-size: 16px; color: var(--theme-color); }
 
-    .search-wrapper { position: relative; width: 100%; box-sizing: border-box; }
-    .search-box { width: 100%; padding: 14px 35px 14px 20px; border-radius: 30px; border: 2px solid transparent; font-size: 16px; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.06); outline: none; transition: 0.2s; background: #fff; margin-bottom: 0 !important; }
-    .search-box:focus { border-color: var(--theme-color); box-shadow: 0 4px 12px rgba(75, 156, 179, 0.15); }
-    .search-clear { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer; font-size: 22px; display: none; height: 22px; line-height: 22px; text-align: center; }
-    .search-area-box .search-wrapper { margin-top: 5px; }
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: bold; color: #777; margin-bottom: 6px;
+  }
+  .field label .material-icons { font-size: 15px; color: var(--theme-color); }
 
-    .result-card { background: white; padding: 18px; margin-top: 12px; border-radius: var(--card-radius); box-shadow: 0 3px 10px rgba(0,0,0,0.04); max-width: 600px; margin-left: auto; margin-right: auto; position: relative; width: 100%; box-sizing: border-box; border: 2px solid var(--theme-color); }
-    
-    .card-header-flex { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-    .item-name-part { flex: 1; text-align: left; font-size: 16px; font-weight: bold; margin-right: 10px; line-height: 1.4; color: #222; }
-    .maker-name-part { flex-shrink: 0; font-size: 11px; background: #f1f5f9; padding: 4px 8px; border-radius: 12px; color: #64748b; font-weight: bold; }
-    .category-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-right: 8px; font-weight: bold; white-space: nowrap; display: inline-block; vertical-align: middle; background: var(--theme-light); color: var(--theme-dark); }
-    .spec-line { display: block; margin-bottom: 3px; font-size: 13px; color: #555; }
-    
-    .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .tag-badge { font-size: 11px; color: #546e7a; background-color: #eceff1; padding: 4px 10px; border-radius: 15px; font-weight: bold; display: inline-flex; align-items: center; cursor: pointer; transition: 0.2s; }
-    .tag-badge:active { background-color: #cfd8dc; transform: scale(0.95); }
-    
-    .card-flex { display: flex; align-items: flex-start; gap: 15px; }
-    .thumb-img { width: 85px; height: 85px; object-fit: contain; border-radius: 8px; cursor: pointer; border: 1px solid #eee; background: #fff; flex-shrink: 0; }
-    .card-details { flex-grow: 1; min-width: 0; }
+  select, input[type=date] {
+    width: 100%; padding: 13px 16px; font-size: 16px; font-family: inherit; color: #333;
+    background: var(--bg-color); border: 2px solid transparent; border-radius: 30px;
+    appearance: none; -webkit-appearance: none; min-height: 48px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  select:focus, input:focus { outline: none; border-color: var(--theme-color); box-shadow: 0 4px 10px rgba(75,156,179,0.15); }
 
-    #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); }
-    #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); margin-top: env(safe-area-inset-top); margin-bottom: env(safe-area-inset-bottom); }
-    .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .count-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .count-row select {
+    text-align: center; font-weight: bold; padding: 13px 4px; border-radius: 14px;
+  }
 
-    .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
-    .btn-compare:active { background: var(--theme-light); transform: scale(0.98); }
+  #submitBtn {
+    width: 100%; padding: 15px; font-size: 16px; font-weight: bold; font-family: inherit;
+    color: #fff; background: var(--theme-color); border: none; border-radius: 30px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(75,156,179,0.3); transition: 0.2s;
+  }
+  #submitBtn:active { transform: scale(0.96); background: var(--theme-dark); }
+  #submitBtn:disabled { background: #bbb; box-shadow: none; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(60px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #fff; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 999; border-top-left-radius: 12px; border-top-right-radius: 12px; }
-    .nav-item { flex: 1; text-align: center; color: #999; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60px; padding-top: 5px; }
-    .nav-item:active { background: #f0f0f0; }
-    .nav-item.active { color: var(--theme-color); }
-    .nav-item .material-icons { font-size: 24px; margin-bottom: 2px; }
-    .nav-item-text { font-size: 10px; font-weight: bold; }
+  .result {
+    margin-top: 14px; padding: 13px 16px; border-radius: var(--card-radius); font-size: 13.5px;
+    display: none; line-height: 1.6;
+  }
+  .result.ok { display: block; background: var(--theme-light); color: var(--theme-dark); border: 1px solid var(--theme-color); }
+  .result.err { display: block; background: #fdeaea; color: #a33; border: 1px solid #e2a3a3; }
+  .stamp {
+    display: inline-block; margin-left: 6px; padding: 1px 8px; border: 1.5px solid var(--amber);
+    color: #8A6416; font-size: 11px; font-weight: bold; border-radius: 2px; transform: rotate(-4deg);
+  }
 
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    
-    #shared-results-area { max-width: 600px; margin: 0 auto; }
-    #side-category-results-area { max-width: 600px; margin: 0 auto; }
-    
-    #compare-view { background: #fff; padding: 18px; border-radius: var(--card-radius); border: none; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 4px solid var(--theme-color); display: none; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .compare-cond-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .comp-select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; outline: none; background: #fafafa; }
-    .compare-base-container { background: #fafafa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--theme-color); }
-
-    .sel-item-row { display: flex; align-items: center; justify-content: space-between; background: #fdfae6; border-left: 5px solid var(--theme-color); padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-    .btn-sel-add { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); padding: 8px 18px; border-radius: 25px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(75, 156, 179, 0.1); }
-    .btn-sel-add.added { background: var(--theme-color); color: #fff; }
-    .btn-sel-remove { background: #ffebee; color: #d32f2f; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-
-    .floating-btn-container { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 10000; display: none; }
-    .floating-btn-container button { width: 100%; padding: 16px; border-radius: 30px; font-size: 16px; box-shadow: 0 6px 20px rgba(75, 156, 179, 0.4); font-weight: bold; color: white; border: none; background: var(--theme-color); transition: 0.2s; cursor: pointer; }
-    .floating-btn-container button:active { transform: scale(0.96); }
-
-    .table-responsive { overflow-x: auto; margin-bottom: 15px; border-radius: 8px; }
-    .table-responsive table { border-collapse: collapse; }
-  </style>
+  #historyBtn {
+    width: 100%; padding: 12px; margin-top: 20px; font-size: 14px; font-weight: bold;
+    color: var(--theme-dark); background: transparent; border: 2px solid var(--theme-color);
+    border-radius: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: 0.2s;
+  }
+  #historyBtn:active { background: var(--theme-light); }
+  .history-container {
+    margin-top: 14px; background: #fff; border-radius: var(--card-radius);
+    padding: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); display: none;
+    max-height: 400px; overflow-y: auto;
+  }
+  .history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 13px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-date { font-weight: bold; color: var(--theme-dark); width: 45px; }
+  .history-badge { width: 55px; text-align: center; }
+  .history-details { display: flex; gap: 8px; color: #555; flex: 1; justify-content: flex-end; }
+  .history-details span { background: var(--theme-light); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;}
+</style>
 </head>
 <body>
-
-  <div id="image-modal" onclick="closeImageModal()">
-    <span class="modal-close">&times;</span>
-    <img id="enlarged-img" src="" alt="拡大画像">
-  </div>
-
-  <div id="side-overlay" class="side-overlay" onclick="closeSideMenu()">
-    <div id="side-menu" class="side-menu" onclick="event.stopPropagation()">
-      <div class="side-menu-header">
-        カテゴリメニュー
-        <span class="material-icons side-menu-close" onclick="closeSideMenu()">close</span>
-      </div>
-      <ul class="side-menu-list">
-        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('特殊寝台付属品')"><span class="material-icons">bed</span>特殊寝台付属品</li>
-        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('車椅子付属品')"><span class="material-icons">accessible</span>車椅子付属品</li>
-        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('体位変換器')"><span class="material-icons">swap_horiz</span>体位変換器</li>
-        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('スロープ')"><span class="material-icons">grade</span>スロープ</li>
-        <li class="side-menu-item" onclick="closeSideMenu(); showSearch('移動用リフト')"><span class="material-icons">airline_seat_recline_extra</span>移動用リフト</li>
-        <li class="side-menu-item" onclick="selectSideCategory('徘徊感知器')"><span class="material-icons">elderly</span>徘徊感知器</li>
-        <li class="side-menu-item side-menu-action" onclick="forceRefreshSide()"><span class="material-icons">sync</span>最新データを取得</li>
-      </ul>
-    </div>
-  </div>
-
-  <div id="floating-run-btn-container" class="floating-btn-container">
-    <button id="floating-run-btn" onclick="runSmSummary()">この商品で比較表を作成 <span id="float-count"></span></button>
-  </div>
-
-  <div id="view-home" class="view-container active">
+  <div class="wrap">
     <div class="header">
-      <img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';">
+      <h1>配送件数入力</h1>
+      <div class="sub" id="todayLabel"></div>
     </div>
 
-    <div id="top-search-container" style="max-width: 600px; margin: 0 auto 15px auto;">
-      <div class="search-wrapper" id="main-search-wrap">
-        <input type="text" id="free-word" class="search-box" placeholder="キーワードで検索" oninput="handleSearchInput(event, 'free-word')" style="width: 100%; border: 1px solid #ddd; box-shadow: none;">
-        <span class="material-icons search-clear" id="free-word-clear" onclick="clearSearch('free-word')">cancel</span>
-      </div>
+    <div class="login-area">
+      <div id="googleSignInBtn"></div>
+      <div id="loginStatus"></div>
     </div>
 
-    <div class="grid-container" id="panel-area">
-      <div id="panel-特殊寝台" class="panel" onclick="showSearch('特殊寝台')">
-        <span class="material-icons">bed</span>特殊寝台
+    <div class="card">
+      <div class="card-title"><span class="material-icons">person</span>入力者・日付</div>
+      <div class="field">
+        <label><span class="material-icons">apartment</span>センター</label>
+        <select id="center"></select>
       </div>
-      <div id="panel-マットレス" class="panel" onclick="showSearch('マットレス')">
-        <span class="material-icons">layers</span>マットレス
+      <div class="field">
+        <label><span class="material-icons">badge</span>メンバー名</label>
+        <select id="memberName"><option value="">読み込み中...</option></select>
       </div>
-      <div id="panel-車椅子" class="panel" onclick="showSearch('車椅子')">
-        <span class="material-icons">accessible_forward</span>車いす
-      </div>
-      <div id="panel-クッション" class="panel" onclick="showSearch('クッション')">
-        <span class="material-icons">chair</span>クッション
-      </div>
-      <div id="panel-歩行器" class="panel" onclick="showSearch('歩行器')">
-        <span class="material-icons">directions_walk</span>歩行器
-      </div>
-      <div id="panel-歩行補助杖" class="panel" onclick="showSearch('歩行補助杖')">
-        <span class="material-icons">elderly</span>杖
-      </div>
-      <div id="panel-室内手すり" class="panel" onclick="showSearch('室内手すり')">
-        <span class="material-icons">horizontal_rule</span>室内手すり
-      </div>
-      <div id="panel-室外・玄関手すり" class="panel" onclick="showSearch('室外・玄関手すり')">
-        <span class="material-icons">fence</span>室外・玄関手すり
+      <div class="field">
+        <label><span class="material-icons">event</span>日付</label>
+        <input type="date" id="dateStr">
       </div>
     </div>
 
-    <div id="normal-filter-injection">
-      <div id="filter-wrapper">
-        <div id="bed-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">特殊寝台の絞り込み</h4>
-          <div class="filter-group"><strong>モーター数：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="motor-check" value="2" onchange="filterData()"> 2M</label>
-              <label><input type="checkbox" class="motor-check" value="3" onchange="filterData()"> 3M</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>機能：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="bed-func-check" value="ラクリア" onchange="filterData()"> ラクリア</label>
-              <label><input type="checkbox" class="bed-func-check" value="ハイバック" onchange="filterData()"> ハイバック</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <div style="display: flex; justify-content: space-between;"><strong>サイズ：</strong>
-              <div><button class="btn-small btn-check-all" onclick="toggleChecks('.bed-width-check', true)">全選択</button><button class="btn-small btn-clear-all" onclick="toggleChecks('.bed-width-check', false)">全解除</button></div>
-            </div>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="bed-width-check" value="83ショート" onchange="filterData()"> 83S</label>
-              <label><input type="checkbox" class="bed-width-check" value="83レギュラー" onchange="filterData()"> 83R</label>
-              <label><input type="checkbox" class="bed-width-check" value="83ロング" onchange="filterData()"> 83L</label>
-              <label><input type="checkbox" class="bed-width-check" value="91ショート" onchange="filterData()"> 91S</label>
-              <label><input type="checkbox" class="bed-width-check" value="91レギュラー" onchange="filterData()"> 91R</label>
-              <label><input type="checkbox" class="bed-width-check" value="91ロング" onchange="filterData()"> 91L</label>
-              <label><input type="checkbox" class="bed-width-check" value="100レギュラー" onchange="filterData()"> 100R</label>
-              <label><input type="checkbox" class="bed-width-check" value="100ロング" onchange="filterData()"> 100L</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>最低床高：</strong>
-            <div style="margin-top: 10px;"><label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-super-low" onchange="filterData()"> 🔥 超低床 (15cm以下) 限定</label></div>
-          </div>
+    <div class="card">
+      <div class="card-title"><span class="material-icons">local_shipping</span>件数</div>
+      <div class="count-row">
+        <div class="field">
+          <label><span class="material-icons">storefront</span>店</label>
+          <select id="store"></select>
         </div>
-
-        <div id="bed-acc-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">特殊寝台付属品の絞り込み</h4>
-          <div class="filter-group"><strong>種類：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="bed-acc-type-check" value="サイドレール" onchange="filterData()"> サイドレール</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="介助バー・グリップ系" onchange="filterData()"> 介助バー・グリップ系</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="テーブル" onchange="filterData()"> テーブル</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="キャスター" onchange="filterData()"> キャスター</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="延長フレーム・マット" onchange="filterData()"> 延長フレーム・マット</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="移乗ボード" onchange="filterData()"> 移乗ボード</label>
-              <label><input type="checkbox" class="bed-acc-type-check" value="点滴棒" onchange="filterData()"> 点滴棒</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>メーカー：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="bed-acc-maker-check" value="プラッツ" onchange="filterData()"> プラッツ</label>
-              <label><input type="checkbox" class="bed-acc-maker-check" value="パラマウント" onchange="filterData()"> パラマウント</label>
-              <label><input type="checkbox" class="bed-acc-maker-check" value="シーホネンス" onchange="filterData()"> シーホネンス</label>
-            </div>
-          </div>
+        <div class="field">
+          <label><span class="material-icons">home</span>利宅</label>
+          <select id="riyaku"></select>
         </div>
-
-        <div id="wheelchair-acc-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">車椅子付属品の絞り込み</h4>
-          <div class="filter-group"><strong>種類：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ボンベ架" onchange="filterData()"> ボンベ架</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ガートル架" onchange="filterData()"> ガートル架</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="杖入れ" onchange="filterData()"> 杖入れ</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="ブレーキ延長棒" onchange="filterData()"> ブレーキ延長棒</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="テーブル" onchange="filterData()"> テーブル</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="シートベルト" onchange="filterData()"> シートベルト</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="エレベーティング" onchange="filterData()"> エレベーティング</label>
-              <label><input type="checkbox" class="wheelchair-acc-type-check" value="転倒防止バー" onchange="filterData()"> 転倒防止バー</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>メーカー：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="松永製作所" onchange="filterData()"> 松永製作所</label>
-              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="カワムラサイクル" onchange="filterData()"> カワムラサイクル</label>
-              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="日進医療器" onchange="filterData()"> 日進医療器</label>
-              <label><input type="checkbox" class="wheelchair-acc-maker-check" value="ミキ" onchange="filterData()"> ミキ</label>
-            </div>
-          </div>
-        </div>
-
-        <div id="positioning-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">体位変換器の絞り込み</h4>
-          <div class="filter-group"><strong>種類：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="pos-type-check" value="クッション" onchange="filterData()"> クッション</label>
-              <label><input type="checkbox" class="pos-type-check" value="スライディングシート" onchange="filterData()"> スライディングシート</label>
-            </div>
-          </div>
-        </div>
-
-        <div id="slope-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">スロープの絞り込み</h4>
-          <div class="filter-group"><strong>利用環境：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="slope-env-check" value="室内" onchange="filterData()"> 室内</label>
-              <label><input type="checkbox" class="slope-env-check" value="室外" onchange="filterData()"> 室外</label>
-            </div>
-          </div>
-        </div>
-
-        <div id="lift-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">移動用リフトの絞り込み</h4>
-          <div class="filter-group"><strong>種類：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="lift-type-check" value="昇降リフト" onchange="filterData()"> 昇降リフト</label>
-              <label><input type="checkbox" class="lift-type-check" value="移乗用リフト" onchange="filterData()"> 移乗用リフト</label>
-              <label><input type="checkbox" class="lift-type-check" value="座椅子" onchange="filterData()"> 座椅子</label>
-            </div>
-          </div>
-        </div>
-
-        <div id="mattress-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">マットレスの絞り込み</h4>
-          <div class="filter-group"><strong>種類：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="mat-type-check" value="静止型" onchange="filterData()"> 静止型</label>
-              <label><input type="checkbox" class="mat-type-check" value="床ずれ防止" onchange="filterData()"> 床ずれ防止</label>
-              <label><input type="checkbox" class="mat-type-check" value="エアマット" onchange="filterData()"> エアマット</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <div style="display: flex; justify-content: space-between;"><strong>幅：</strong>
-              <div><button class="btn-small btn-check-all" onclick="toggleChecks('.mat-w-check', true)">全選択</button><button class="btn-small btn-clear-all" onclick="toggleChecks('.mat-w-check', false)">全解除</button></div>
-            </div>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="mat-w-check" value="83" onchange="filterData()"> 83cm</label>
-              <label><input type="checkbox" class="mat-w-check" value="91" onchange="filterData()"> 91cm</label>
-              <label><input type="checkbox" class="mat-w-check" value="100" onchange="filterData()"> 100cm</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <div style="display: flex; justify-content: space-between;"><strong>長さ：</strong>
-              <div><button class="btn-small btn-check-all" onclick="toggleChecks('.mat-l-check', true)">全選択</button><button class="btn-small btn-clear-all" onclick="toggleChecks('.mat-l-check', false)">全解除</button></div>
-            </div>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="mat-l-check" value="ショート" onchange="filterData()"> ショート</label>
-              <label><input type="checkbox" class="mat-l-check" value="レギュラー" onchange="filterData()"> レギュラー</label>
-              <label><input type="checkbox" class="mat-l-check" value="ロング" onchange="filterData()"> ロング</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>機能：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="mat-f-check" value="通気" onchange="filterData()"> 通気</label>
-              <label><input type="checkbox" class="mat-f-check" value="清拭" onchange="filterData()"> 清拭(防水)</label>
-            </div>
-          </div>
-        </div>
-
-        <div id="wheelchair-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">車椅子の絞り込み</h4>
-          <div class="filter-group"><strong>タイプ：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="type-check" value="自走" onchange="filterData()"> 自走</label>
-              <label><input type="checkbox" class="type-check" value="介助" onchange="filterData()"> 介助</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <div style="display: flex; justify-content: space-between;"><strong>機能：</strong>
-              <div><button class="btn-small btn-check-all" onclick="toggleChecks('.func-check', true)">全選択</button><button class="btn-small btn-clear-all" onclick="toggleChecks('.func-check', false)">全解除</button></div>
-            </div>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="func-check" value="標準" onchange="filterData()"> 標準</label>
-              <label><input type="checkbox" class="func-check" value="軽量" onchange="filterData()"> 軽量</label>
-              <label><input type="checkbox" class="func-check" value="多機能" onchange="filterData()"> 多機能</label>
-              <label><input type="checkbox" class="func-check" value="自動ブレーキ" onchange="filterData()"> 自動ブレーキ</label>
-              <label><input type="checkbox" class="func-check" value="低床" onchange="filterData()"> 低床</label>
-              <label><input type="checkbox" class="func-check" value="高床" onchange="filterData()"> 高床</label>
-              <label><input type="checkbox" class="func-check" value="モジュール" onchange="filterData()"> モジュール</label>
-              <label><input type="checkbox" class="func-check" value="六輪" onchange="filterData()"> 六輪</label>
-              <label><input type="checkbox" class="func-check" value="ティルト/リクライニング" onchange="filterData()"> ティルト/リクライニング</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>前座高： <span id="height-min-val" class="val-display">35</span> cm 〜 <span id="height-max-val" class="val-display">52</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="height-fill"></div><input type="range" id="height-min" min="35" max="52" step="1" value="35" oninput="updateDualSlider('height', this.id)"><input type="range" id="height-max" min="35" max="52" step="1" value="52" oninput="updateDualSlider('height', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>座幅： <span id="width-min-val" class="val-display">40</span> cm 〜 <span id="width-max-val" class="val-display">52</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="width-fill"></div><input type="range" id="width-min" min="40" max="52" step="1" value="40" oninput="updateDualSlider('width', this.id)"><input type="range" id="width-max" min="40" max="52" step="1" value="52" oninput="updateDualSlider('width', this.id)"></div>
-          </div>
-        </div>
-
-        <div id="cushion-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">クッションの絞り込み</h4>
-          <div class="filter-group"><strong>機能：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="cushion-func-check" value="座クッション" onchange="filterData()"> 座クッション</label>
-              <label><input type="checkbox" class="cushion-func-check" value="背クッション" onchange="filterData()"> 背クッション</label>
-              <label><input type="checkbox" class="cushion-func-check" value="姿勢保持" onchange="filterData()"> 姿勢保持</label>
-              <label><input type="checkbox" class="cushion-func-check" value="エアー" onchange="filterData()"> エアー</label>
-              <label><input type="checkbox" class="cushion-func-check" value="除圧" onchange="filterData()"> 除圧</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>厚み： <span id="cushion-thick-min-val" class="val-display">2</span> cm 〜 <span id="cushion-thick-max-val" class="val-display">15</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="cushion-thick-fill"></div><input type="range" id="cushion-thick-min" min="2" max="15" step="1" value="2" oninput="updateDualSlider('cushion-thick', this.id)"><input type="range" id="cushion-thick-max" min="2" max="15" step="1" value="15" oninput="updateDualSlider('cushion-thick', this.id)"></div>
-          </div>
-        </div>
-
-        <div id="walker-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">歩行器の絞り込み</h4>
-          <div class="filter-group"><strong>利用環境：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="walker-env-check" value="室内" onchange="filterData()"> 室内</label>
-              <label><input type="checkbox" class="walker-env-check" value="室外" onchange="filterData()"> 室外</label>
-            </div>
-          </div>
-          <div class="filter-group"><strong>機能：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="walker-func-check" value="抑速" onchange="filterData()"> 抑速</label>
-              <label><input type="checkbox" class="walker-func-check" value="前腕支持" onchange="filterData()"> 前腕支持</label>
-              <label><input type="checkbox" class="walker-func-check" value="自動ブレーキ" onchange="filterData()"> 自動ブレーキ</label>
-              <label><input type="checkbox" class="walker-func-check" value="トレー" onchange="filterData()"> トレー</label>
-              <label><input type="checkbox" class="walker-func-check" value="買い物かご" onchange="filterData()"> 買い物かご</label>
-              <label><input type="checkbox" class="walker-func-check" value="酸素ボンベ" onchange="filterData()"> 酸素ボンベ</label>
-              <label><input type="checkbox" class="walker-func-check" value="電動アシスト" onchange="filterData()"> 電動アシスト</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>高さ： <span id="walker-h-min-val" class="val-display">55</span> cm 〜 <span id="walker-h-max-val" class="val-display">115</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="walker-h-fill"></div><input type="range" id="walker-h-min" min="55" max="115" step="1" value="55" oninput="updateDualSlider('walker-h', this.id)"><input type="range" id="walker-h-max" min="55" max="115" step="1" value="115" oninput="updateDualSlider('walker-h', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>外寸幅： <span id="walker-out-w-min-val" class="val-display">40</span> cm 〜 <span id="walker-out-w-max-val" class="val-display">80</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="walker-out-w-fill"></div><input type="range" id="walker-out-w-min" min="40" max="80" step="1" value="40" oninput="updateDualSlider('walker-out-w', this.id)"><input type="range" id="walker-out-w-max" min="40" max="80" step="1" value="80" oninput="updateDualSlider('walker-out-w', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>重量： <span id="walker-weight-min-val" class="val-display">1</span> kg 〜 <span id="walker-weight-max-val" class="val-display">20</span> kg</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="walker-weight-fill"></div><input type="range" id="walker-weight-min" min="1" max="20" step="1" value="1" oninput="updateDualSlider('walker-weight', this.id)"><input type="range" id="walker-weight-max" min="1" max="20" step="1" value="20" oninput="updateDualSlider('walker-weight', this.id)"></div>
-          </div>
-        </div>
-
-        <div id="cane-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">杖の絞り込み</h4>
-          <div class="filter-group"><strong>機能：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" id="cane-func-kadou" onchange="filterData()"> 可動</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>高さ： <span id="cane-h-min-val" class="val-display">60</span> cm 〜 <span id="cane-h-max-val" class="val-display">145</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="cane-h-fill"></div><input type="range" id="cane-h-min" min="60" max="145" step="1" value="60" oninput="updateDualSlider('cane-h', this.id)"><input type="range" id="cane-h-max" min="60" max="145" step="1" value="145" oninput="updateDualSlider('cane-h', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>重量： <span id="cane-weight-min-val" class="val-display">100</span> g 〜 <span id="cane-weight-max-val" class="val-display">1500</span> g</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="cane-weight-fill"></div><input type="range" id="cane-weight-min" min="100" max="1500" step="10" value="100" oninput="updateDualSlider('cane-weight', this.id)"><input type="range" id="cane-weight-max" min="100" max="1500" step="10" value="1500" oninput="updateDualSlider('cane-weight', this.id)"></div>
-          </div>
-        </div>
-
-        <div id="in-handrail-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">室内手すりの絞り込み</h4>
-          <div class="filter-group"><strong>設置箇所：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" id="in-handrail-func-okigata" onchange="filterData()"> 置き型</label>
-<label><input type="checkbox" id="in-handrail-func-tsuppari" onchange="filterData()"> 突っ張り</label>
-<label><input type="checkbox" id="in-handrail-func-toilet" onchange="filterData()"> トイレ用</label>
-<label><input type="checkbox" id="in-handrail-func-option" onchange="filterData()"> オプション</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>高さ： <span id="in-handrail-h-min-val" class="val-display">50</span> cm 〜 <span id="in-handrail-h-max-val" class="val-display">300</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="in-handrail-h-fill"></div><input type="range" id="in-handrail-h-min" min="50" max="300" step="1" value="50" oninput="updateDualSlider('in-handrail-h', this.id)"><input type="range" id="in-handrail-h-max" min="50" max="300" step="1" value="300" oninput="updateDualSlider('in-handrail-h', this.id)"></div>
-          </div>
-        </div>
-
-        <div id="out-handrail-search-area" class="search-area-box">
-          <h4 style="margin-top:0; color: var(--theme-dark);">室外手すりの絞り込み</h4>
-          <div class="filter-group"><strong>設置箇所：</strong>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" class="out-handrail-type-check" value="玄関" onchange="filterData()"> 玄関</label>
-              <label><input type="checkbox" class="out-handrail-type-check" value="屋内" onchange="filterData()"> 屋内</label>
-              <label><input type="checkbox" class="out-handrail-type-check" value="屋外" onchange="filterData()"> 屋外</label>
-            </div>
-          </div>
-          <div class="filter-group">
-            <strong>高さ： <span id="out-handrail-h-min-val" class="val-display">70</span> cm 〜 <span id="out-handrail-h-max-val" class="val-display">300</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="out-handrail-h-fill"></div><input type="range" id="out-handrail-h-min" min="70" max="300" step="1" value="70" oninput="updateDualSlider('out-handrail-h', this.id)"><input type="range" id="out-handrail-h-max" min="70" max="300" step="1" value="300" oninput="updateDualSlider('out-handrail-h', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>対応段差(かまち)： <span id="out-handrail-kamachi-min-val" class="val-display">0</span> cm 〜 <span id="out-handrail-kamachi-max-val" class="val-display">54</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="out-handrail-kamachi-fill"></div><input type="range" id="out-handrail-kamachi-min" min="0" max="54" step="1" value="0" oninput="updateDualSlider('out-handrail-kamachi', this.id)"><input type="range" id="out-handrail-kamachi-max" min="0" max="54" step="1" value="54" oninput="updateDualSlider('out-handrail-kamachi', this.id)"></div>
-          </div>
-          <div class="filter-group">
-            <strong>ステップ台高さ： <span id="out-handrail-step-min-val" class="val-display">9</span> cm 〜 <span id="out-handrail-step-max-val" class="val-display">36</span> cm</strong>
-            <div class="slider-container"><div class="slider-track"></div><div class="slider-fill" id="out-handrail-step-fill"></div><input type="range" id="out-handrail-step-min" min="9" max="36" step="1" value="9" oninput="updateDualSlider('out-handrail-step', this.id)"><input type="range" id="out-handrail-step-max" min="9" max="36" step="1" value="36" oninput="updateDualSlider('out-handrail-step', this.id)"></div>
-          </div>
+        <div class="field">
+          <label><span class="material-icons">bolt</span>当日</label>
+          <select id="tojitsu"></select>
         </div>
       </div>
     </div>
 
-    <div id="compare-view">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3 style="margin:0; color:var(--theme-dark); display:flex; align-items:center; gap:6px;">
-          <span class="material-icons" style="color:var(--theme-color);">balance</span> 類似商品を比較
-        </h3>
-        <button onclick="exitCompare()" class="btn-small" style="border:1px solid #bbb; color:#777; background:#fff;">やめる</button>
-      </div>
-      <div id="compare-base-container" class="compare-base-container"></div>
-      <div id="compare-tags-area" style="margin-bottom:15px; display:none;">
-        <strong style="font-size:13px; color:#555;">共通タグで絞る:</strong>
-        <div id="compare-tags-container" class="checkbox-grid" style="margin-top:5px;"></div>
-      </div>
-      <strong style="font-size:13px; color:#555;">条件で絞る:</strong>
-      <div class="compare-cond-row" style="margin-top:5px;">
-        <select id="comp-prop-1" class="comp-select" onchange="runCompareSearch()"></select>
-        <select id="comp-op-1" class="comp-select" onchange="runCompareSearch()">
-          <option value=">=">以上</option>
-          <option value="<=">以下</option>
-        </select>
-      </div>
-      <div class="compare-cond-row">
-        <select id="comp-prop-2" class="comp-select" onchange="runCompareSearch()"></select>
-        <select id="comp-op-2" class="comp-select" onchange="runCompareSearch()">
-          <option value=">=">以上</option>
-          <option value="<=">以下</option>
-        </select>
-      </div>
-      <div class="compare-cond-row">
-        <select id="comp-prop-3" class="comp-select" onchange="runCompareSearch()"></select>
-        <select id="comp-op-3" class="comp-select" onchange="runCompareSearch()">
-          <option value=">=">以上</option>
-          <option value="<=">以下</option>
-        </select>
-      </div>
-    </div>
+    <button id="submitBtn">登録する</button>
+    <div id="result" class="result"></div>
 
-    <div id="shared-results-area">
-      <div id="results-anchor" style="position:relative; top:-20px;"></div>
-      <div id="results-header" style="margin: 10px 0; font-size: 15px;"></div>
-      <div id="results"></div>
+    <button id="historyBtn"><span class="material-icons">fact_check</span>選択月の入力状況を確認</button>
+    <div id="historyContainer" class="history-container">
+      <div id="historyContent"></div>
     </div>
   </div>
 
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwUTxf2_8PehPMjtVeUW6Tpc9v2wHbBO2ajeQWyJAxNMEzW_TpsqoTuwjUXNAhUQ3lr/exec';
+  const GOOGLE_CLIENT_ID = '10544617656-amo7voanjtnl8pj88kvg269ihq4c8gcq.apps.googleusercontent.com';
+  const DEFAULT_CENTER = '天理';
 
-  <div id="view-compare" class="view-container">
-    <div style="max-width: 600px; margin: 0 auto;">
-      
-      <button onclick="switchView('home')" class="btn-small" style="background:#757575; color:white; border:none; padding:6px 14px; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;"><span class="material-icons" style="font-size:16px;">arrow_back</span>ホームに戻る</button>
-      
-      <div style="background:#fff; padding:18px; border-radius: var(--card-radius); box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:15px; border-top: 4px solid var(--theme-color);">
-        <h3 style="margin:0 0 10px 0; color:var(--theme-dark); display:flex; align-items:center; gap:6px;">
-          <span class="material-icons" style="color:var(--theme-color);">view_list</span> 複数商品比較
-        </h3>
-        <p style="margin: 0 0 12px 0; font-size:13px; color:#555;">最大4つまで比較表を作成します。</p>
-        
-        <select id="sm-category" class="search-box" onchange="changeSmCategory()" style="border-radius: 8px; border: 1px solid #ddd; margin-bottom: 0;">
-          <option value="">-- カテゴリを選択（必須） --</option>
-          <option value="車椅子">車椅子</option>
-          <option value="歩行器">歩行器</option>
-          <option value="歩行補助杖">歩行補助杖</option>
-          <option value="クッション">クッション</option>
-        </select>
-      </div>
-
-      <div id="sm-top-search-container" style="margin-bottom: 15px; display:none;"></div>
-
-      <div style="background:var(--theme-light); border:2px solid var(--theme-color); border-radius: var(--card-radius); padding:15px; margin-bottom:15px;">
-        <div style="font-weight:bold; color:var(--theme-dark); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-          <span>選択中の商品 (<span id="sm-count">0</span>/4)</span>
-          <button onclick="clearSmSelection()" class="btn-small" style="border:1px solid #999; color:#666; background:#fff;">全解除</button>
-        </div>
-        <div id="sm-pool" style="display:flex; flex-direction:column; gap:8px;">
-          <p style="font-size:12px; color:#555; margin:0;">まだ選択されていません。</p>
-        </div>
-      </div>
-
-      <div id="sm-filter-injection"></div>
-      
-      <div id="sm-report-area" style="display:none; background:#fff; border:2px solid var(--theme-color); border-radius: var(--card-radius); padding:15px; margin-bottom:15px;">
-        <div id="sm-report-text"></div>
-      </div>
-
-      <div id="sm-results-header" style="font-size:13px; font-weight:bold; color:#555; margin-bottom:10px;"></div>
-      <div id="sm-results"></div>
-      
-    </div>
-  </div>
-
-
-  <div id="view-side" class="view-container">
-    <div style="max-width: 600px; margin: 0 auto; padding-bottom: 5px;">
-      <button onclick="switchView('home')" class="btn-small" style="background:#757575; color:white; border:none; padding:6px 14px; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;"><span class="material-icons" style="font-size:16px;">arrow_back</span>ホームに戻る</button>
-    </div>
-    <div id="side-category-header" style="margin: 10px 0; font-size: 15px; max-width: 600px; margin-left: auto; margin-right: auto;"></div>
-    <div id="side-category-results" style="max-width: 600px; margin: 0 auto;"></div>
-  </div>
-
-  <div class="bottom-nav">
-    <div id="nav-home" class="nav-item active" onclick="switchView('home')">
-      <span class="material-icons">home</span><span class="nav-item-text">ホーム</span>
-    </div>
-    <div id="nav-compare" class="nav-item" onclick="switchView('compare')">
-      <span class="material-icons">view_list</span><span class="nav-item-text">商品比較</span>
-    </div>
-    <div id="nav-other" class="nav-item" onclick="openSideMenu()">
-      <span class="material-icons">menu</span><span class="nav-item-text">その他</span>
-    </div>
-  </div>
-
-  <script>
-    let masterData = [];
-    let appMode = "home"; 
-    let currentCategory = "";
-    let currentSideCategory = "";
-    let isCompareMode = false;
-    let compareBaseItem = null;
-    let currentTagFilter = "";
-    let filteredData = []; 
-    let sideFilteredData = [];
-    let currentRenderIndex = 0;
-    const RENDER_CHUNK = 20;
-    let renderTimer = null; 
-    let smSelectedItems = [];
-    let isResetting = false; 
-
-    // ★★★ 指定していただいた固定URL ★★★
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwCnuKaTIBTbp30usxdO2fNr2S7HgErnKhVRVivlG2GmXXo-lOISDAoEYCiGiFR1jK2/exec";
-
-    window.onload = function() {
-      const cached = localStorage.getItem('welfare_data_cache');
-      if (cached) {
-        masterData = JSON.parse(cached);
-        console.log("キャッシュから読み込みました");
-        initAllSliders();
-      } else {
-        loadDataFromSheet();
-      }
-    };
-
-    function loadDataFromSheet() {
-      document.getElementById('results').innerHTML = '<div style="text-align:center; padding: 40px 20px; color: var(--theme-color);"><span class="material-icons" style="font-size: 40px; animation: spin 1.5s linear infinite;">autorenew</span><p style="font-weight:bold; margin-top:15px; color:#555;">初回データを取得中...</p></div>';
-      
-      if (GAS_URL.includes("★")) {
-        alert("エラー：HTML内にGAS_URLが設定されていません。コードを書き換えてください。");
-        return;
-      }
-
-      fetch(GAS_URL)
-        .then(response => response.json())
-        .then(data => {
-          data.forEach(item => {
-            item._cat = getCatDisplay(item);
-            let func = String(getVal(item, ["機能", "特徴"]) || ""); 
-            let tags = String(getVal(item, ["検索用タグ", "タグ"]) || "");
-            let type = String(getVal(item, ["タイプ", "種類"]) || "");
-            let motor = String(getVal(item, ["モーター数", "モーター"]) || "");
-            
-            item._str = {
-                func: func,
-                tags: tags,
-                type: type,
-                motor: motor,
-                wStr: String(getVal(item, ["幅", "座幅", "外寸幅", "全幅"]) || ""),
-                sizeStr: String(getVal(item, ["サイズ", "長さ"]) || ""),
-                hStr: String(getVal(item, ["最低床高", "ボトム高", "前座高", "厚み"]) || ""),
-                name: getVal(item, ["商品名"]) || "",
-                maker: getVal(item, ["メーカー"]) || "",
-                imgUrl: getVal(item, ["画像URL", "画像"]) || "",
-                manual: getVal(item, ["説明書URL", "説明書", "マニュアル"]) || ""
-            };
-            
-            item._searchStr = (
-                item._cat + " " + item._str.name + " " + item._str.maker + " " +
-                func + " " + type + " " + tags + " " + motor + " " +
-                item._str.wStr + " " + item._str.sizeStr + " " + item._str.hStr
-            ).toLowerCase();
-
-            item._n = {
-                weight: getExtractedNums(item, "weight"),
-                fHeight: getExtractedNums(item, "front_height"),
-                maxH: getExtractedNums(item, "max_height"),
-                minH: getExtractedNums(item, "min_height"),
-                thick: getExtractedNums(item, "thickness"),
-                width: getExtractedNums(item, "seat_width")
-            };
-            item._raw = {
-                weight: getRawString(item, "weight"),
-                fHeight: getRawString(item, "front_height"),
-                maxH: getRawString(item, "max_height"),
-                minH: getRawString(item, "min_height"),
-                thick: getRawString(item, "thickness"),
-                width: getRawString(item, "seat_width")
-            };
-          });
-          masterData = data;
-          localStorage.setItem('welfare_data_cache', JSON.stringify(data));
-          document.getElementById('results').innerHTML = '';
-          initAllSliders();
-          alert("データを最新に更新しました");
-        })
-        .catch(error => {
-          console.error("データ取得エラー:", error);
-          alert("データの取得に失敗しました。通信環境を確認してください。");
-        });
+  function fillCountSelect(id){
+    const sel = document.getElementById(id);
+    for(let i=0;i<=10;i++){
+      const opt = document.createElement('option');
+      opt.value = i; opt.text = i;
+      sel.appendChild(opt);
     }
-
-    function initAllSliders() {
-      const types = ['height', 'width', 'cushion-thick', 'walker-h', 'walker-out-w', 'walker-weight', 'cane-h', 'cane-weight', 'in-handrail-h', 'out-handrail-h', 'out-handrail-kamachi', 'out-handrail-step'];
-      types.forEach(t => updateDualSlider(t, ''));
-    }
-
-    function resetAllFilters() {
-      isResetting = true; 
-      document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
-      const defaultSliders = [
-        {id: 'height-min', val: 35}, {id: 'height-max', val: 52},
-        {id: 'width-min', val: 40}, {id: 'width-max', val: 52},
-        {id: 'cushion-thick-min', val: 2}, {id: 'cushion-thick-max', val: 15},
-        {id: 'walker-h-min', val: 55}, {id: 'walker-h-max', val: 115},
-        {id: 'walker-out-w-min', val: 40}, {id: 'walker-out-w-max', val: 80},
-        {id: 'walker-weight-min', val: 1}, {id: 'walker-weight-max', val: 20},
-        {id: 'cane-h-min', val: 60}, {id: 'cane-h-max', val: 145},
-        {id: 'cane-weight-min', val: 100}, {id: 'cane-weight-max', val: 1500},
-        {id: 'in-handrail-h-min', val: 50}, {id: 'in-handrail-h-max', val: 300},
-        {id: 'out-handrail-h-min', val: 70}, {id: 'out-handrail-h-max', val: 300},
-        {id: 'out-handrail-kamachi-min', val: 0}, {id: 'out-handrail-kamachi-max', val: 54},
-        {id: 'out-handrail-step-min', val: 9}, {id: 'out-handrail-step-max', val: 36}
-      ];
-      defaultSliders.forEach(s => {
-        const el = document.getElementById(s.id);
-        if (el) el.value = s.val;
-      });
-      initAllSliders();
-      const fw = document.getElementById('free-word');
-      if (fw) fw.value = "";
-      const fwc = document.getElementById('free-word-clear');
-      if (fwc) fwc.style.display = 'none';
-      const smw = document.getElementById('sm-keyword');
-      if (smw) smw.value = "";
-      const smwc = document.getElementById('sm-keyword-clear');
-      if (smwc) smwc.style.display = 'none';
-      currentTagFilter = "";
-      isResetting = false; 
-    }
-
-    function resetSearchBoxes() {
-      const mainWrap = document.getElementById('main-search-wrap');
-      if (mainWrap) {
-        document.getElementById('top-search-container').appendChild(mainWrap);
-      }
-    }
-
-    function getActiveSearchArea(cat) {
-      if (cat === '特殊寝台') return document.getElementById('bed-search-area');
-      if (cat === '特殊寝台付属品') return document.getElementById('bed-acc-search-area');
-      if (cat === '車椅子付属品') return document.getElementById('wheelchair-acc-search-area');
-      if (cat === '体位変換器') return document.getElementById('positioning-search-area');
-      if (cat === 'スロープ') return document.getElementById('slope-search-area');
-      if (cat === '移動用リフト') return document.getElementById('lift-search-area');
-      if (cat === 'マットレス') return document.getElementById('mattress-search-area');
-      if (cat === '車椅子') return document.getElementById('wheelchair-search-area');
-      if (cat === 'クッション') return document.getElementById('cushion-search-area');
-      if (cat === '歩行器') return document.getElementById('walker-search-area');
-      if (cat === '歩行補助杖') return document.getElementById('cane-search-area');
-      if (cat === '室内手すり') return document.getElementById('in-handrail-search-area');
-      if (cat === '室外・玄関手すり') return document.getElementById('out-handrail-search-area');
-      return null;
-    }
-
-    function switchView(viewName) {
-      isResetting = true; 
-      resetAllFilters();
-      isResetting = false; 
-
-      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('floating-run-btn-container').style.display = 'none';
-      
-      resetSearchBoxes();
-      currentCategory = "";
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('filter-wrapper').style.display = 'none'; 
-
-      if (viewName === 'home') {
-        appMode = "home";
-        document.getElementById('view-home').classList.add('active');
-        document.getElementById('nav-home').classList.add('active');
-        closeSideMenu();
-        if (isCompareMode) exitCompare();
-        document.getElementById('normal-filter-injection').appendChild(document.getElementById('filter-wrapper'));
-      } else if (viewName === 'compare') {
-        if (isCompareMode) exitCompare();
-        appMode = "select";
-        document.getElementById('view-compare').classList.add('active');
-        document.getElementById('nav-compare').classList.add('active');
-        document.getElementById('sm-category').value = "";
-        document.getElementById('sm-filter-injection').appendChild(document.getElementById('filter-wrapper'));
-        applyCategoryUI("");
-        closeSideMenu();
-      }
-      window.scrollTo(0,0);
-      filterData(); 
-    }
-
-    function openSideMenu() {
-      document.getElementById('side-overlay').classList.add('active');
-      document.getElementById('side-menu').classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('nav-other').classList.add('active');
-    }
-    
-    function closeSideMenu() {
-      document.getElementById('side-overlay').classList.remove('active');
-      document.getElementById('side-menu').classList.remove('active');
-      if(appMode === "home") document.getElementById('nav-home').classList.add('active');
-      if(appMode === "select") document.getElementById('nav-compare').classList.add('active');
-    }
-    
-    function forceRefreshSide() {
-      closeSideMenu();
-      if(confirm("最新の商品データを取得しますか？")) {
-        localStorage.removeItem('welfare_data_cache');
-        loadDataFromSheet();
-      }
-    }
-
-    function selectSideCategory(categoryName) {
-      currentSideCategory = categoryName;
-      currentTagFilter = "";
-      appMode = "side";
-      closeSideMenu();
-      
-      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-      document.getElementById('view-side').classList.add('active');
-
-      filterData();
-    }
-
-    function applyCategoryUI(cat) {
-      document.querySelectorAll('.search-area-box').forEach(p => p.style.display = 'none');
-      if (!cat) {
-        document.getElementById('filter-wrapper').style.display = 'none';
-        return;
-      }
-      document.getElementById('filter-wrapper').style.display = 'block';
-      let activeBox = getActiveSearchArea(cat);
-      if(activeBox) activeBox.style.display = 'block';
-    }
-
-    function showSearch(category) {
-      if (appMode !== "home") switchView("home");
-
-      if (currentCategory === category) {
-        currentCategory = "";
-        currentTagFilter = "";
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        applyCategoryUI("");
-        resetSearchBoxes();
-        document.getElementById('results-header').innerHTML = "";
-        document.getElementById('results').innerHTML = ""; 
-        clearTimeout(renderTimer);
-        return; 
-      }
-      
-      isResetting = true; 
-      resetAllFilters();
-      isResetting = false; 
-
-      currentCategory = category;
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      const activePanel = document.getElementById('panel-' + category);
-      if (activePanel) activePanel.classList.add('active');
-
-      applyCategoryUI(category);
-      resetSearchBoxes();
-      
-      let activeBox = getActiveSearchArea(category);
-      if (activeBox) {
-        activeBox.appendChild(document.getElementById('main-search-wrap'));
-      }
-
-      setTimeout(() => {
-        document.getElementById('filter-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
-
-      if (masterData.length > 0) filterData();
-    }
-
-    function changeSmCategory() {
-      const cat = document.getElementById('sm-category').value;
-      
-      isResetting = true; 
-      resetAllFilters();
-      isResetting = false; 
-
-      currentCategory = cat;
-      applyCategoryUI(cat);
-      resetSearchBoxes();
-      
-      if (cat !== "") {
-        let activeBox = getActiveSearchArea(cat);
-        if (activeBox) {
-          activeBox.appendChild(document.getElementById('main-search-wrap'));
-        }
-        setTimeout(() => {
-          document.getElementById('filter-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
-      }
-      
-      smSelectedItems = [];
-      updateSmPool();
-      document.getElementById('sm-report-area').style.display = 'none';
-      
-      setTimeout(() => {
-        filterData();
-      }, 10);
-    }
-
-    function handleSearchInput(e, inputId) {
-      const clearBtn = document.getElementById('free-word-clear');
-      if (clearBtn) clearBtn.style.display = e.target.value.length > 0 ? 'block' : 'none';
-      filterData();
-    }
-    
-    function clearSearch(inputId) {
-      document.getElementById('free-word').value = "";
-      document.getElementById('free-word-clear').style.display = 'none';
-      filterData();
-    }
-
-    function searchByTag(tag) {
-      if (isCompareMode) exitCompare();
-      if (appMode !== "home" && appMode !== "side") {
-        switchView('home');
-      }
-      currentTagFilter = tag;
-      
-      const fw = document.getElementById('free-word');
-      if (fw) {
-        fw.value = "";
-        document.getElementById('free-word-clear').style.display = 'none';
-      }
-      filterData();
-    }
-    
-    function clearTagFilter() {
-      currentTagFilter = "";
-      filterData();
-    }
-
-    function toggleChecks(className, isCheck) {
-      document.querySelectorAll(className).forEach(el => el.checked = isCheck);
-      filterData();
-    }
-
-    function getCatDisplay(item) {
-      if (!item) return "";
-      const catStr = String(getVal(item, ["カテゴリー", "カテゴリ"])).replace(/[\s ]/g, "");
-      
-      if (catStr.includes("特殊寝台付属品")) return "特殊寝台付属品";
-      if (catStr.includes("特殊寝台")) return "特殊寝台";
-      
-      if (catStr.includes("車椅子付属品") || catStr.includes("車いす付属品")) return "車椅子付属品";
-      if (catStr.includes("クッション")) return "クッション"; 
-      if (catStr.includes("マットレス")) return "マットレス";
-      if (catStr.includes("車椅子") || catStr.includes("車いす")) return "車椅子";
-      if (catStr.includes("歩行器") || catStr.includes("歩行車")) return "歩行器";
-      if (catStr.includes("杖") || catStr.includes("ステッキ") || catStr.includes("歩行補助杖")) return "歩行補助杖";
-      if (catStr.includes("室内手すり") || catStr.includes("室内手摺") || ((catStr.includes("手すり") || catStr.includes("手摺")) && !(catStr.includes("室外") || catStr.includes("あがりかまち") || catStr.includes("上がりかまち") || catStr.includes("框")))) return "室内手すり";
-      if (catStr.includes("室外手すり") || catStr.includes("室外手摺") || catStr.includes("あがりかまち") || catStr.includes("上がりかまち") || catStr.includes("框") || catStr.includes("室外・玄関手すり")) return "室外・玄関手すり"; 
-      
-      if (getVal(item, ["モーター数", "モーター"]) !== "") return "特殊寝台";
-      if (getVal(item, ["前座高"]) !== "") return "車椅子";
-      const nameStr = String(getVal(item, ["商品名"]) || "");
-      if (nameStr.includes("クッション")) return "クッション";
-      if (nameStr.includes("マットレス") || nameStr.includes("マット")) return "マットレス";
-      if (getVal(item, ["外寸", "内寸"]) !== "" && (nameStr.includes("歩行") || nameStr.includes("カー"))) return "歩行器";
-      return catStr;
-    }
-
-    function toHalfWidth(str) {
-      if (!str) return "";
-      let s = String(str).replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(c) {
-        return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
-      });
-      return s.replace(/．/g, '.').replace(/[\s ]/g, "");
-    }
-    function getVal(item, keys) {
-      if (!item) return "";
-      for (let k of keys) { if (item[k] !== undefined && item[k] !== "") return item[k]; }
-      for (let k of keys) {
-        for (let objKey in item) {
-          if (objKey.includes(k) && item[objKey] !== undefined && item[objKey] !== "") return item[objKey];
-        }
-      }
-      return "";
-    }
-    function getExtractedNums(item, propType) {
-      if (!item) return [];
-      let str = "";
-      if (propType === "thickness") str = String(getVal(item, ["厚み", "高さ"]));
-      else if (propType === "weight") str = String(getVal(item, ["重量", "重さ"]));
-      else if (propType === "front_height") str = String(getVal(item, ["前座高", "高さ"]));
-      else if (propType === "seat_width") str = String(getVal(item, ["座幅", "幅", "外寸幅", "全幅"]));
-      else if (propType === "min_height") str = String(getVal(item, ["最小高さ", "最小高", "手すり最小高さ", "手すり最小", "高さ"]));
-      else if (propType === "max_height") str = String(getVal(item, ["最大高さ", "最大高", "手すり最大高さ", "手すり最大", "高さ"]));
-      str = toHalfWidth(str);
-      let numMatches = str.match(/\d+(\.\d+)?/g);
-      if (!numMatches) return [];
-      let nums = numMatches.map(Number);
-      if (propType === "weight" && str.toLowerCase().includes("g") && !str.toLowerCase().includes("kg")) {
-        nums = nums.map(n => n / 1000); 
-      }
-      return nums;
-    }
-    function getRawString(item, propType) {
-      if (!item) return "-";
-      let val = "";
-      if (propType === "thickness") val = getVal(item, ["厚み", "高さ"]);
-      if (propType === "weight") val = getVal(item, ["重量", "重さ"]);
-      if (propType === "front_height") val = getVal(item, ["前座高", "高さ"]);
-      if (propType === "seat_width") val = getVal(item, ["座幅", "幅", "外寸幅", "全幅", "外寸"]);
-      if (propType === "min_height") val = getVal(item, ["最小高さ", "最小高", "手すり最小高さ", "手すり最小", "高さ"]);
-      if (propType === "max_height") val = getVal(item, ["最大高さ", "最大高", "手すり最大高さ", "手すり最大", "高さ"]);
-      return val ? String(val) : "-";
-    }
-
-    function openImageModal(url) {
-      if (!url) return;
-      document.getElementById('enlarged-img').src = url;
-      document.getElementById('image-modal').style.display = 'flex';
-    }
-    function closeImageModal() {
-      document.getElementById('image-modal').style.display = 'none';
-      document.getElementById('enlarged-img').src = '';
-    }
-
-    function updateDualSlider(type, changedId) {
-      let minSlider = document.getElementById(type + '-min');
-      let maxSlider = document.getElementById(type + '-max');
-      let fill = document.getElementById(type + '-fill');
-      if (!minSlider || !maxSlider || !fill) return;
-
-      let minV = parseFloat(minSlider.value);
-      let maxV = parseFloat(maxSlider.value);
-      if (minV > maxV) {
-        if (changedId === type + '-min') { minSlider.value = maxV; minV = maxV; } 
-        else { maxSlider.value = minV; maxV = minV; }
-      }
-      let minValEl = document.getElementById(type + '-min-val');
-      let maxValEl = document.getElementById(type + '-max-val');
-      if(minValEl) minValEl.innerText = minV;
-      if(maxValEl) maxValEl.innerText = maxV;
-      
-      let minLimit = parseFloat(minSlider.min);
-      let maxLimit = parseFloat(minSlider.max);
-      let percent1 = ((minV - minLimit) / (maxLimit - minLimit)) * 100;
-      let percent2 = ((maxV - minLimit) / (maxLimit - minLimit)) * 100;
-      fill.style.left = percent1 + "%";
-      fill.style.width = (percent2 - percent1) + "%";
-      
-      if (minV === maxV) {
-        const midPoint = (minLimit + maxLimit) / 2;
-        if (minV > midPoint) { minSlider.style.zIndex = "5"; maxSlider.style.zIndex = "4"; } 
-        else { minSlider.style.zIndex = "3"; maxSlider.style.zIndex = "5"; }
-      } else {
-        minSlider.style.zIndex = "3";
-        maxSlider.style.zIndex = "4";
-      }
-      
-      if(masterData.length > 0 && !isCompareMode && !isResetting) {
-        filterData();
-      }
-    }
-
-    function isOverlap(itemMinStr, itemMaxStr, sliderMinId, sliderMaxId) {
-      const minSlider = document.getElementById(sliderMinId);
-      const maxSlider = document.getElementById(sliderMaxId);
-      if (!minSlider || !maxSlider) return true;
-      const currentMin = parseFloat(minSlider.value);
-      const currentMax = parseFloat(maxSlider.value);
-      const absMin = parseFloat(minSlider.min);
-      const absMax = parseFloat(maxSlider.max);
-      let minStr = toHalfWidth(String(itemMinStr || ""));
-      let maxStr = toHalfWidth(String(itemMaxStr || ""));
-      let minNums = (minStr.match(/\d+(\.\d+)?/g) || []).map(Number);
-      let maxNums = (maxStr.match(/\d+(\.\d+)?/g) || []).map(Number);
-      let itemMin = NaN; let itemMax = NaN;
-      if (minStr === maxStr && minNums.length > 1) {
-        itemMin = Math.min(...minNums); itemMax = Math.max(...minNums);
-      } else {
-        if (minNums.length > 0) itemMin = minNums[0];
-        if (maxNums.length > 0) itemMax = maxNums[maxNums.length - 1];
-        if (isNaN(itemMin) && !isNaN(itemMax)) itemMin = itemMax;
-        if (isNaN(itemMax) && !isNaN(itemMin)) itemMax = itemMin;
-      }
-      if (isNaN(itemMin) && isNaN(itemMax)) return true;
-      const effSearchMin = (currentMin === absMin) ? -9999 : currentMin;
-      const effSearchMax = (currentMax === absMax) ? 9999 : currentMax;
-      return (effSearchMax >= itemMin && effSearchMin <= itemMax);
-    }
-    
-    function isWithinSlider(itemValueStr, minId, maxId) {
-      const minEl = document.getElementById(minId);
-      const maxEl = document.getElementById(maxId);
-      if (!minEl || !maxEl) return true;
-      const nums = (String(itemValueStr).match(/\d+(\.\d+)?/g) || []).map(Number);
-      if (nums.length === 0) return true;
-      const currentMin = parseFloat(minEl.value);
-      const currentMax = parseFloat(maxEl.value);
-      const absMin = parseFloat(minEl.min);
-      const absMax = parseFloat(maxEl.max);
-      return nums.some(val => {
-        const passMin = (currentMin === absMin) || (val >= currentMin);
-        const passMax = (currentMax === absMax) || (val <= currentMax);
-        return passMin && passMax;
-      });
-    }
-    
-    const checkBedSizeCorrect = (btnVal, sheetWidth, sheetLength) => {
-      const sWidth = toHalfWidth(sheetWidth);
-      const sLength = toHalfWidth(sheetLength);
-      const wMatch = btnVal.match(/\d+/);
-      const wPart = wMatch ? wMatch[0] : ""; 
-      const matchWidth = sWidth === "" ? true : sWidth.includes(wPart);
-      let matchLength = true;
-      if (sLength !== "") {
-        const hasShort = sLength.includes("ショート") || sLength.includes("ミニ");
-        const hasLong = sLength.includes("ロング");
-        const hasReg = sLength.includes("レギュ") || (!hasShort && !hasLong);
-        if (btnVal.includes("ショート")) matchLength = hasShort;
-        else if (btnVal.includes("ロング")) matchLength = hasLong;
-        else matchLength = hasReg;
-      }
-      return matchWidth && matchLength;
-    };
-
-    function filterData() {
-      if (isCompareMode) return; 
-      if (masterData.length === 0) return;
-
-      const freeWordObj = appMode === "select" ? document.getElementById('free-word') : document.getElementById('free-word');
-      const freeWord = freeWordObj ? freeWordObj.value.toLowerCase() : "";
-
-      if (appMode === "select" && currentCategory === "") {
-        filteredData = [];
-        document.getElementById('sm-results-header').innerText = "";
-        document.getElementById('sm-results').innerHTML = '<p style="text-align:center; padding:20px; font-weight:bold;">まずはカテゴリを選択してください。</p>';
-        clearTimeout(renderTimer);
-        return;
-      }
-
-      let tagHeaderHtml = "";
-      if (currentTagFilter !== "") {
-        tagHeaderHtml = `
-          <div style="background:#e1f5fe; padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid var(--theme-color); max-width:600px; margin-left:auto; margin-right:auto;">
-            <span style="color:var(--theme-dark); font-weight:bold; font-size:13px;">
-              <span class="material-icons" style="font-size:16px; vertical-align:middle;">local_offer</span> タグ「${currentTagFilter}」で絞り込み中
-            </span>
-            <button onclick="clearTagFilter()" style="background:#fff; border:1px solid #4B9CB3; color:#4B9CB3; border-radius:15px; padding:4px 12px; font-size:11px; font-weight:bold; cursor:pointer;">解除</button>
-          </div>
-        `;
-      }
-
-      if (appMode === "side") {
-         sideFilteredData = masterData.filter(item => {
-           let rawCat = String(getVal(item, ["カテゴリー", "カテゴリ", "分類"])).replace(/[\s ]/g, "");
-           const matchCat = rawCat.includes(currentSideCategory.replace(/[\s ]/g, "")) || String(getVal(item, ["商品名"])).includes(currentSideCategory);
-           if (!matchCat) return false;
-           
-           if (currentTagFilter !== "" && !item._str.tags.includes(currentTagFilter)) return false;
-           return true;
-         });
-
-         document.getElementById('side-category-results').innerHTML = "";
-         clearTimeout(renderTimer);
-         currentRenderIndex = 0;
-         document.getElementById('side-category-header').innerHTML = tagHeaderHtml + `<strong style="color: var(--theme-color);">カテゴリ: ${currentSideCategory} の結果 (${sideFilteredData.length}件)</strong>`;
-         renderCardsAsync();
-         return;
-      }
-
-      if (appMode === "home" && freeWord === "" && currentCategory === "" && currentTagFilter === "") {
-        filteredData = [];
-        document.getElementById('results-header').innerHTML = "";
-        document.getElementById('results').innerHTML = "";
-        clearTimeout(renderTimer);
-        return;
-      }
-
-      filteredData = masterData.filter(item => {
-        const matchFreeWord = (freeWord === "") || item._searchStr.includes(freeWord);
-        if (!matchFreeWord) return false;
-
-        const itemFunc = item._str.func;
-        const itemType = item._str.type;
-        const itemTags = item._str.tags;
-        const itemMotor = item._str.motor;
-        const itemWidthStr = item._str.wStr;
-        const itemSizeStr = item._str.sizeStr;
-        const itemHeightStr = item._str.hStr;
-        const catDisplay = item._cat;
-
-        if (currentTagFilter !== "" && !itemTags.includes(currentTagFilter)) return false;
-        if (currentCategory !== "" && catDisplay !== currentCategory) return false;
-
-        if (currentCategory === "車椅子") {
-          const selectedTypes = Array.from(document.querySelectorAll('.type-check:checked')).map(el => el.value);
-          const selectedFuncs = Array.from(document.querySelectorAll('.func-check:checked')).map(el => el.value);
-          const matchType = selectedTypes.length === 0 ? true : selectedTypes.some(t => itemType.includes(t));
-          const matchFunc = selectedFuncs.length === 0 ? true : selectedFuncs.some(func => {
-            if (func === "ティルト/リクライニング") return itemFunc.includes("ティルト") || itemFunc.includes("リクライニング");
-            return (itemFunc || "標準").includes(func);
-          });
-          const matchHeight = isWithinSlider(itemHeightStr, 'height-min', 'height-max');
-          const matchWidth = isWithinSlider(itemWidthStr, 'width-min', 'width-max');
-          return matchType && matchFunc && matchHeight && matchWidth;
-        }
-        
-        if (currentCategory === "特殊寝台") {
-          const selectedMotors = Array.from(document.querySelectorAll('.motor-check:checked')).map(el => el.value);
-          const selectedBedWidths = Array.from(document.querySelectorAll('.bed-width-check:checked')).map(el => el.value);
-          const isSuperLow = document.getElementById('bed-super-low').checked;
-          const hasMotorNum = /\d/.test(toHalfWidth(itemMotor));
-          const matchMotor = (!hasMotorNum || selectedMotors.length === 0) ? true : selectedMotors.some(m => toHalfWidth(itemMotor).includes(m.replace(/\D/g, '')));
-          const matchBedWidth = selectedBedWidths.length === 0 ? true : selectedBedWidths.some(btnVal => checkBedSizeCorrect(btnVal, itemWidthStr, itemSizeStr));
-          const selectedBedFuncs = Array.from(document.querySelectorAll('.bed-func-check:checked')).map(el => el.value);
-          const matchBedFunc = selectedBedFuncs.length === 0 ? true : selectedBedFuncs.some(func => itemTags.includes(func) || itemFunc.includes(func) || item._str.name.includes(func));
-          const bHeightArr = (toHalfWidth(itemHeightStr).match(/\d+(\.\d+)?/g) || []).map(Number);
-          let minHeight = 999;
-          if (bHeightArr.length > 0) minHeight = Math.min(...bHeightArr);
-          if (isSuperLow && minHeight > 15) return false;
-          return matchMotor && matchBedWidth && matchBedFunc;
-        }
-
-        if (currentCategory === "特殊寝台付属品") {
-          const selectedTypes = Array.from(document.querySelectorAll('.bed-acc-type-check:checked')).map(el => el.value);
-          let matchType = true;
-          if (selectedTypes.length > 0) {
-            matchType = selectedTypes.some(t => {
-              if (t === "介助バー・グリップ系") {
-                return itemTags.includes("介助バー") || itemTags.includes("グリップ");
-              }
-              if (t === "延長フレーム・マット") {
-                return itemTags.includes("延長フレーム") || itemTags.includes("延長マット");
-              }
-              return itemTags.includes(t);
-            });
-          }
-
-          const selectedMakers = Array.from(document.querySelectorAll('.bed-acc-maker-check:checked')).map(el => el.value);
-          let matchMaker = true;
-          if (selectedMakers.length > 0) {
-            matchMaker = selectedMakers.some(m => item._str.maker.includes(m) || itemTags.includes(m));
-          }
-
-          return matchType && matchMaker;
-        }
-
-        if (currentCategory === "車椅子付属品") {
-          const selectedTypes = Array.from(document.querySelectorAll('.wheelchair-acc-type-check:checked')).map(el => el.value);
-          let matchType = true;
-          if (selectedTypes.length > 0) {
-            matchType = selectedTypes.some(t => itemTags.includes(t));
-          }
-          const selectedMakers = Array.from(document.querySelectorAll('.wheelchair-acc-maker-check:checked')).map(el => el.value);
-          let matchMaker = true;
-          if (selectedMakers.length > 0) {
-            matchMaker = selectedMakers.some(m => item._str.maker.includes(m) || itemTags.includes(m));
-          }
-          return matchType && matchMaker;
-        }
-
-        if (currentCategory === "体位変換器") {
-          const selectedTypes = Array.from(document.querySelectorAll('.pos-type-check:checked')).map(el => el.value);
-          let matchType = true;
-          if (selectedTypes.length > 0) {
-            matchType = selectedTypes.some(t => itemTags.includes(t));
-          }
-          return matchType;
-        }
-
-        if (currentCategory === "スロープ") {
-          const selectedEnvs = Array.from(document.querySelectorAll('.slope-env-check:checked')).map(el => el.value);
-          let matchEnv = true;
-          if (selectedEnvs.length > 0) {
-            matchEnv = selectedEnvs.some(e => itemTags.includes(e));
-          }
-          return matchEnv;
-        }
-
-        if (currentCategory === "移動用リフト") {
-          const selectedTypes = Array.from(document.querySelectorAll('.lift-type-check:checked')).map(el => el.value);
-          let matchType = true;
-          if (selectedTypes.length > 0) {
-            matchType = selectedTypes.some(t => itemTags.includes(t));
-          }
-          return matchType;
-        }
-
-        if (currentCategory === "マットレス") {
-          const selectedMatTypes = Array.from(document.querySelectorAll('.mat-type-check:checked')).map(el => el.value);
-          const selectedW = Array.from(document.querySelectorAll('.mat-w-check:checked')).map(el => el.value);
-          const selectedL = Array.from(document.querySelectorAll('.mat-l-check:checked')).map(el => el.value);
-          const selectedF = Array.from(document.querySelectorAll('.mat-f-check:checked')).map(el => el.value);
-          const itemTypeStr = (itemType + " " + itemTags + " " + itemFunc + " " + item._str.name).toLowerCase();
-          let derivedTypes = [];
-          if (itemTypeStr.includes("エアマット") || itemTypeStr.includes("エア")) derivedTypes.push("エアマット");
-          if (itemTypeStr.includes("床ずれ")) derivedTypes.push("床ずれ防止");
-          if (itemTypeStr.includes("静止") || !derivedTypes.includes("エアマット")) derivedTypes.push("静止型");
-          const matchType = selectedMatTypes.length === 0 ? true : selectedMatTypes.some(t => derivedTypes.includes(t));
-          const matchWidth = selectedW.length === 0 ? true : selectedW.some(w => toHalfWidth(itemWidthStr).includes(w));
-          let matchLength = true;
-          if (itemSizeStr !== "") {
-            const sLength = toHalfWidth(itemSizeStr);
-            const hasShort = sLength.includes("ショート") || sLength.includes("ミニ");
-            const hasLong = sLength.includes("ロング");
-            const hasReg = sLength.includes("レギュ") || (!hasShort && !hasLong);
-            matchLength = selectedL.length === 0 ? true : selectedL.some(lBtn => {
-              if (lBtn === "ショート") return hasShort;
-              if (lBtn === "ロング") return hasLong;
-              if (lBtn === "レギュラー") return hasReg;
-              return false;
-            });
-          }
-          const isSeishiki = itemFunc.includes("清拭") || itemFunc.includes("防水");
-          const matchFunc = selectedF.length === 0 ? true : selectedF.some(f => {
-            if (f === "清拭") return isSeishiki;
-            if (f === "通気") return itemFunc.includes("通気") || !isSeishiki;
-            return itemFunc.includes(f);
-          });
-          return matchType && matchWidth && matchLength && matchFunc;
-        }
-        if (currentCategory === "クッション") {
-          const selectedFuncs = Array.from(document.querySelectorAll('.cushion-func-check:checked')).map(el => el.value);
-          const matchFunc = selectedFuncs.length === 0 ? true : selectedFuncs.some(func => itemTags.includes(func) || itemFunc.includes(func) || item._str.name.includes(func));
-          const matchThick = isWithinSlider(itemHeightStr, 'cushion-thick-min', 'cushion-thick-max');
-          return matchFunc && matchThick;
-        }
-        if (currentCategory === "歩行器") {
-          const selectedEnvs = Array.from(document.querySelectorAll('.walker-env-check:checked')).map(el => el.value);
-          const matchEnv = selectedEnvs.length === 0 ? true : selectedEnvs.some(e => itemTags.includes(e) || itemFunc.includes(e) || itemType.includes(e));
-          const selectedFuncs = Array.from(document.querySelectorAll('.walker-func-check:checked')).map(el => el.value);
-          const matchFunc = selectedFuncs.length === 0 ? true : selectedFuncs.some(func => itemTags.includes(func) || itemFunc.includes(func));
-          const itemMinH = item._raw.minH;
-          const itemMaxH = item._raw.maxH;
-          if (!isOverlap(itemMinH, itemMaxH, 'walker-h-min', 'walker-h-max')) return false;
-          if (!isWithinSlider(itemWidthStr, 'walker-out-w-min', 'walker-out-w-max')) return false;
-          if (!isWithinSlider(item._raw.weight, 'walker-weight-min', 'walker-weight-max')) return false;
-          return matchEnv && matchFunc;
-        }
-        if (currentCategory === "歩行補助杖") {
-          const isKadou = document.getElementById('cane-func-kadou').checked;
-          if (isKadou && !itemTags.includes("可動")) return false;
-          const itemMinH = item._raw.minH;
-          const itemMaxH = item._raw.maxH;
-          if (!isOverlap(itemMinH, itemMaxH, 'cane-h-min', 'cane-h-max')) return false;
-          if (!isWithinSlider(item._raw.weight, 'cane-weight-min', 'cane-weight-max')) return false;
-          return true;
-        }
-        if (currentCategory === "室内手すり") {
-  const selectedTags = [];
-  if (document.getElementById('in-handrail-func-okigata').checked) selectedTags.push("置き型");
-  if (document.getElementById('in-handrail-func-tsuppari').checked) selectedTags.push("突っ張り");
-  if (document.getElementById('in-handrail-func-toilet').checked) selectedTags.push("トイレ用");
-  if (document.getElementById('in-handrail-func-option').checked) selectedTags.push("オプション");
-  if (selectedTags.length > 0) {
-    const hasTag = selectedTags.some(tag => itemTags.includes(tag));
-    if (!hasTag) return false;
   }
-  const itemMinH = item._raw.minH;
-  const itemMaxH = item._raw.maxH;
-  const hasHeight = itemMinH !== "-" || itemMaxH !== "-";
-  const sliderMoved =
-    parseFloat(document.getElementById('in-handrail-h-min').value) !== 50 ||
-    parseFloat(document.getElementById('in-handrail-h-max').value) !== 300;
-  if (sliderMoved && !hasHeight) return false;
-  if (hasHeight && !isOverlap(itemMinH, itemMaxH, 'in-handrail-h-min', 'in-handrail-h-max')) return false;
-  return true;
-}
-        if (currentCategory === "室外・玄関手すり") {
-          const selectedTypes = Array.from(document.querySelectorAll('.out-handrail-type-check:checked')).map(el => el.value);
-          if (selectedTypes.length > 0) {
-             const hasType = selectedTypes.some(t => itemTags.includes(t) || itemFunc.includes(t) || item._str.name.includes(t));
-             if (!hasType) return false;
-          }
-          const itemMinH = item._raw.minH;
-          const itemMaxH = item._raw.maxH;
-          if (!isOverlap(itemMinH, itemMaxH, 'out-handrail-h-min', 'out-handrail-h-max')) return false;
-          
-          const kamachiMinSlider = document.getElementById('out-handrail-kamachi-min');
-          const kamachiMaxSlider = document.getElementById('out-handrail-kamachi-max');
-          if (kamachiMinSlider && kamachiMaxSlider && (parseFloat(kamachiMinSlider.value) !== parseFloat(kamachiMinSlider.min) || parseFloat(kamachiMaxSlider.value) !== parseFloat(kamachiMaxSlider.max))) {
-             let kMin = getVal(item, ["最小かまち", "かまち最小", "対応段差", "かまち"]);
-             let kMax = getVal(item, ["最大かまち", "かまち最大", "対応段差", "かまち"]);
-             if (!kMin && !kMax) return false; 
-             if (!isOverlap(kMin, kMax, 'out-handrail-kamachi-min', 'out-handrail-kamachi-max')) return false;
-          }
-          
-          const stepMinSlider = document.getElementById('out-handrail-step-min');
-          const stepMaxSlider = document.getElementById('out-handrail-step-max');
-          if (stepMinSlider && stepMaxSlider && (parseFloat(stepMinSlider.value) !== parseFloat(stepMinSlider.min) || parseFloat(stepMaxSlider.value) !== parseFloat(stepMaxSlider.max))) {
-             const sVal = getVal(item, ["ステップ"]);
-             if (!sVal) return false; 
-             if (!isOverlap(sVal, sVal, 'out-handrail-step-min', 'out-handrail-step-max')) return false;
-          }
-          return true;
-        }
-        return true; 
+  ['store','riyaku','tojitsu'].forEach(fillCountSelect);
+
+  const dateInput = document.getElementById('dateStr');
+  const today = new Date();
+  dateInput.value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  dateInput.min = '2026-03-01';
+  dateInput.max = '2027-02-28';
+  document.getElementById('todayLabel').innerText =
+    today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+
+  function loadCenters(){
+    const sel = document.getElementById('center');
+    const centers = ['天理'];
+    centers.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.text = name;
+      if(name === DEFAULT_CENTER) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    loadMembers();
+  }
+
+  async function loadMembers(){
+    const center = document.getElementById('center').value;
+    const dateStr = document.getElementById('dateStr').value;
+    const memberSel = document.getElementById('memberName');
+    const previousValue = memberSel.value;
+
+    const res = await fetch(API_URL + '?action=members&center=' + encodeURIComponent(center) + '&date=' + encodeURIComponent(dateStr));
+    const json = await res.json();
+    memberSel.innerHTML = '';
+    if(!json.ok || json.data.length === 0){
+      memberSel.innerHTML = '<option value="">見つかりません</option>';
+      return;
+    }
+    json.data.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.text = name;
+      memberSel.appendChild(opt);
+    });
+    if(previousValue && json.data.includes(previousValue)){
+      memberSel.value = previousValue;
+    } else {
+      const savedName = localStorage.getItem('lastMatchedMember');
+      if(savedName && json.data.includes(savedName)){
+        memberSel.value = savedName;
+      }
+    }
+  }
+
+  document.getElementById('center').addEventListener('change', loadMembers);
+  document.getElementById('dateStr').addEventListener('change', loadMembers);
+
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('submitBtn');
+    const resultEl = document.getElementById('result');
+    resultEl.className = 'result'; resultEl.innerText = '';
+
+    const data = {
+      center: document.getElementById('center').value,
+      memberName: document.getElementById('memberName').value,
+      dateStr: document.getElementById('dateStr').value,
+      store: document.getElementById('store').value,
+      riyaku: document.getElementById('riyaku').value,
+      tojitsu: document.getElementById('tojitsu').value
+    };
+    if(!data.memberName){
+      resultEl.className = 'result err';
+      resultEl.innerText = 'メンバー名を選択してください';
+      return;
+    }
+
+    btn.disabled = true; btn.innerText = '登録中...';
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
       });
-
-      document.getElementById('results').innerHTML = "";
-      document.getElementById('sm-results').innerHTML = "";
-      clearTimeout(renderTimer);
-      currentRenderIndex = 0;
-      
-      if (appMode === "select") {
-        const header = document.getElementById('sm-results-header');
-        if (filteredData.length === 0) {
-          header.innerHTML = tagHeaderHtml + '<p style="color:#E91E63; font-weight:bold; text-align:center;">該当する商品がありません</p>';
-        } else {
-          header.innerHTML = tagHeaderHtml + `<strong>該当候補: ${filteredData.length}件</strong>`;
-          renderCardsAsync();
-        }
+      const json = await res.json();
+      if(json.ok){
+        resultEl.className = 'result ok';
+        resultEl.innerHTML = '登録済み<span class="stamp">済</span><br>' + json.data.detail;
+        document.getElementById('store').value = 0;
+        document.getElementById('riyaku').value = 0;
+        document.getElementById('tojitsu').value = 0;
       } else {
-        const header = document.getElementById('results-header');
-        if (filteredData.length === 0) {
-          header.innerHTML = tagHeaderHtml + '<p style="color:#E91E63; font-weight:bold; text-align:center;">該当する商品がありません</p>';
-        } else {
-          let title = `該当件数: ${filteredData.length}件`;
-          header.innerHTML = tagHeaderHtml + `<strong style="color: var(--theme-color);">${title}</strong>`;
-          renderCardsAsync();
-        }
+        resultEl.className = 'result err';
+        resultEl.innerText = 'エラー: ' + json.error;
       }
+    } catch(err) {
+      resultEl.className = 'result err';
+      resultEl.innerText = '通信エラー: ' + err.message;
     }
+    btn.disabled = false; btn.innerText = '登録する';
+  });
 
-    function buildCardHtml(item, mode) {
-      const masterIndex = masterData.indexOf(item);
-      let catDisplay = item._cat;
-      let imgUrl = item._str.imgUrl;
+  document.getElementById('historyBtn').addEventListener('click', toggleHistory);
 
-      // ▼ 画像読み込み速度改善コード ▼
-      let thumbUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w200") : "";
-      let largeUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w800") : "";
-      let imgHtml = thumbUrl ? `<img class="thumb-img" src="${thumbUrl}" onclick="openImageModal('${largeUrl}')">` : "";
+  async function toggleHistory() {
+    const container = document.getElementById('historyContainer');
+    const content = document.getElementById('historyContent');
+    const btn = document.getElementById('historyBtn');
 
-      let contentHtml = "";
-      let typeStr = item._str.type;
-      let weightStr = item._raw.weight;
-      let funcStr = item._str.func;
+    if (container.style.display === 'none' || container.style.display === '') {
+      container.style.display = 'block';
+      content.innerHTML = '<div style="text-align:center;color:#888;padding:10px;">読み込み中...</div>';
+      btn.innerHTML = '<span class="material-icons">expand_less</span>入力を閉じる';
 
-      if (mode === "side") {
-        if (funcStr && funcStr !== "-" && funcStr.trim() !== "") {
-          contentHtml = `<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr}</span>`;
-        } else {
-          contentHtml = ``;
-        }
-      } 
-      else if (catDisplay === "車椅子") {
-        contentHtml = `
-          <span class="spec-line"><strong>タイプ:</strong> ${typeStr || "-"}</span>
-          <span class="spec-line"><strong>重量:</strong> ${weightStr || "-"}kg</span>
-          <span class="spec-line"><strong>機能:</strong> <span style="color:var(--theme-color); font-weight:bold;">${funcStr || "標準"}</span></span>
-          <span class="spec-line"><strong>前座高:</strong> ${item._raw.fHeight || "-"}cm</span>
-          <span class="spec-line"><strong>座幅:</strong> ${item._raw.width || "-"}cm</span>
-        `;
-      } else if (catDisplay === "特殊寝台") {
-        const mNum = item._str.motor.replace(/M|モーター/gi, "");
-        const motorDisplay = mNum ? `${mNum}M` : "-";
-        contentHtml = `
-          <span class="spec-line"><strong>モーター:</strong> ${motorDisplay}</span>
-          <span class="spec-line"><strong>幅:</strong> ${item._str.wStr || "-"}</span>
-          <span class="spec-line"><strong>長さ:</strong> ${item._str.sizeStr || "-"}</span>
-          <span class="spec-line"><strong>最低床高:</strong> <span style="color:var(--theme-color); font-weight:bold;">${item._str.hStr || "-"}cm</span></span>
-        `;
-      } else if (catDisplay === "マットレス") {
-        const displayThick = item._raw.thick;
-        contentHtml = `
-          <span class="spec-line"><strong>幅:</strong> ${item._str.wStr || "-"}</span>
-          <span class="spec-line"><strong>長さ:</strong> ${item._str.sizeStr || "-"}</span>
-          <span class="spec-line"><strong>厚み:</strong> ${displayThick !== "-" ? displayThick + 'cm' : "-"}</span>
-          <span class="spec-line"><strong>機能:</strong> ${funcStr || "特になし"}</span>
-        `;
-      } else if (catDisplay === "クッション") {
-        contentHtml = `
-          <span class="spec-line"><strong>厚み:</strong> ${item._raw.thick || "-"}cm</span>
-        `;
-      } else if (catDisplay === "歩行器" || catDisplay === "歩行補助杖") {
-        let minH = item._raw.minH;
-        let maxH = item._raw.maxH;
-        let hDisplay = "-";
-        if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-        else if (minH !== "-") hDisplay = `${minH}cm`;
-        let outWStr = "";
-        if (catDisplay === "歩行器") {
-          let outW = item._raw.width;
-          if (outW !== "-") outWStr = `<span class="spec-line"><strong>外寸幅:</strong> ${outW}cm</span>`;
-        }
-        let wtDisplay = "-";
-        if (weightStr !== "-") {
-          wtDisplay = String(weightStr).match(/[a-zA-Zｇｋ]/i) ? weightStr : weightStr + (catDisplay === "歩行補助杖" ? "g" : "kg");
-        }
-        contentHtml = `
-          <span class="spec-line"><strong>重量:</strong> ${wtDisplay}</span>
-          <span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>
-          ${outWStr}
-        `;
-      } else if (catDisplay === "室内手すり") {
-  let minH = item._raw.minH;
-  let maxH = item._raw.maxH;
-  let hDisplay = "";
-  if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-  else if (minH !== "-") hDisplay = `${minH}cm`;
-  else if (maxH !== "-") hDisplay = `${maxH}cm`;
-  const funcFormatted = funcStr ? funcStr.replace(/\n/g, "<br>") : "";
-  contentHtml = (hDisplay ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>` : "")
-    + (funcFormatted ? `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>` : "");
-} else if (catDisplay === "室外・玄関手すり") {
-  let minH = item._raw.minH;
-  let maxH = item._raw.maxH;
-  let hDisplay = "";
-  if (minH !== "-" && maxH !== "-" && minH !== maxH) hDisplay = `${minH}〜${maxH}cm`;
-  else if (minH !== "-") hDisplay = `${minH}cm`;
-  else if (maxH !== "-") hDisplay = `${maxH}cm`;
-  let kMin = getVal(item, ["最小かまち対応高さ", "かまち対応最小高さ", "対応段差", "かまち"]);
-  let kMax = getVal(item, ["最大かまち対応高さ", "かまち対応最大高さ", "対応段差", "かまち"]);
-  let kamachiText = "";
-  if(kMin && kMax && kMin !== kMax) kamachiText = `${kMin}〜${kMax}`;
-  else if (kMax) kamachiText = kMax;
-  else if (kMin) kamachiText = kMin;
-  let stepH = getVal(item, ["ステップ台高さ", "ステップ高さ"]);
-  const funcFormatted = funcStr ? funcStr.replace(/\n/g, "<br>") : "";
-  contentHtml = "";
-  if (hDisplay) contentHtml += `<span class="spec-line"><strong>手すり高さ:</strong> ${hDisplay}</span>`;
-  if (kamachiText) contentHtml += `<span class="spec-line"><strong>対応段差:</strong> ${kamachiText}cm</span>`;
-  if (stepH) contentHtml += `<span class="spec-line"><strong>ステップ台:</strong> ${stepH}cm</span>`;
-  if (funcFormatted) contentHtml += `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>`;
-} else {
-        let specTexts = [];
-        if (typeStr) specTexts.push(`<span class="spec-line"><strong>タイプ:</strong> ${typeStr}</span>`);
-        if (funcStr && funcStr !== "-") specTexts.push(`<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr.replace(/\n/g, "<br>")}</span>`);
-        if (weightStr !== "-") {
-           let unit = catDisplay === "歩行補助杖" ? "g" : "kg";
-           specTexts.push(`<span class="spec-line"><strong>重量:</strong> ${String(weightStr).match(/[a-zA-Zｇｋ]/i) ? weightStr : weightStr + unit}</span>`);
-        }
-        let w = item._raw.width;
-        if (w !== "-") specTexts.push(`<span class="spec-line"><strong>幅:</strong> ${w}</span>`);
-        let l = item._str.sizeStr;
-        if (l) specTexts.push(`<span class="spec-line"><strong>長さ:</strong> ${l}</span>`);
-        contentHtml = specTexts.join("");
+      const center = document.getElementById('center').value;
+      const memberName = document.getElementById('memberName').value;
+      const dateStr = document.getElementById('dateStr').value;
+
+      if (!memberName) {
+        content.innerHTML = '<div style="text-align:center;color:#a33;padding:10px;">メンバーを選択してください</div>';
+        return;
       }
 
-      let tagHtml = "";
-      let rawTags = item._str.tags;
-      if (rawTags.trim() !== "") {
-        let cleanTags = rawTags.replace(/^\/+/, '').trim();
-        let tagArray = cleanTags.split(/[,\s、 ]+/).filter(t => t.trim() !== "");
-        if (tagArray.length > 0) {
-          tagHtml = `<div class="tag-container">`;
-          tagArray.forEach(tag => {
-            tagHtml += `<span class="tag-badge" onclick="searchByTag('${tag}')"><span class="material-icons" style="font-size:11px; margin-right:2px;">local_offer</span>${tag}</span>`;
-          });
-          tagHtml += `</div>`;
-        }
-      }
-
-      let itemNameHtml = item._str.name;
-      if (item._str.manual) {
-        itemNameHtml = `<a href="${item._str.manual}" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">${itemNameHtml}</a>`;
-      }
-
-      let bottomActionBtnHtml = "";
-      if (mode === "home" || mode === "side") {
-        if (catDisplay === "車椅子" || catDisplay === "歩行器" || catDisplay === "歩行補助杖" || catDisplay === "クッション") {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-compare" onclick="startCompare(${masterIndex})">
-                <span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較
-              </button>
-            </div>
-          `;
-        }
-      } else if (mode === "select") {
-        const isAdded = smSelectedItems.some(i => masterData.indexOf(i) === masterIndex);
-        if (isAdded) {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-sel-add added" onclick="toggleSmItem(${masterIndex})">
-                <span class="material-icons" style="font-size:16px; vertical-align:middle;">check</span> 追加済み（解除）
-              </button>
-            </div>
-          `;
-        } else {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-sel-add" onclick="toggleSmItem(${masterIndex})">
-                <span class="material-icons" style="font-size:16px; vertical-align:middle;">add</span> 比較候補に追加
-              </button>
-            </div>
-          `;
-        }
-      }
-
-      return `
-        <div class="result-card">
-          <div class="card-header-flex">
-            <div class="item-name-part">
-              <span class="category-badge">${catDisplay}</span><br>
-              ${itemNameHtml}
-            </div>
-            <div class="maker-name-part">${item._str.maker || "-"}</div>
-          </div>
-          <div class="card-flex">
-            ${imgHtml}
-            <div class="card-details">
-              ${contentHtml}
-            </div>
-          </div>
-          ${tagHtml}
-          ${bottomActionBtnHtml}
-        </div>
-      `;
-    }
-
-    function renderCardsAsync() {
-      let container = document.getElementById('results');
-      let dataToRender = filteredData;
-
-      if (appMode === "select") {
-          container = document.getElementById('sm-results');
-      } else if (appMode === "side") {
-          container = document.getElementById('side-category-results');
-          dataToRender = sideFilteredData;
-      }
-
-      if (currentRenderIndex >= dataToRender.length) return;
-
-      const chunk = dataToRender.slice(currentRenderIndex, currentRenderIndex + RENDER_CHUNK);
-      let htmlStr = "";
-      chunk.forEach(item => {
-        htmlStr += buildCardHtml(item, appMode);
-      });
-      container.insertAdjacentHTML('beforeend', htmlStr);
-      currentRenderIndex += RENDER_CHUNK;
-
-      if (currentRenderIndex < dataToRender.length) {
-        renderTimer = setTimeout(renderCardsAsync, 20); 
-      }
-    }
-
-    function startCompare(dataIndex) {
-      compareBaseItem = masterData[dataIndex];
-      appMode = "compare_mode";
-      isCompareMode = true;
-
-      document.getElementById('panel-area').style.display = 'none';
-      document.getElementById('top-search-container').style.display = 'none';
-      document.getElementById('normal-filter-injection').style.display = 'none';
-      document.getElementById('compare-view').style.display = 'block';
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      const catDisplay = compareBaseItem._cat;
-      let specStr = `<strong>${compareBaseItem._str.name}</strong><br><span style="color:#666; font-size: 13px;">`;
-      
-      if (catDisplay === "車椅子") {
-        let wt = compareBaseItem._raw.weight;
-        if(wt !== "-") specStr += `<span class="spec-line">重量: ${wt}kg</span>`;
-        let w = compareBaseItem._raw.width;
-        if(w !== "-") specStr += `<span class="spec-line">座幅: ${w}cm</span>`;
-        let fH = compareBaseItem._raw.fHeight;
-        if(fH !== "-") specStr += `<span class="spec-line">前座高: ${fH}cm</span>`;
-      } else if (catDisplay === "クッション") {
-        let thick = compareBaseItem._raw.thick;
-        if(thick !== "-") specStr += `<span class="spec-line">厚み: ${thick}cm</span>`;
-      } else if (catDisplay === "歩行器") {
-        let wt = compareBaseItem._raw.weight;
-        if(wt !== "-") specStr += `<span class="spec-line">重量: ${String(wt).match(/[a-zA-Zｇｋ]/i) ? wt : wt + "kg"}</span>`;
-        let outW = compareBaseItem._raw.width;
-        if(outW !== "-") specStr += `<span class="spec-line">外寸幅: ${outW}cm</span>`;
-        let minH = compareBaseItem._raw.minH;
-        let maxH = compareBaseItem._raw.maxH;
-        if(minH !== "-" && maxH !== "-" && minH !== maxH) specStr += `<span class="spec-line">高さ: ${minH}〜${maxH}cm</span>`;
-        else if(minH !== "-") specStr += `<span class="spec-line">高さ: ${minH}cm</span>`;
-      } else if (catDisplay === "歩行補助杖") {
-        let wt = compareBaseItem._raw.weight;
-        if(wt !== "-") specStr += `<span class="spec-line">重量: ${String(wt).match(/[a-zA-Zｇｋ]/i) ? wt : wt + "g"}</span>`;
-        let minH = compareBaseItem._raw.minH;
-        let maxH = compareBaseItem._raw.maxH;
-        if(minH !== "-" && maxH !== "-" && minH !== maxH) specStr += `<span class="spec-line">高さ: ${minH}〜${maxH}cm</span>`;
-        else if(minH !== "-") specStr += `<span class="spec-line">高さ: ${minH}cm</span>`;
-      }
-      specStr += `</span>`;
-      
-      let imgUrl = compareBaseItem._str.imgUrl;
-      let previewHtml = `
-        <div style="display:flex; gap:10px; align-items:flex-start;">
-          ${imgUrl ? `<img src="${imgUrl}" style="width:60px; height:60px; object-fit:contain; border-radius:4px; border:1px solid #ccc; background:#fff; flex-shrink:0;" onclick="openImageModal('${imgUrl}')">` : ''}
-          <div>${specStr}</div>
-        </div>
-      `;
-      document.getElementById('compare-base-container').innerHTML = previewHtml;
-
-      let baseTagsStr = compareBaseItem._str.tags;
-      let baseTags = baseTagsStr.replace(/^\/+/, '').split(/[,\s、 ]+/).filter(t => t.trim() !== "");
-      if (baseTags.length > 0) {
-        let tagsHtml = "";
-        baseTags.forEach(tag => {
-          tagsHtml += `<label><input type="checkbox" class="comp-tag-check" value="${tag}" onchange="runCompareSearch()"> ${tag}</label>`;
-        });
-        document.getElementById('compare-tags-container').innerHTML = tagsHtml;
-        document.getElementById('compare-tags-area').style.display = 'block';
-      } else {
-        document.getElementById('compare-tags-area').style.display = 'none';
-      }
-
-      let options = '<option value="">- 項目指定なし -</option>';
-      if (catDisplay === "車椅子") {
-        options += '<option value="weight">重さ</option>';
-        options += '<option value="front_height">前座高</option>';
-        options += '<option value="seat_width">座幅</option>';
-      } else if (catDisplay === "歩行器") {
-        options += '<option value="weight">重さ</option>';
-        options += '<option value="min_height">最小高さ</option>';
-        options += '<option value="max_height">最大高さ</option>';
-        options += '<option value="out_width">外寸幅</option>';
-      } else if (catDisplay === "歩行補助杖") {
-        options += '<option value="weight">重さ</option>';
-        options += '<option value="min_height">最小高さ</option>';
-        options += '<option value="max_height">最大高さ</option>';
-      } else if (catDisplay === "クッション") {
-        options += '<option value="thickness">厚み</option>';
-      }
-
-      document.getElementById('comp-prop-1').innerHTML = options;
-      document.getElementById('comp-prop-2').innerHTML = options;
-      document.getElementById('comp-prop-3').innerHTML = options;
-      document.getElementById('comp-prop-1').value = "";
-      document.getElementById('comp-prop-2').value = "";
-      document.getElementById('comp-prop-3').value = "";
-
-      runCompareSearch();
-    }
-
-    function exitCompare() {
-      isCompareMode = false;
-      compareBaseItem = null;
-      appMode = "home";
-
-      document.getElementById('panel-area').style.display = 'grid';
-      document.getElementById('top-search-container').style.display = 'block';
-      document.getElementById('normal-filter-injection').style.display = 'block';
-      document.getElementById('compare-view').style.display = 'none';
-
-      if (currentCategory) {
-        let temp = currentCategory;
-        currentCategory = ""; 
-        showSearch(temp);
-      } else {
-        filterData();
-      }
-    }
-
-    function runCompareSearch() {
-      if (!compareBaseItem) return;
-
-      const p1 = document.getElementById('comp-prop-1').value;
-      const op1 = document.getElementById('comp-op-1').value;
-      const p2 = document.getElementById('comp-prop-2').value;
-      const op2 = document.getElementById('comp-op-2').value;
-      const p3 = document.getElementById('comp-prop-3').value;
-      const op3 = document.getElementById('comp-op-3').value;
-
-      const baseCatDisplay = compareBaseItem._cat;
-      const selectedCompTags = Array.from(document.querySelectorAll('.comp-tag-check:checked')).map(el => el.value);
-
-      filteredData = masterData.filter(item => {
-        if (item._cat !== baseCatDisplay) return false;
-        if (item === compareBaseItem) return false;
-
-        if (baseCatDisplay === "車椅子") {
-          if (item._str.type !== compareBaseItem._str.type) return false;
-        }
-
-        if (selectedCompTags.length > 0) {
-          if (!selectedCompTags.every(t => item._str.tags.includes(t))) return false;
-        }
-
-        const checkCond = (prop, op) => {
-          if (!prop) return true;
-          let key = "";
-          if (prop === "front_height") key = "fHeight";
-          else if (prop === "seat_width" || prop === "out_width") key = "width";
-          else if (prop === "thickness") key = "thick";
-          else if (prop === "max_height") key = "maxH";
-          else if (prop === "min_height") key = "minH";
-          else key = "weight";
-
-          const baseNums = compareBaseItem._n[key];
-          if (!baseNums || baseNums.length === 0) return true; 
-
-          const itemNums = item._n[key];
-          if (!itemNums || itemNums.length === 0) return false;
-
-          const baseMin = Math.min(...baseNums);
-          const baseMax = Math.max(...baseNums);
-          const itemMin = Math.min(...itemNums);
-          const itemMax = Math.max(...itemNums);
-
-          if (op === ">=") return itemMax >= baseMin;
-          if (op === "<=") return itemMin <= baseMax;
-          return false;
-        };
-        return checkCond(p1, op1) && checkCond(p2, op2) && checkCond(p3, op3);
-      });
-
-      document.getElementById('results').innerHTML = "";
-      clearTimeout(renderTimer);
-      currentRenderIndex = 0;
-      document.getElementById('results-header').innerHTML = `<strong style="color: var(--theme-color);">類似商品: ${filteredData.length}件</strong>`;
-      renderCardsAsync();
-    }
-
-    function toggleSmItem(dataIndex) {
-      const item = masterData[dataIndex];
-      const cat = document.getElementById('sm-category').value;
-      const isAdded = smSelectedItems.some(i => masterData.indexOf(i) === dataIndex);
-      
-      if (!isAdded) {
-        if (smSelectedItems.length > 0 && smSelectedItems[0]._cat !== cat) {
-          alert("異なるカテゴリーの商品を同時に比較することはできません。");
+      try {
+        const res = await fetch(API_URL + '?action=history&center=' + encodeURIComponent(center) +
+          '&memberName=' + encodeURIComponent(memberName) + '&date=' + encodeURIComponent(dateStr));
+        const json = await res.json();
+        if(!json.ok){
+          content.innerHTML = `<div style="color:#a33;padding:10px;">エラー: ${json.error}</div>`;
           return;
         }
-        if (smSelectedItems.length >= 4) {
-          alert("一度に比較できるのは最大4商品までです。");
+        const list = json.data;
+        if (list.length === 0) {
+          content.innerHTML = '<div style="text-align:center;color:#888;padding:10px;">データが見つかりません</div>';
           return;
         }
-        smSelectedItems.push(item);
-      } else {
-        smSelectedItems = smSelectedItems.filter(i => masterData.indexOf(i) !== dataIndex);
-      }
-      updateSmPool();
-      
-      document.getElementById('sm-results').innerHTML = "";
-      clearTimeout(renderTimer);
-      currentRenderIndex = 0;
-      renderCardsAsync();
-    }
-
-    function removeSmItem(dataIndex) {
-      smSelectedItems = smSelectedItems.filter(i => masterData.indexOf(i) !== dataIndex);
-      updateSmPool();
-      document.getElementById('sm-results').innerHTML = "";
-      clearTimeout(renderTimer);
-      currentRenderIndex = 0;
-      renderCardsAsync();
-    }
-
-    function clearSmSelection() {
-      smSelectedItems = [];
-      updateSmPool();
-      document.getElementById('sm-report-area').style.display = 'none';
-      document.getElementById('sm-results').innerHTML = "";
-      clearTimeout(renderTimer);
-      currentRenderIndex = 0;
-      renderCardsAsync();
-    }
-
-    function updateSmPool() {
-      const countEl = document.getElementById('sm-count');
-      const poolEl = document.getElementById('sm-pool');
-      const floatContainer = document.getElementById('floating-run-btn-container');
-      const floatCount = document.getElementById('float-count');
-
-      countEl.innerText = smSelectedItems.length;
-
-      if (smSelectedItems.length === 0) {
-        poolEl.innerHTML = '<p style="font-size:12px; color:#555; margin:0;">まだ選択されていません。</p>';
-        floatContainer.style.display = 'none';
-      } else {
-        let html = "";
-        smSelectedItems.forEach(item => {
-          const idx = masterData.indexOf(item);
-          html += `
-            <div class="sel-item-row">
-              <div style="font-size:12px; font-weight:bold; color:#333; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                ${item._str.name} <span style="font-weight:normal; color:#888; font-size:10px;">${item._str.maker}</span>
-              </div>
-              <button class="btn-sel-remove" onclick="removeSmItem(${idx})">削除</button>
-            </div>
-          `;
-        });
-        poolEl.innerHTML = html;
-        floatCount.innerText = `(${smSelectedItems.length}/4)`;
-        floatContainer.style.display = smSelectedItems.length >= 2 ? 'block' : 'none';
-      }
-    }
-
-    function generateRankText(sortedArray, valProp, unit, label) {
-      if (sortedArray.length < 2) return "";
-      const circleNums = ['①', '②', '③', '④'];
-      let text = `🔹 <strong>【${label}】</strong><br>`;
-      
-      let groups = [];
-      let currentGroup = [sortedArray[0]];
-      for(let i=1; i<sortedArray.length; i++) {
-        if (sortedArray[i][valProp] === currentGroup[0][valProp]) {
-          currentGroup.push(sortedArray[i]);
-        } else {
-          groups.push(currentGroup);
-          currentGroup = [sortedArray[i]];
-        }
-      }
-      groups.push(currentGroup);
-
-      let displayRank = 1;
-      groups.forEach(group => {
-        let mark = displayRank <= 4 ? circleNums[displayRank-1] : `(${displayRank})`;
-        let names = group.map(s => `「${s.name}」`).join("、");
-        let val = group[0][valProp];
-        text += `${mark} ${names}（${val}${unit}）<br>`;
-        displayRank += group.length; 
-      });
-      return text + "<br>";
-    }
-
-    function runSmSummary() {
-      if (smSelectedItems.length < 2) return;
-      const cat = document.getElementById('sm-category').value;
-
-      let specs = [];
-      smSelectedItems.forEach(item => {
-        let name = item._str.name || "不明";
-        let maker = item._str.maker || "不明";
-        let func = item._str.func;
-        let tags = item._str.tags;
-        let imgUrl = item._str.imgUrl;
-
-        let funcText = func;
-        if (tags) {
-          let cleanTags = tags.replace(/^\/+/, '').trim();
-          funcText = func ? (func + " / " + cleanTags) : cleanTags;
-        }
-
-        let weights = item._n.weight;
-        let fHeights = item._n.fHeight;
-        let maxHeights = item._n.maxH;
-        let minHeights = item._n.minH;
-        let thicknesses = item._n.thick;
-        let widths = item._n.width;
-
-        specs.push({
-          name: name, maker: maker, func: funcText, imgUrl: imgUrl,
-          weight: weights.length > 0 ? Math.min(...weights) : null, rawWeight: item._raw.weight,
-          fHeight: fHeights.length > 0 ? Math.min(...fHeights) : null, rawFHeight: item._raw.fHeight,
-          maxH: maxHeights.length > 0 ? Math.max(...maxHeights) : null, rawMaxH: item._raw.maxH,
-          rawMinH: item._raw.minH, thickness: thicknesses.length > 0 ? Math.min(...thicknesses) : null,
-          rawThick: item._raw.thick, width: widths.length > 0 ? Math.min(...widths) : null, rawWidth: item._raw.width
-        });
-      });
-
-      let tableHtml = `<div class="table-responsive"><table style="width:100%; border-collapse: collapse; margin-bottom: 15px; font-size:12px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); white-space:nowrap;">`;
-      tableHtml += `<tr style="background:var(--theme-light); border-bottom:2px solid var(--theme-color);">`;
-      tableHtml += `<th style="padding:8px; border:1px solid #ccc; width:60px;">項目</th>`;
-      specs.forEach(s => {
-        tableHtml += `<th style="padding:8px; border:1px solid #ccc; text-align:center; min-width:110px;">
-          ${s.imgUrl ? `<img src="${s.imgUrl}" style="width:50px; height:50px; object-fit:contain; border-radius:4px; margin-bottom:4px;"><br>` : ''}
-          <div style="font-size:10px; color:#666; font-weight:normal;">${s.maker}</div>
-          <div style="font-size:12px; font-weight:bold; white-space:normal;">${s.name}</div>
-        </th>`;
-      });
-      tableHtml += `</tr>`;
-
-      if (cat !== "クッション") {
-        let wUnit = cat === "歩行補助杖" ? "g" : "kg";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">重量</td>`;
-        specs.forEach(s => { 
-          let wVal = s.rawWeight !== "-" ? s.rawWeight + (s.rawWeight.match(/[a-zA-Zｇｋ]/i) ? "" : wUnit) : "-";
-          tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${wVal}</td>`; 
-        });
-        tableHtml += `</tr>`;
-      }
-
-      let hLabel = "高さ";
-      if(cat === "車椅子") hLabel = "前座高";
-      else if(cat === "クッション") hLabel = "厚み";
-      
-      tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">${hLabel}</td>`;
-      specs.forEach(s => { 
-        let val = "-";
-        if(cat === "車椅子" && s.rawFHeight !== "-") val = s.rawFHeight + 'cm';
-        else if(cat === "クッション" && s.rawThick !== "-") val = s.rawThick + 'cm';
-        else if(cat === "歩行器" || cat === "歩行補助杖") {
-          if(s.rawMinH !== "-" && s.rawMaxH !== "-") {
-            val = s.rawMinH === s.rawMaxH ? s.rawMinH + 'cm' : s.rawMinH + '〜' + s.rawMaxH + 'cm';
-          } else if(s.rawMinH !== "-") val = s.rawMinH + 'cm';
-          else if(s.rawMaxH !== "-") val = s.rawMaxH + 'cm';
-        }
-        else if(s.rawMaxH !== "-") val = s.rawMaxH + 'cm'; 
-        tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${val}</td>`; 
-      });
-      tableHtml += `</tr>`;
-
-      if (cat !== "クッション" && cat !== "歩行補助杖") {
-        let wLabel = "幅";
-        if(cat === "車椅子") wLabel = "座幅";
-        else if(cat === "歩行器") wLabel = "外寸幅";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">幅</td>`;
-        specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${s.rawWidth !== "-" ? s.rawWidth + 'cm' : '-'}</td>`; });
-        tableHtml += `</tr>`;
-      }
-
-      tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">機能・タグ</td>`;
-      specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; font-size:11px; white-space:normal; text-align:center;">${s.func || '-'}</td>`; });
-      tableHtml += `</tr></table></div>`;
-
-      let report = tableHtml;
-      report += `<div style="padding-top:10px; border-top:1px dashed #ccc;">`;
-
-      if (cat !== "クッション") {
-        let validWeights = specs.filter(s => s.weight !== null).sort((a, b) => a.weight - b.weight);
-        report += generateRankText(validWeights, "weight", (cat === "歩行補助杖" ? "g" : "kg"), "重量順");
-      }
-      if (cat === "車椅子") {
-        let validFHeights = specs.filter(s => s.fHeight !== null).sort((a, b) => a.fHeight - b.fHeight);
-        report += generateRankText(validFHeights, "fHeight", "cm", "前座高順");
-        let validWidths = specs.filter(s => s.width !== null).sort((a, b) => a.width - b.width);
-        report += generateRankText(validWidths, "width", "cm", "座幅順");
-      } else if (cat === "歩行器") {
-        let validMaxH = specs.filter(s => s.maxH !== null).sort((a, b) => a.maxH - b.maxH);
-        report += generateRankText(validMaxH, "maxH", "cm", "最大高さ順");
-        let validWidths = specs.filter(s => s.width !== null).sort((a, b) => a.width - b.width);
-        report += generateRankText(validWidths, "width", "cm", "外寸幅順");
-      } else if (cat === "クッション") {
-        let validThick = specs.filter(s => s.thickness !== null).sort((a, b) => a.thickness - b.thickness);
-        report += generateRankText(validThick, "thickness", "cm", "厚み順");
-      } else {
-        let validMaxH = specs.filter(s => s.maxH !== null).sort((a, b) => a.maxH - b.maxH);
-        report += generateRankText(validMaxH, "maxH", "cm", "最大高さ順");
-      }
-
-      specs.forEach(s => {
-        if (s.rawFHeight && String(s.rawFHeight).match(/[\/／・,、]/)) {
-          report += `💡 <strong>【調整可能】</strong> ${s.name} は、前座高（${s.rawFHeight}cm）の選択が可能です。<br>`;
-        }
-        if (s.rawWidth && String(s.rawWidth).match(/[\/／・,、]/)) {
-          let wName = (cat === "歩行器") ? "外寸幅" : "座幅"; 
-          if(cat === "車椅子" || cat === "歩行器" || cat === "歩行補助杖") {
-             report += `💡 <strong>【調整可能】</strong> ${s.name} は、${wName}（${s.rawWidth}cm）の選択が可能です。<br>`;
+        let html = '';
+        list.forEach(item => {
+          let badge = '';
+          let rowStyle = '';
+          if (item.status === '休み') {
+            badge = '<span style="color:#aaa; border:1px solid #ddd; padding:2px 6px; border-radius:4px; font-size:11px;">休み</span>';
+            rowStyle = 'opacity: 0.6; background: #fafafa;';
+          } else if (item.status === '未入力') {
+            badge = '<span style="color:#d93025; border:1px solid #fce8e6; background:#fce8e6; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold;">未入力</span>';
+          } else {
+            badge = '<span style="color:#188038; border:1px solid #ceead6; background:#ceead6; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold;">済</span>';
           }
-        }
-        if (s.rawThick && String(s.rawThick).match(/[\/／・,、]/)) {
-          report += `💡 <strong>【調整可能】</strong> ${s.name} は、厚み（${s.rawThick}cm）の選択が可能です。<br>`;
-        }
-      });
-
-      report += `</div>`;
-
-      document.getElementById('sm-report-text').innerHTML = report;
-      document.getElementById('sm-report-area').style.display = 'block';
-      document.getElementById('floating-run-btn-container').style.display = 'none';
-      document.getElementById('sm-report-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          html += `<div class="history-item" style="${rowStyle}">
+                     <div class="history-date">${item.month}/${item.day}</div>
+                     <div class="history-badge">${badge}</div>
+                     <div class="history-details">
+                       <span>店:${item.store}</span>
+                       <span>利:${item.riyaku}</span>
+                       <span>当:${item.tojitsu}</span>
+                     </div>
+                   </div>`;
+        });
+        content.innerHTML = html;
+      } catch(err) {
+        content.innerHTML = `<div style="color:#a33;padding:10px;">通信エラー: ${err.message}</div>`;
+      }
+    } else {
+      container.style.display = 'none';
+      btn.innerHTML = '<span class="material-icons">fact_check</span>選択月の入力状況を確認';
     }
-  </script>
+  }
+
+  document.getElementById('memberName').addEventListener('change', resetHistoryUI);
+  document.getElementById('dateStr').addEventListener('change', resetHistoryUI);
+
+  function resetHistoryUI() {
+    document.getElementById('historyContainer').style.display = 'none';
+    document.getElementById('historyBtn').innerHTML = '<span class="material-icons">fact_check</span>選択月の入力状況を確認';
+  }
+
+  // ===== Googleログイン関連 =====
+  function decodeJwt(token) {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(decodeURIComponent(escape(atob(base64))));
+  }
+
+  function selectMemberWhenReady(name) {
+    const trySelect = setInterval(() => {
+      const memberSel = document.getElementById('memberName');
+      const options = Array.from(memberSel.options).map(o => o.value);
+      if (options.includes(name)) {
+        memberSel.value = name;
+        clearInterval(trySelect);
+      }
+    }, 300);
+  }
+
+  async function handleGoogleLogin(response) {
+    const payload = decodeJwt(response.credential);
+    const email = payload.email;
+    const loginStatus = document.getElementById('loginStatus');
+
+    const res = await fetch(API_URL + '?action=matchMember&email=' + encodeURIComponent(email));
+    const json = await res.json();
+    const matchedName = json.ok ? json.data : null;
+
+    if (matchedName) {
+      loginStatus.innerText = 'ログイン中: ' + matchedName + ' さん';
+      localStorage.setItem('lastMatchedMember', matchedName);
+      selectMemberWhenReady(matchedName);
+    } else {
+      loginStatus.innerText = 'このアカウントは未登録です。手動で選択してください。';
+    }
+  }
+
+  window.addEventListener('load', function() {
+    loadCenters();
+
+    const savedName = localStorage.getItem('lastMatchedMember');
+    if (savedName) {
+      document.getElementById('loginStatus').innerText = savedName + ' さん(前回の記録)';
+      selectMemberWhenReady(savedName);
+    }
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLogin
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('googleSignInBtn'),
+      { theme: 'outline', size: 'medium', text: 'signin_with' }
+    );
+    google.accounts.id.prompt();
+  });
+</script>
 </body>
 </html>
