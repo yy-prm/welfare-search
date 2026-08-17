@@ -65,6 +65,17 @@
     .checkbox-grid label { cursor: pointer; display: flex; align-items: center; color: #444; font-weight: bold; }
     .checkbox-grid input[type="checkbox"] { margin-right: 6px; transform: scale(1.2); accent-color: var(--theme-color); }
     
+    .lowfloor-chip-row { display: flex; gap: 10px; margin-top: 10px; }
+    .lowfloor-chip { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 6px; border-radius: 10px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; box-sizing: border-box; line-height: 1.3; transition: 0.2s; }
+    .lowfloor-chip:active { transform: scale(0.97); }
+    .lowfloor-chip .material-icons { font-size: 20px; margin-bottom: 2px; }
+    .lowfloor-chip input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .lowfloor-chip-sub { font-size: 10px; font-weight: normal; opacity: 0.85; }
+    .lowfloor-chip-super { background: #FFF3E0; border: 1px solid #FF9800; color: #E65100; }
+    .lowfloor-chip-super.active, .lowfloor-chip-super:has(input:checked) { background: #FF9800; color: #fff; }
+    .lowfloor-chip-low { background: var(--theme-light); border: 1px solid var(--theme-color); color: var(--theme-dark); }
+    .lowfloor-chip-low.active, .lowfloor-chip-low:has(input:checked) { background: var(--theme-color); color: #fff; }
+
     .btn-small { background: #fff; border-radius: 20px; padding: 6px 15px; font-size: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
     .btn-small:active { transform: scale(0.95); }
     .btn-check-all { border: 1px solid var(--theme-color); color: var(--theme-color); }
@@ -101,7 +112,13 @@
 
     #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); }
     #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); margin-top: env(safe-area-inset-top); margin-bottom: env(safe-area-inset-bottom); }
-    .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2; }
+    .modal-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); display: none; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 2; transition: 0.2s; }
+    .modal-nav:active { background: rgba(255,255,255,0.35); }
+    .modal-nav .material-icons { font-size: 32px; }
+    .modal-nav-prev { left: 12px; }
+    .modal-nav-next { right: 12px; }
+    #modal-counter { display: none; position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.55); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; }
 
     .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
     .btn-compare:active { background: var(--theme-light); transform: scale(0.98); }
@@ -140,7 +157,10 @@
 
   <div id="image-modal" onclick="closeImageModal()">
     <span class="modal-close">&times;</span>
+    <div id="modal-nav-prev" class="modal-nav modal-nav-prev" onclick="event.stopPropagation(); navModalImage(-1)"><span class="material-icons">chevron_left</span></div>
     <img id="enlarged-img" src="" alt="拡大画像">
+    <div id="modal-nav-next" class="modal-nav modal-nav-next" onclick="event.stopPropagation(); navModalImage(1)"><span class="material-icons">chevron_right</span></div>
+    <div id="modal-counter"></div>
   </div>
 
   <div id="side-overlay" class="side-overlay" onclick="closeSideMenu()">
@@ -236,9 +256,9 @@
             </div>
           </div>
           <div class="filter-group"><strong>最低床高：</strong>
-            <div style="margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap;">
-              <label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-super-low" onchange="filterData()"> 🔥 超低床 (15cm以下) 限定</label>
-              <label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-low-20" onchange="filterData()"> 🔥 低床 (20cm以下) 限定</label>
+            <div class="lowfloor-chip-row">
+              <label class="lowfloor-chip lowfloor-chip-super"><input type="checkbox" id="bed-super-low" onchange="toggleChipVisual(this); filterData()"><span class="material-icons">bolt</span>超低床<br><span class="lowfloor-chip-sub">15cm以下</span></label>
+              <label class="lowfloor-chip lowfloor-chip-low"><input type="checkbox" id="bed-low-20" onchange="toggleChipVisual(this); filterData()"><span class="material-icons">trending_down</span>低床<br><span class="lowfloor-chip-sub">20cm以下</span></label>
             </div>
           </div>
         </div>
@@ -627,7 +647,7 @@
     let isResetting = false; 
 
     // ★★★ 指定していただいた固定URL ★★★
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxqzJJBI7RCfw56h9enA-PYLjLeHsdMVDV2M9nALKu2dKwKlz7RxxfcXWWLcLVsECGS/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwppKlOXjC-PlmFeeZrl7UyWTbQV4XUJImcfl9GGOJ1YzhDNlkLM6wvuztsKuGbL0_b/exec";
 
     window.onload = function() {
       const cached = localStorage.getItem('welfare_data_cache');
@@ -670,7 +690,13 @@
                 maker: getVal(item, ["メーカー"]) || "",
                 imgUrl: getVal(item, ["画像URL", "画像"]) || "",
                 manual: getVal(item, ["説明書URL", "説明書", "マニュアル"]) || "",
-                genchoUrl: getVal(item, ["現調URL", "現調"]) || ""
+                genchoUrls: (function() {
+                  const raw = item["現調URL"];
+                  if (Array.isArray(raw)) return raw.filter(u => u && String(u).trim() !== "");
+                  const s = String(getVal(item, ["現調URL", "現調"]) || "").trim();
+                  if (!s) return [];
+                  return s.split(/[\n,、]+/).map(u => u.trim()).filter(u => u !== "");
+                })()
             };
             
             item._searchStr = (
@@ -716,6 +742,7 @@
     function resetAllFilters() {
       isResetting = true; 
       document.querySelectorAll('#filter-wrapper input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.lowfloor-chip').forEach(el => el.classList.remove('active'));
       const defaultSliders = [
         {id: 'height-min', val: 35}, {id: 'height-max', val: 52},
         {id: 'width-min', val: 40}, {id: 'width-max', val: 52},
@@ -975,6 +1002,11 @@
       filterData();
     }
 
+    function toggleChipVisual(cb) {
+      const label = cb.closest('.lowfloor-chip');
+      if (label) label.classList.toggle('active', cb.checked);
+    }
+
     function toggleChecks(className, isCheck) {
       document.querySelectorAll(className).forEach(el => el.checked = isCheck);
       filterData();
@@ -1052,14 +1084,56 @@
       return val ? String(val) : "-";
     }
 
+    let modalImages = [];
+    let modalIndex = 0;
+
     function openImageModal(url) {
       if (!url) return;
-      document.getElementById('enlarged-img').src = url;
+      openImageGallery([url]);
+    }
+
+    function openImageGallery(urls) {
+      if (!urls || urls.length === 0) return;
+      modalImages = urls;
+      modalIndex = 0;
+      renderModalImage();
       document.getElementById('image-modal').style.display = 'flex';
     }
+
+    function openGenchoForIndex(idx) {
+      const item = masterData[idx];
+      if (!item || !item._str.genchoUrls || item._str.genchoUrls.length === 0) return;
+      openImageGallery(item._str.genchoUrls);
+    }
+
+    function renderModalImage() {
+      document.getElementById('enlarged-img').src = modalImages[modalIndex];
+      const prevBtn = document.getElementById('modal-nav-prev');
+      const nextBtn = document.getElementById('modal-nav-next');
+      const counter = document.getElementById('modal-counter');
+      if (modalImages.length > 1) {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        counter.style.display = 'block';
+        counter.innerText = (modalIndex + 1) + ' / ' + modalImages.length;
+      } else {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        counter.style.display = 'none';
+      }
+    }
+
+    function navModalImage(delta) {
+      if (modalImages.length === 0) return;
+      modalIndex = (modalIndex + delta + modalImages.length) % modalImages.length;
+      renderModalImage();
+    }
+
     function closeImageModal() {
       document.getElementById('image-modal').style.display = 'none';
       document.getElementById('enlarged-img').src = '';
+      modalImages = [];
+      modalIndex = 0;
     }
 
     function updateDualSlider(type, changedId) {
@@ -1628,15 +1702,16 @@
         }
       }
 
-      let genchoBtnHtml = "";
-      if (item._str.genchoUrl) {
-        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openImageModal('${item._str.genchoUrl}')"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+      const genchoCount = item._str.genchoUrls ? item._str.genchoUrls.length : 0;
+      let genchoBtnHtml;
+      if (genchoCount > 0) {
+        const countBadge = genchoCount > 1 ? ` <span style="background:#FF9800; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px;">${genchoCount}</span>` : "";
+        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openGenchoForIndex(${masterIndex})"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する${countBadge}</button>`;
+      } else {
+        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#ddd; color:#bbb; background:#f7f7f7; cursor:default;" disabled><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
       }
 
-      let actionRowHtml = "";
-      if (bottomActionBtnHtml || genchoBtnHtml) {
-        actionRowHtml = `<div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">${bottomActionBtnHtml}${genchoBtnHtml}</div>`;
-      }
+      let actionRowHtml = `<div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">${bottomActionBtnHtml}${genchoBtnHtml}</div>`;
 
       let makerNameEscaped = String(item._str.maker || "").replace(/'/g, "\\'");
       let makerPartHtml = item._str.maker
