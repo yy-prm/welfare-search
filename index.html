@@ -199,8 +199,8 @@
       <div id="panel-室内手すり" class="panel" onclick="showSearch('室内手すり')">
         <span class="material-icons">horizontal_rule</span>室内手すり
       </div>
-      <div id="panel-室外・玄関手すり" class="panel" onclick="showSearch('室外・玄関手すり')">
-        <span class="material-icons">fence</span>室外・玄関手すり
+      <div id="panel-室外玄関手すり" class="panel" onclick="showSearch('室外玄関手すり')">
+        <span class="material-icons">fence</span>室外玄関手すり
       </div>
     </div>
 
@@ -236,7 +236,10 @@
             </div>
           </div>
           <div class="filter-group"><strong>最低床高：</strong>
-            <div style="margin-top: 10px;"><label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-super-low" onchange="filterData()"> 🔥 超低床 (15cm以下) 限定</label></div>
+            <div style="margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap;">
+              <label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-super-low" onchange="filterData()"> 🔥 超低床 (15cm以下) 限定</label>
+              <label style="background:#FFF3E0; border:1px solid #FF9800; padding:10px; border-radius:6px; color:#E65100;"><input type="checkbox" id="bed-low-20" onchange="filterData()"> 🔥 低床 (20cm以下) 限定</label>
+            </div>
           </div>
         </div>
 
@@ -614,6 +617,7 @@
     let isCompareMode = false;
     let compareBaseItem = null;
     let currentTagFilter = "";
+    let currentMakerFilter = "";
     let filteredData = []; 
     let sideFilteredData = [];
     let currentRenderIndex = 0;
@@ -623,7 +627,7 @@
     let isResetting = false; 
 
     // ★★★ 指定していただいた固定URL ★★★
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwCnuKaTIBTbp30usxdO2fNr2S7HgErnKhVRVivlG2GmXXo-lOISDAoEYCiGiFR1jK2/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxqzJJBI7RCfw56h9enA-PYLjLeHsdMVDV2M9nALKu2dKwKlz7RxxfcXWWLcLVsECGS/exec";
 
     window.onload = function() {
       const cached = localStorage.getItem('welfare_data_cache');
@@ -665,7 +669,8 @@
                 name: getVal(item, ["商品名"]) || "",
                 maker: getVal(item, ["メーカー"]) || "",
                 imgUrl: getVal(item, ["画像URL", "画像"]) || "",
-                manual: getVal(item, ["説明書URL", "説明書", "マニュアル"]) || ""
+                manual: getVal(item, ["説明書URL", "説明書", "マニュアル"]) || "",
+                genchoUrl: getVal(item, ["現調URL", "現調"]) || ""
             };
             
             item._searchStr = (
@@ -739,6 +744,7 @@
       const smwc = document.getElementById('sm-keyword-clear');
       if (smwc) smwc.style.display = 'none';
       currentTagFilter = "";
+      currentMakerFilter = "";
       isResetting = false; 
     }
 
@@ -762,7 +768,7 @@
       if (cat === '歩行器') return document.getElementById('walker-search-area');
       if (cat === '歩行補助杖') return document.getElementById('cane-search-area');
       if (cat === '室内手すり') return document.getElementById('in-handrail-search-area');
-      if (cat === '室外・玄関手すり') return document.getElementById('out-handrail-search-area');
+      if (cat === '室外玄関手すり') return document.getElementById('out-handrail-search-area');
       return null;
     }
 
@@ -826,6 +832,7 @@
     function selectSideCategory(categoryName) {
       currentSideCategory = categoryName;
       currentTagFilter = "";
+      currentMakerFilter = "";
       appMode = "side";
       closeSideMenu();
       
@@ -852,6 +859,7 @@
       if (currentCategory === category) {
         currentCategory = "";
         currentTagFilter = "";
+        currentMakerFilter = "";
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         applyCategoryUI("");
         resetSearchBoxes();
@@ -947,6 +955,26 @@
       filterData();
     }
 
+    function filterByMaker(maker) {
+      if (isCompareMode) exitCompare();
+      if (appMode !== "home" && appMode !== "side") {
+        switchView('home');
+      }
+      currentMakerFilter = maker;
+
+      const fw = document.getElementById('free-word');
+      if (fw) {
+        fw.value = "";
+        document.getElementById('free-word-clear').style.display = 'none';
+      }
+      filterData();
+    }
+
+    function clearMakerFilter() {
+      currentMakerFilter = "";
+      filterData();
+    }
+
     function toggleChecks(className, isCheck) {
       document.querySelectorAll(className).forEach(el => el.checked = isCheck);
       filterData();
@@ -966,7 +994,7 @@
       if (catStr.includes("歩行器") || catStr.includes("歩行車")) return "歩行器";
       if (catStr.includes("杖") || catStr.includes("ステッキ") || catStr.includes("歩行補助杖")) return "歩行補助杖";
       if (catStr.includes("室内手すり") || catStr.includes("室内手摺") || ((catStr.includes("手すり") || catStr.includes("手摺")) && !(catStr.includes("室外") || catStr.includes("あがりかまち") || catStr.includes("上がりかまち") || catStr.includes("框")))) return "室内手すり";
-      if (catStr.includes("室外手すり") || catStr.includes("室外手摺") || catStr.includes("あがりかまち") || catStr.includes("上がりかまち") || catStr.includes("框") || catStr.includes("室外・玄関手すり")) return "室外・玄関手すり"; 
+      if (catStr.includes("室外手すり") || catStr.includes("室外手摺") || catStr.includes("あがりかまち") || catStr.includes("上がりかまち") || catStr.includes("框") || catStr.includes("室外玄関手すり") || catStr.includes("室外・玄関手すり")) return "室外玄関手すり"; 
       
       if (getVal(item, ["モーター数", "モーター"]) !== "") return "特殊寝台";
       if (getVal(item, ["前座高"]) !== "") return "車椅子";
@@ -1151,12 +1179,22 @@
 
       let tagHeaderHtml = "";
       if (currentTagFilter !== "") {
-        tagHeaderHtml = `
+        tagHeaderHtml += `
           <div style="background:#e1f5fe; padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid var(--theme-color); max-width:600px; margin-left:auto; margin-right:auto;">
             <span style="color:var(--theme-dark); font-weight:bold; font-size:13px;">
               <span class="material-icons" style="font-size:16px; vertical-align:middle;">local_offer</span> タグ「${currentTagFilter}」で絞り込み中
             </span>
             <button onclick="clearTagFilter()" style="background:#fff; border:1px solid #4B9CB3; color:#4B9CB3; border-radius:15px; padding:4px 12px; font-size:11px; font-weight:bold; cursor:pointer;">解除</button>
+          </div>
+        `;
+      }
+      if (currentMakerFilter !== "") {
+        tagHeaderHtml += `
+          <div style="background:#fff3e0; padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #FF9800; max-width:600px; margin-left:auto; margin-right:auto;">
+            <span style="color:#E65100; font-weight:bold; font-size:13px;">
+              <span class="material-icons" style="font-size:16px; vertical-align:middle;">factory</span> メーカー「${currentMakerFilter}」で絞り込み中
+            </span>
+            <button onclick="clearMakerFilter()" style="background:#fff; border:1px solid #FF9800; color:#FF9800; border-radius:15px; padding:4px 12px; font-size:11px; font-weight:bold; cursor:pointer;">解除</button>
           </div>
         `;
       }
@@ -1168,6 +1206,7 @@
            if (!matchCat) return false;
            
            if (currentTagFilter !== "" && !item._str.tags.includes(currentTagFilter)) return false;
+           if (currentMakerFilter !== "" && item._str.maker !== currentMakerFilter) return false;
            return true;
          });
 
@@ -1179,7 +1218,7 @@
          return;
       }
 
-      if (appMode === "home" && freeWord === "" && currentCategory === "" && currentTagFilter === "") {
+      if (appMode === "home" && freeWord === "" && currentCategory === "" && currentTagFilter === "" && currentMakerFilter === "") {
         filteredData = [];
         document.getElementById('results-header').innerHTML = "";
         document.getElementById('results').innerHTML = "";
@@ -1201,6 +1240,7 @@
         const catDisplay = item._cat;
 
         if (currentTagFilter !== "" && !itemTags.includes(currentTagFilter)) return false;
+        if (currentMakerFilter !== "" && item._str.maker !== currentMakerFilter) return false;
         if (currentCategory !== "" && catDisplay !== currentCategory) return false;
 
         if (currentCategory === "車椅子") {
@@ -1220,6 +1260,7 @@
           const selectedMotors = Array.from(document.querySelectorAll('.motor-check:checked')).map(el => el.value);
           const selectedBedWidths = Array.from(document.querySelectorAll('.bed-width-check:checked')).map(el => el.value);
           const isSuperLow = document.getElementById('bed-super-low').checked;
+          const isLow20 = document.getElementById('bed-low-20').checked;
           const hasMotorNum = /\d/.test(toHalfWidth(itemMotor));
           const matchMotor = (!hasMotorNum || selectedMotors.length === 0) ? true : selectedMotors.some(m => toHalfWidth(itemMotor).includes(m.replace(/\D/g, '')));
           const matchBedWidth = selectedBedWidths.length === 0 ? true : selectedBedWidths.some(btnVal => checkBedSizeCorrect(btnVal, itemWidthStr, itemSizeStr));
@@ -1229,6 +1270,7 @@
           let minHeight = 999;
           if (bHeightArr.length > 0) minHeight = Math.min(...bHeightArr);
           if (isSuperLow && minHeight > 15) return false;
+          if (isLow20 && minHeight > 20) return false;
           return matchMotor && matchBedWidth && matchBedFunc;
         }
 
@@ -1377,7 +1419,7 @@
   if (hasHeight && !isOverlap(itemMinH, itemMaxH, 'in-handrail-h-min', 'in-handrail-h-max')) return false;
   return true;
 }
-        if (currentCategory === "室外・玄関手すり") {
+        if (currentCategory === "室外玄関手すり") {
           const selectedTypes = Array.from(document.querySelectorAll('.out-handrail-type-check:checked')).map(el => el.value);
           if (selectedTypes.length > 0) {
              const hasType = selectedTypes.some(t => itemTags.includes(t) || itemFunc.includes(t) || item._str.name.includes(t));
@@ -1447,6 +1489,7 @@
       let typeStr = item._str.type;
       let weightStr = item._raw.weight;
       let funcStr = item._str.func;
+      let funcDisplayHtml = (funcStr && funcStr.trim() !== "") ? `<span class="spec-line" style="margin-top:5px; color:#555;">${funcStr.replace(/\n/g, "<br>")}</span>` : "";
 
       if (mode === "side") {
         if (funcStr && funcStr !== "-" && funcStr.trim() !== "") {
@@ -1471,6 +1514,7 @@
           <span class="spec-line"><strong>幅:</strong> ${item._str.wStr || "-"}</span>
           <span class="spec-line"><strong>長さ:</strong> ${item._str.sizeStr || "-"}</span>
           <span class="spec-line"><strong>最低床高:</strong> <span style="color:var(--theme-color); font-weight:bold;">${item._str.hStr || "-"}cm</span></span>
+          ${funcDisplayHtml}
         `;
       } else if (catDisplay === "マットレス") {
         const displayThick = item._raw.thick;
@@ -1483,6 +1527,7 @@
       } else if (catDisplay === "クッション") {
         contentHtml = `
           <span class="spec-line"><strong>厚み:</strong> ${item._raw.thick || "-"}cm</span>
+          ${funcDisplayHtml}
         `;
       } else if (catDisplay === "歩行器" || catDisplay === "歩行補助杖") {
         let minH = item._raw.minH;
@@ -1503,6 +1548,7 @@
           <span class="spec-line"><strong>重量:</strong> ${wtDisplay}</span>
           <span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>
           ${outWStr}
+          ${funcDisplayHtml}
         `;
       } else if (catDisplay === "室内手すり") {
   let minH = item._raw.minH;
@@ -1514,7 +1560,7 @@
   const funcFormatted = funcStr ? funcStr.replace(/\n/g, "<br>") : "";
   contentHtml = (hDisplay ? `<span class="spec-line"><strong>高さ:</strong> ${hDisplay}</span>` : "")
     + (funcFormatted ? `<span class="spec-line" style="margin-top:5px; color:#555;">${funcFormatted}</span>` : "");
-} else if (catDisplay === "室外・玄関手すり") {
+} else if (catDisplay === "室外玄関手すり") {
   let minH = item._raw.minH;
   let maxH = item._raw.maxH;
   let hDisplay = "";
@@ -1571,34 +1617,31 @@
       let bottomActionBtnHtml = "";
       if (mode === "home" || mode === "side") {
         if (catDisplay === "車椅子" || catDisplay === "歩行器" || catDisplay === "歩行補助杖" || catDisplay === "クッション") {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-compare" onclick="startCompare(${masterIndex})">
-                <span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較
-              </button>
-            </div>
-          `;
+          bottomActionBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0;" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
         }
       } else if (mode === "select") {
         const isAdded = smSelectedItems.some(i => masterData.indexOf(i) === masterIndex);
         if (isAdded) {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-sel-add added" onclick="toggleSmItem(${masterIndex})">
-                <span class="material-icons" style="font-size:16px; vertical-align:middle;">check</span> 追加済み（解除）
-              </button>
-            </div>
-          `;
+          bottomActionBtnHtml = `<button class="btn-sel-add added" onclick="toggleSmItem(${masterIndex})"><span class="material-icons" style="font-size:16px; vertical-align:middle;">check</span> 追加済み（解除）</button>`;
         } else {
-          bottomActionBtnHtml = `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn-sel-add" onclick="toggleSmItem(${masterIndex})">
-                <span class="material-icons" style="font-size:16px; vertical-align:middle;">add</span> 比較候補に追加
-              </button>
-            </div>
-          `;
+          bottomActionBtnHtml = `<button class="btn-sel-add" onclick="toggleSmItem(${masterIndex})"><span class="material-icons" style="font-size:16px; vertical-align:middle;">add</span> 比較候補に追加</button>`;
         }
       }
+
+      let genchoBtnHtml = "";
+      if (item._str.genchoUrl) {
+        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openImageModal('${item._str.genchoUrl}')"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+      }
+
+      let actionRowHtml = "";
+      if (bottomActionBtnHtml || genchoBtnHtml) {
+        actionRowHtml = `<div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">${bottomActionBtnHtml}${genchoBtnHtml}</div>`;
+      }
+
+      let makerNameEscaped = String(item._str.maker || "").replace(/'/g, "\\'");
+      let makerPartHtml = item._str.maker
+        ? `<div class="maker-name-part" onclick="filterByMaker('${makerNameEscaped}')" style="cursor:pointer;">${item._str.maker}</div>`
+        : `<div class="maker-name-part">-</div>`;
 
       return `
         <div class="result-card">
@@ -1607,7 +1650,7 @@
               <span class="category-badge">${catDisplay}</span><br>
               ${itemNameHtml}
             </div>
-            <div class="maker-name-part">${item._str.maker || "-"}</div>
+            ${makerPartHtml}
           </div>
           <div class="card-flex">
             ${imgHtml}
@@ -1616,7 +1659,7 @@
             </div>
           </div>
           ${tagHtml}
-          ${bottomActionBtnHtml}
+          ${actionRowHtml}
         </div>
       `;
     }
