@@ -647,7 +647,7 @@
     let isResetting = false; 
 
     // ★★★ 指定していただいた固定URL ★★★
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwppKlOXjC-PlmFeeZrl7UyWTbQV4XUJImcfl9GGOJ1YzhDNlkLM6wvuztsKuGbL0_b/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwCnuKaTIBTbp30usxdO2fNr2S7HgErnKhVRVivlG2GmXXo-lOISDAoEYCiGiFR1jK2/exec";
 
     window.onload = function() {
       const cached = localStorage.getItem('welfare_data_cache');
@@ -1691,7 +1691,7 @@
       let bottomActionBtnHtml = "";
       if (mode === "home" || mode === "side") {
         if (catDisplay === "車椅子" || catDisplay === "歩行器" || catDisplay === "歩行補助杖" || catDisplay === "クッション") {
-          bottomActionBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0;" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
+          bottomActionBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0;" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
         }
       } else if (mode === "select") {
         const isAdded = smSelectedItems.some(i => masterData.indexOf(i) === masterIndex);
@@ -1702,16 +1702,23 @@
         }
       }
 
-      const genchoCount = item._str.genchoUrls ? item._str.genchoUrls.length : 0;
-      let genchoBtnHtml;
-      if (genchoCount > 0) {
-        const countBadge = genchoCount > 1 ? ` <span style="background:#FF9800; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px;">${genchoCount}</span>` : "";
-        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openGenchoForIndex(${masterIndex})"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する${countBadge}</button>`;
-      } else {
-        genchoBtnHtml = `<button class="btn-compare" style="width:auto; margin-top:0; border-color:#ddd; color:#bbb; background:#f7f7f7; cursor:default;" disabled><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+      // 現調するボタンは対象カテゴリのみ表示（室内手すり・室外玄関手すり・スロープ・移動用リフト）
+      const genchoTargetCats = ["室内手すり", "室外玄関手すり", "スロープ", "移動用リフト"];
+      let genchoBtnHtml = "";
+      if (genchoTargetCats.includes(catDisplay)) {
+        const hasGencho = item._str.genchoUrls && item._str.genchoUrls.length > 0;
+        if (hasGencho) {
+          genchoBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openGenchoForIndex(${masterIndex})"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+        } else {
+          genchoBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; border-color:#ddd; color:#bbb; background:#f7f7f7; cursor:default;" disabled><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+        }
       }
 
-      let actionRowHtml = `<div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">${bottomActionBtnHtml}${genchoBtnHtml}</div>`;
+      let actionRowHtml = "";
+      if (bottomActionBtnHtml || genchoBtnHtml) {
+        actionRowHtml = `<div style="margin-top:10px; display:flex; gap:8px;">${bottomActionBtnHtml}${genchoBtnHtml}</div>`;
+      }
+
 
       let makerNameEscaped = String(item._str.maker || "").replace(/'/g, "\\'");
       let makerPartHtml = item._str.maker
