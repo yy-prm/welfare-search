@@ -110,7 +110,7 @@
     .thumb-img { width: 85px; height: 85px; object-fit: contain; border-radius: 8px; cursor: pointer; border: 1px solid #eee; background: #fff; flex-shrink: 0; }
     .card-details { flex-grow: 1; min-width: 0; }
 
-    #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); }
+    #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); touch-action: pan-y; }
     #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); margin-top: env(safe-area-inset-top); margin-bottom: env(safe-area-inset-bottom); }
     .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2; }
     .modal-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); display: none; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 2; transition: 0.2s; }
@@ -155,7 +155,7 @@
 </head>
 <body>
 
-  <div id="image-modal" onclick="closeImageModal()">
+  <div id="image-modal" onclick="closeImageModal()" ontouchstart="handleModalTouchStart(event)" ontouchend="handleModalTouchEnd(event)">
     <span class="modal-close">&times;</span>
     <div id="modal-nav-prev" class="modal-nav modal-nav-prev" onclick="event.stopPropagation(); navModalImage(-1)"><span class="material-icons">chevron_left</span></div>
     <img id="enlarged-img" src="" alt="拡大画像">
@@ -1086,6 +1086,35 @@
 
     let modalImages = [];
     let modalIndex = 0;
+    let modalTouchStartX = null;
+    let modalTouchStartY = null;
+
+    function handleModalTouchStart(e) {
+      if (!e.changedTouches || e.changedTouches.length === 0) return;
+      modalTouchStartX = e.changedTouches[0].clientX;
+      modalTouchStartY = e.changedTouches[0].clientY;
+    }
+
+    function handleModalTouchEnd(e) {
+      if (modalTouchStartX === null || !e.changedTouches || e.changedTouches.length === 0) return;
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - modalTouchStartX;
+      const diffY = endY - modalTouchStartY;
+      modalTouchStartX = null;
+      modalTouchStartY = null;
+
+      // 横方向への一定以上のスワイプのみ画像送りとして扱う（縦スワイプ・タップは無視）
+      if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.5 && modalImages.length > 1) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (diffX < 0) {
+          navModalImage(1); // 左スワイプ → 次の画像
+        } else {
+          navModalImage(-1); // 右スワイプ → 前の画像
+        }
+      }
+    }
 
     function openImageModal(url) {
       if (!url) return;
@@ -1691,7 +1720,7 @@
       let bottomActionBtnHtml = "";
       if (mode === "home" || mode === "side") {
         if (catDisplay === "車椅子" || catDisplay === "歩行器" || catDisplay === "歩行補助杖" || catDisplay === "クッション") {
-          bottomActionBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0;" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
+          bottomActionBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; background:var(--theme-color); color:#fff; border-color:var(--theme-color);" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
         }
       } else if (mode === "select") {
         const isAdded = smSelectedItems.some(i => masterData.indexOf(i) === masterIndex);
@@ -1708,7 +1737,7 @@
       if (genchoTargetCats.includes(catDisplay)) {
         const hasGencho = item._str.genchoUrls && item._str.genchoUrls.length > 0;
         if (hasGencho) {
-          genchoBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; border-color:#FF9800; color:#FF9800;" onclick="openGenchoForIndex(${masterIndex})"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
+          genchoBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; background:#FF9800; color:#fff; border-color:#FF9800;" onclick="openGenchoForIndex(${masterIndex})"><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
         } else {
           genchoBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; border-color:#ddd; color:#bbb; background:#f7f7f7; cursor:default;" disabled><span class="material-icons" style="font-size:16px;">assignment</span> 現調する</button>`;
         }
