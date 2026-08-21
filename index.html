@@ -119,6 +119,9 @@
     .modal-nav-prev { left: 12px; }
     .modal-nav-next { right: 12px; }
     #modal-counter { display: none; position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.55); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+    #enlarged-img { transition: opacity 0.15s ease; }
+    #modal-loading { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; z-index: 1; pointer-events: none; }
+    #modal-loading .material-icons { font-size: 36px; animation: spin 1.2s linear infinite; }
 
     .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
     .btn-compare:active { background: var(--theme-light); transform: scale(0.98); }
@@ -159,6 +162,7 @@
     <span class="modal-close">&times;</span>
     <div id="modal-nav-prev" class="modal-nav modal-nav-prev" onclick="event.stopPropagation(); navModalImage(-1)"><span class="material-icons">chevron_left</span></div>
     <img id="enlarged-img" src="" alt="拡大画像">
+    <div id="modal-loading"><span class="material-icons">autorenew</span></div>
     <div id="modal-nav-next" class="modal-nav modal-nav-next" onclick="event.stopPropagation(); navModalImage(1)"><span class="material-icons">chevron_right</span></div>
     <div id="modal-counter"></div>
   </div>
@@ -1088,6 +1092,7 @@
     let modalIndex = 0;
     let modalTouchStartX = null;
     let modalTouchStartY = null;
+    let modalPreloadedUrls = new Set();
 
     function handleModalTouchStart(e) {
       if (!e.changedTouches || e.changedTouches.length === 0) return;
@@ -1125,8 +1130,20 @@
       if (!urls || urls.length === 0) return;
       modalImages = urls;
       modalIndex = 0;
-      renderModalImage();
       document.getElementById('image-modal').style.display = 'flex';
+      renderModalImage();
+      // モーダルを開いた瞬間に、ギャラリー内の全画像を裏で先読み（スワイプ時の待ち時間をなくすため）
+      preloadModalImages(urls);
+    }
+
+    function preloadModalImages(urls) {
+      urls.forEach(url => {
+        if (!url || modalPreloadedUrls.has(url)) return;
+        const pre = new Image();
+        pre.onload = function() { modalPreloadedUrls.add(url); };
+        pre.onerror = function() { modalPreloadedUrls.add(url); }; // 失敗しても無限に待たないように
+        pre.src = url;
+      });
     }
 
     function openGenchoForIndex(idx) {
@@ -1136,7 +1153,31 @@
     }
 
     function renderModalImage() {
-      document.getElementById('enlarged-img').src = modalImages[modalIndex];
+      const img = document.getElementById('enlarged-img');
+      const loading = document.getElementById('modal-loading');
+      const url = modalImages[modalIndex];
+
+      if (modalPreloadedUrls.has(url)) {
+        // 先読み済みならブラウザキャッシュから一瞬で表示される
+        loading.style.display = 'none';
+        img.style.opacity = '1';
+        img.src = url;
+      } else {
+        // 未読み込みの場合だけ、読み込み中がわかるようにクルクル表示＋薄く
+        loading.style.display = 'block';
+        img.style.opacity = '0.15';
+        img.onload = function() {
+          modalPreloadedUrls.add(url);
+          loading.style.display = 'none';
+          img.style.opacity = '1';
+        };
+        img.onerror = function() {
+          loading.style.display = 'none';
+          img.style.opacity = '1';
+        };
+        img.src = url;
+      }
+
       const prevBtn = document.getElementById('modal-nav-prev');
       const nextBtn = document.getElementById('modal-nav-next');
       const counter = document.getElementById('modal-counter');
