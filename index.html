@@ -123,9 +123,10 @@
     #modal-loading { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; z-index: 1; pointer-events: none; }
     #modal-loading .material-icons { font-size: 36px; animation: spin 1.2s linear infinite; }
 
-    #accessory-picker-modal { display: none; position: fixed; z-index: 10003; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; }
-    #accessory-picker-modal.active { display: flex; }
-    #accessory-picker-sheet { background: #fff; width: 100%; max-width: 600px; border-top-left-radius: 16px; border-top-right-radius: 16px; max-height: 70vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); }
+    #accessory-picker-modal { display: none; position: fixed; z-index: 10003; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    #accessory-picker-modal.active { display: block; }
+    #accessory-picker-sheet { position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; background: #fff; width: 100%; max-width: 600px; border-top-left-radius: 16px; border-top-right-radius: 16px; max-height: 70vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); transform: translateY(100%); transition: transform 0.25s ease-out; }
+    #accessory-picker-modal.active #accessory-picker-sheet { transform: translateY(0); }
     #accessory-picker-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; font-weight: bold; color: var(--theme-dark); position: sticky; top: 0; background: #fff; }
     #accessory-picker-header .material-icons { cursor: pointer; color: #999; }
     .accessory-picker-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
