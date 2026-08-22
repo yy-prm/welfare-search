@@ -123,10 +123,7 @@
     #modal-loading { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; z-index: 1; pointer-events: none; }
     #modal-loading .material-icons { font-size: 36px; animation: spin 1.2s linear infinite; }
 
-    #accessory-detail-modal { display: none; position: fixed; z-index: 10003; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); align-items: center; justify-content: center; }
-    #accessory-detail-modal.active { display: flex; }
-    #accessory-detail-card { background: #fff; border-radius: 16px; padding: 24px 20px 20px 20px; width: 85%; max-width: 360px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
-    .acc-detail-close { position: absolute; top: 8px; right: 12px; font-size: 26px; color: #999; cursor: pointer; line-height: 1; padding: 4px; }
+    .acc-inline-empty { padding: 14px; text-align: center; color: #E91E63; font-size: 12px; font-weight: bold; background: #fafafa; }
     .acc-inline-panel { display: none; margin-top: 10px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
     .acc-inline-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; }
     .acc-inline-item:last-child { border-bottom: none; }
@@ -134,6 +131,9 @@
     .acc-inline-item .acc-item-label { font-weight: bold; color: #333; font-size: 13px; }
     .acc-inline-item .acc-item-name { font-size: 11px; color: #999; margin-left: 6px; font-weight: normal; }
     .acc-inline-item .material-icons { color: #bbb; font-size: 20px; }
+    .acc-inline-detail { display: none; background: #fff; border-bottom: 1px solid #f0f0f0; padding: 12px 14px; }
+    .acc-inline-detail-flex { display: flex; gap: 12px; align-items: flex-start; }
+    .acc-inline-detail-img { width: 80px; height: 80px; object-fit: contain; border-radius: 6px; border: 1px solid #eee; flex-shrink: 0; background: #fff; }
     .acc-inline-empty { padding: 14px; text-align: center; color: #E91E63; font-size: 12px; font-weight: bold; background: #fafafa; }
 
     .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
@@ -178,13 +178,6 @@
     <div id="modal-loading"><span class="material-icons">autorenew</span></div>
     <div id="modal-nav-next" class="modal-nav modal-nav-next" onclick="event.stopPropagation(); navModalImage(1)"><span class="material-icons">chevron_right</span></div>
     <div id="modal-counter"></div>
-  </div>
-
-  <div id="accessory-detail-modal" onclick="closeAccessoryDetail()">
-    <div id="accessory-detail-card" onclick="event.stopPropagation()">
-      <span class="acc-detail-close" onclick="closeAccessoryDetail()">&times;</span>
-      <div id="acc-detail-content"></div>
-    </div>
   </div>
 
   <div id="side-overlay" class="side-overlay" onclick="closeSideMenu()">
@@ -1038,58 +1031,42 @@
       panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    // インライン展開のリストで付属品名をタップ → その場でポップアップ表示（画面は切り替えない＝戻る操作が不要）
-    function showAccessoryDetail(name) {
-      const acc = masterData.find(d => d._cat === "車椅子付属品" && d._str && d._str.name === name);
-      const content = document.getElementById('acc-detail-content');
+    // 付属品名をタップ → オーバーレイ表示は使わず、タップした項目のすぐ下にその場で開閉する
+    // （画面のどこかに重ねて表示する方式は機種によって崩れやすいため、常に通常の画面の流れの中に表示する）
+    function toggleAccDetail(itemEl, name) {
+      const detailEl = itemEl.nextElementSibling;
+      if (!detailEl || !detailEl.classList.contains('acc-inline-detail')) return;
 
-      if (!acc) {
-        content.innerHTML = `
-          <div style="text-align:center; font-weight:bold; font-size:15px; margin-bottom:8px;">${name}</div>
-          <p style="text-align:center; color:#E91E63; font-size:13px; margin:0;">この商品名は車椅子付属品としてまだ登録されていません。<br>商品名の表記が完全一致しているか確認してください。</p>
-        `;
-      } else {
-        const imgUrl = acc._str.imgUrl ? acc._str.imgUrl.replace("sz=w600", "sz=w400") : "";
-        const imgHtml = imgUrl ? `<img src="${imgUrl}" style="width:100%; max-width:200px; display:block; margin:0 auto 14px auto; border-radius:8px; border:1px solid #eee;">` : "";
-        let specHtml = "";
-        if (acc._str.type) specHtml += `<span class="spec-line"><strong>タイプ:</strong> ${acc._str.type}</span>`;
-        if (acc._str.func) specHtml += `<span class="spec-line" style="margin-top:6px; color:#555; display:block;">${acc._str.func.replace(/\n/g, "<br>")}</span>`;
-
-        content.innerHTML = `
-          ${imgHtml}
-          <div style="text-align:center; font-weight:bold; font-size:16px; color:#222;">${acc._str.name}</div>
-          <div style="text-align:center; color:#888; font-size:12px; margin-bottom:12px;">${acc._str.maker || ""}</div>
-          <div>${specHtml}</div>
-        `;
+      const isOpen = detailEl.style.display === 'block';
+      if (isOpen) {
+        detailEl.style.display = 'none';
+        return;
       }
-      openFixedOverlay('accessory-detail-modal');
-    }
 
-    function closeAccessoryDetail() {
-      closeFixedOverlay('accessory-detail-modal');
-    }
-
-    // position:fixedのブラウザ依存の挙動崩れを避けるため、開いた瞬間の
-    // 「実際に見えているスクロール位置・高さ」をJSで測って直接ピンポイント配置する
-    function openFixedOverlay(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      const viewportH = window.innerHeight || document.documentElement.clientHeight;
-      el.style.position = 'absolute';
-      el.style.top = scrollY + 'px';
-      el.style.left = '0';
-      el.style.width = '100%';
-      el.style.height = viewportH + 'px';
-      el.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeFixedOverlay(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('active');
-      document.body.style.overflow = '';
+      if (!detailEl.dataset.loaded) {
+        const acc = masterData.find(d => d._cat === "車椅子付属品" && d._str && d._str.name === name);
+        if (!acc) {
+          detailEl.innerHTML = `<p style="color:#E91E63; font-size:12px; margin:0;">この商品名は車椅子付属品としてまだ登録されていません。<br>商品名の表記が完全一致しているか確認してください。</p>`;
+        } else {
+          const imgUrl = acc._str.imgUrl ? acc._str.imgUrl.replace("sz=w600", "sz=w300") : "";
+          const imgHtml = imgUrl ? `<img class="acc-inline-detail-img" src="${imgUrl}">` : "";
+          let specHtml = "";
+          if (acc._str.type) specHtml += `<span class="spec-line"><strong>タイプ:</strong> ${acc._str.type}</span>`;
+          if (acc._str.func) specHtml += `<span class="spec-line" style="margin-top:4px; color:#555; display:block;">${acc._str.func.replace(/\n/g, "<br>")}</span>`;
+          detailEl.innerHTML = `
+            <div class="acc-inline-detail-flex">
+              ${imgHtml}
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:bold; color:#222; font-size:13px; margin-bottom:2px;">${acc._str.name}</div>
+                <div style="color:#888; font-size:11px; margin-bottom:6px;">${acc._str.maker || ""}</div>
+                ${specHtml}
+              </div>
+            </div>
+          `;
+        }
+        detailEl.dataset.loaded = "1";
+      }
+      detailEl.style.display = 'block';
     }
 
     function toggleChipVisual(cb) {
@@ -1888,10 +1865,10 @@
             if (matchedType) label = matchedType;
           }
           const escapedAccName = accName.replace(/'/g, "\\'");
-          itemsHtml += `<div class="acc-inline-item" onclick="showAccessoryDetail('${escapedAccName}')">
+          itemsHtml += `<div class="acc-inline-item" onclick="toggleAccDetail(this, '${escapedAccName}')">
             <span><span class="acc-item-label">${label}</span><span class="acc-item-name">(${accName})</span>${found ? '' : ' <span style="color:#E91E63; font-size:11px;">※未登録</span>'}</span>
-            <span class="material-icons">chevron_right</span>
-          </div>`;
+            <span class="material-icons">expand_more</span>
+          </div><div class="acc-inline-detail"></div>`;
         });
         accInlinePanelHtml = `<div id="acc-panel-${masterIndex}" class="acc-inline-panel">${itemsHtml || '<div class="acc-inline-empty">対応オプションが見つかりません</div>'}</div>`;
       }
