@@ -123,18 +123,18 @@
     #modal-loading { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; z-index: 1; pointer-events: none; }
     #modal-loading .material-icons { font-size: 36px; animation: spin 1.2s linear infinite; }
 
-    #accessory-picker-modal { display: none; position: fixed; z-index: 10003; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-    #accessory-picker-modal.active { display: block; }
-    #accessory-picker-sheet { position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; background: #fff; width: 100%; max-width: 600px; border-top-left-radius: 16px; border-top-right-radius: 16px; max-height: 70vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); transform: translateY(100%); transition: transform 0.25s ease-out; }
-    #accessory-picker-modal.active #accessory-picker-sheet { transform: translateY(0); }
-    #accessory-picker-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; font-weight: bold; color: var(--theme-dark); position: sticky; top: 0; background: #fff; }
-    #accessory-picker-header .material-icons { cursor: pointer; color: #999; }
-    .accessory-picker-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-    .accessory-picker-item:active { background: var(--theme-light); }
-    .accessory-picker-item .acc-item-label { font-weight: bold; color: #333; }
-    .accessory-picker-item .acc-item-name { font-size: 11px; color: #999; margin-left: 6px; font-weight: normal; }
-    .accessory-picker-item .material-icons { color: #bbb; }
-    .accessory-picker-empty { padding: 20px; text-align: center; color: #E91E63; font-size: 13px; font-weight: bold; }
+    #accessory-detail-modal { display: none; position: fixed; z-index: 10003; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); align-items: center; justify-content: center; }
+    #accessory-detail-modal.active { display: flex; }
+    #accessory-detail-card { background: #fff; border-radius: 16px; padding: 24px 20px 20px 20px; width: 85%; max-width: 360px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+    .acc-detail-close { position: absolute; top: 8px; right: 12px; font-size: 26px; color: #999; cursor: pointer; line-height: 1; padding: 4px; }
+    .acc-inline-panel { display: none; margin-top: 10px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+    .acc-inline-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; background: #fafafa; }
+    .acc-inline-item:last-child { border-bottom: none; }
+    .acc-inline-item:active { background: var(--theme-light); }
+    .acc-inline-item .acc-item-label { font-weight: bold; color: #333; font-size: 13px; }
+    .acc-inline-item .acc-item-name { font-size: 11px; color: #999; margin-left: 6px; font-weight: normal; }
+    .acc-inline-item .material-icons { color: #bbb; font-size: 20px; }
+    .acc-inline-empty { padding: 14px; text-align: center; color: #E91E63; font-size: 12px; font-weight: bold; background: #fafafa; }
 
     .btn-compare { background: #fff; border: 1px solid var(--theme-color); color: var(--theme-color); border-radius: 20px; padding: 8px 15px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; width: 100%; justify-content: center; margin-top: 12px; }
     .btn-compare:active { background: var(--theme-light); transform: scale(0.98); }
@@ -180,13 +180,10 @@
     <div id="modal-counter"></div>
   </div>
 
-  <div id="accessory-picker-modal" onclick="closeAccessoryPicker()">
-    <div id="accessory-picker-sheet" onclick="event.stopPropagation()">
-      <div id="accessory-picker-header">
-        <span><span class="material-icons" style="font-size:18px; vertical-align:middle; color:var(--theme-color);">build</span> 対応オプション</span>
-        <span class="material-icons" onclick="closeAccessoryPicker()">close</span>
-      </div>
-      <div id="accessory-picker-list"></div>
+  <div id="accessory-detail-modal" onclick="closeAccessoryDetail()">
+    <div id="accessory-detail-card" onclick="event.stopPropagation()">
+      <span class="acc-detail-close" onclick="closeAccessoryDetail()">&times;</span>
+      <div id="acc-detail-content"></div>
     </div>
   </div>
 
@@ -665,7 +662,6 @@
     let compareBaseItem = null;
     let currentTagFilter = "";
     let currentMakerFilter = "";
-    let currentExactNameFilter = "";
     let filteredData = []; 
     let sideFilteredData = [];
     let currentRenderIndex = 0;
@@ -805,7 +801,6 @@
       if (smwc) smwc.style.display = 'none';
       currentTagFilter = "";
       currentMakerFilter = "";
-      currentExactNameFilter = "";
       isResetting = false; 
     }
 
@@ -894,7 +889,6 @@
       currentSideCategory = categoryName;
       currentTagFilter = "";
       currentMakerFilter = "";
-      currentExactNameFilter = "";
       appMode = "side";
       closeSideMenu();
       
@@ -922,8 +916,7 @@
         currentCategory = "";
         currentTagFilter = "";
         currentMakerFilter = "";
-        currentExactNameFilter = "";
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+          document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         applyCategoryUI("");
         resetSearchBoxes();
         document.getElementById('results-header').innerHTML = "";
@@ -1038,57 +1031,42 @@
       filterData();
     }
 
-    // 車椅子カードの「対応オプション」ボタン：適合する付属品の一覧をシートで表示
-    function showAccessoryList(masterIndex) {
-      const item = masterData[masterIndex];
-      if (!item || !item._str.compatAcc || item._str.compatAcc.length === 0) return;
-
-      const ACC_TYPE_LABELS = ["ボンベ架", "ガートル架", "杖入れ", "ブレーキ延長棒", "テーブル", "シートベルト", "エレベーティング", "転倒防止バー"];
-
-      let html = "";
-      item._str.compatAcc.forEach(name => {
-        const acc = masterData.find(d => d._cat === "車椅子付属品" && d._str && d._str.name === name);
-        let label = name;
-        let found = !!acc;
-        if (acc) {
-          const tagStr = acc._str.tags || "";
-          const matchedType = ACC_TYPE_LABELS.find(t => tagStr.includes(t));
-          if (matchedType) label = matchedType;
-        }
-        const escapedName = name.replace(/'/g, "\\'");
-        html += `<div class="accessory-picker-item" onclick="jumpToAccessory('${escapedName}')">
-          <span><span class="acc-item-label">${label}</span><span class="acc-item-name">(${name})</span>${found ? '' : ' <span style="color:#E91E63; font-size:11px;">※未登録</span>'}</span>
-          <span class="material-icons">chevron_right</span>
-        </div>`;
-      });
-
-      document.getElementById('accessory-picker-list').innerHTML = html || '<div class="accessory-picker-empty">対応オプションが見つかりません</div>';
-      document.getElementById('accessory-picker-modal').classList.add('active');
+    // 車椅子カードの「対応オプション」ボタン：カードの中にインライン展開（固定配置を使わないので機種依存のズレが起きない）
+    function toggleAccPanel(masterIndex) {
+      const panel = document.getElementById('acc-panel-' + masterIndex);
+      if (!panel) return;
+      panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    function closeAccessoryPicker() {
-      document.getElementById('accessory-picker-modal').classList.remove('active');
+    // インライン展開のリストで付属品名をタップ → その場でポップアップ表示（画面は切り替えない＝戻る操作が不要）
+    function showAccessoryDetail(name) {
+      const acc = masterData.find(d => d._cat === "車椅子付属品" && d._str && d._str.name === name);
+      const content = document.getElementById('acc-detail-content');
+
+      if (!acc) {
+        content.innerHTML = `
+          <div style="text-align:center; font-weight:bold; font-size:15px; margin-bottom:8px;">${name}</div>
+          <p style="text-align:center; color:#E91E63; font-size:13px; margin:0;">この商品名は車椅子付属品としてまだ登録されていません。<br>商品名の表記が完全一致しているか確認してください。</p>
+        `;
+      } else {
+        const imgUrl = acc._str.imgUrl ? acc._str.imgUrl.replace("sz=w600", "sz=w400") : "";
+        const imgHtml = imgUrl ? `<img src="${imgUrl}" style="width:100%; max-width:200px; display:block; margin:0 auto 14px auto; border-radius:8px; border:1px solid #eee;">` : "";
+        let specHtml = "";
+        if (acc._str.type) specHtml += `<span class="spec-line"><strong>タイプ:</strong> ${acc._str.type}</span>`;
+        if (acc._str.func) specHtml += `<span class="spec-line" style="margin-top:6px; color:#555; display:block;">${acc._str.func.replace(/\n/g, "<br>")}</span>`;
+
+        content.innerHTML = `
+          ${imgHtml}
+          <div style="text-align:center; font-weight:bold; font-size:16px; color:#222;">${acc._str.name}</div>
+          <div style="text-align:center; color:#888; font-size:12px; margin-bottom:12px;">${acc._str.maker || ""}</div>
+          <div>${specHtml}</div>
+        `;
+      }
+      document.getElementById('accessory-detail-modal').classList.add('active');
     }
 
-    function jumpToAccessory(name) {
-      closeAccessoryPicker();
-      if (isCompareMode) exitCompare();
-      switchView('home');
-      currentCategory = "車椅子付属品";
-      currentExactNameFilter = name;
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      applyCategoryUI(currentCategory);
-      resetSearchBoxes();
-      filterData();
-      setTimeout(() => {
-        const anchor = document.getElementById('results-anchor');
-        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-
-    function clearExactNameFilter() {
-      currentExactNameFilter = "";
-      filterData();
+    function closeAccessoryDetail() {
+      document.getElementById('accessory-detail-modal').classList.remove('active');
     }
 
     function toggleChipVisual(cb) {
@@ -1427,16 +1405,6 @@
           </div>
         `;
       }
-      if (currentExactNameFilter !== "") {
-        tagHeaderHtml += `
-          <div style="background:var(--theme-light); padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid var(--theme-dark); max-width:600px; margin-left:auto; margin-right:auto;">
-            <span style="color:var(--theme-dark); font-weight:bold; font-size:13px;">
-              <span class="material-icons" style="font-size:16px; vertical-align:middle;">build</span> 「${currentExactNameFilter}」を表示中
-            </span>
-            <button onclick="clearExactNameFilter()" style="background:#fff; border:1px solid var(--theme-dark); color:var(--theme-dark); border-radius:15px; padding:4px 12px; font-size:11px; font-weight:bold; cursor:pointer;">絞り込み解除</button>
-          </div>
-        `;
-      }
 
       if (appMode === "side") {
          sideFilteredData = masterData.filter(item => {
@@ -1457,7 +1425,7 @@
          return;
       }
 
-      if (appMode === "home" && freeWord === "" && currentCategory === "" && currentTagFilter === "" && currentMakerFilter === "" && currentExactNameFilter === "") {
+      if (appMode === "home" && freeWord === "" && currentCategory === "" && currentTagFilter === "" && currentMakerFilter === "") {
         filteredData = [];
         document.getElementById('results-header').innerHTML = "";
         document.getElementById('results').innerHTML = "";
@@ -1480,7 +1448,6 @@
 
         if (currentTagFilter !== "" && !itemTags.includes(currentTagFilter)) return false;
         if (currentMakerFilter !== "" && item._str.maker !== currentMakerFilter) return false;
-        if (currentExactNameFilter !== "" && item._str.name !== currentExactNameFilter) return false;
         if (currentCategory !== "" && catDisplay !== currentCategory) return false;
 
         if (currentCategory === "車椅子") {
@@ -1882,8 +1849,28 @@
 
       // 対応オプションボタンは車椅子カテゴリのみ、かつ「適合」列にデータがある場合のみ表示
       let accBtnHtml = "";
+      let accInlinePanelHtml = "";
       if (catDisplay === "車椅子" && (mode === "home" || mode === "side") && item._str.compatAcc && item._str.compatAcc.length > 0) {
-        accBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; background:var(--theme-dark); color:#fff; border-color:var(--theme-dark);" onclick="showAccessoryList(${masterIndex})"><span class="material-icons" style="font-size:16px;">build</span> 対応オプション</button>`;
+        accBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; background:var(--theme-dark); color:#fff; border-color:var(--theme-dark);" onclick="toggleAccPanel(${masterIndex})"><span class="material-icons" style="font-size:16px;">build</span> 対応オプション</button>`;
+
+        const ACC_TYPE_LABELS = ["ボンベ架", "ガートル架", "杖入れ", "ブレーキ延長棒", "テーブル", "シートベルト", "エレベーティング", "転倒防止バー"];
+        let itemsHtml = "";
+        item._str.compatAcc.forEach(accName => {
+          const acc = masterData.find(d => d._cat === "車椅子付属品" && d._str && d._str.name === accName);
+          let label = accName;
+          let found = !!acc;
+          if (acc) {
+            const tagStr = acc._str.tags || "";
+            const matchedType = ACC_TYPE_LABELS.find(t => tagStr.includes(t));
+            if (matchedType) label = matchedType;
+          }
+          const escapedAccName = accName.replace(/'/g, "\\'");
+          itemsHtml += `<div class="acc-inline-item" onclick="showAccessoryDetail('${escapedAccName}')">
+            <span><span class="acc-item-label">${label}</span><span class="acc-item-name">(${accName})</span>${found ? '' : ' <span style="color:#E91E63; font-size:11px;">※未登録</span>'}</span>
+            <span class="material-icons">chevron_right</span>
+          </div>`;
+        });
+        accInlinePanelHtml = `<div id="acc-panel-${masterIndex}" class="acc-inline-panel">${itemsHtml || '<div class="acc-inline-empty">対応オプションが見つかりません</div>'}</div>`;
       }
 
       let actionRowHtml = "";
@@ -1914,6 +1901,7 @@
           </div>
           ${tagHtml}
           ${actionRowHtml}
+          ${accInlinePanelHtml}
         </div>
       `;
     }
