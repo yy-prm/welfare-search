@@ -1062,11 +1062,34 @@
           <div>${specHtml}</div>
         `;
       }
-      document.getElementById('accessory-detail-modal').classList.add('active');
+      openFixedOverlay('accessory-detail-modal');
     }
 
     function closeAccessoryDetail() {
-      document.getElementById('accessory-detail-modal').classList.remove('active');
+      closeFixedOverlay('accessory-detail-modal');
+    }
+
+    // position:fixedのブラウザ依存の挙動崩れを避けるため、開いた瞬間の
+    // 「実際に見えているスクロール位置・高さ」をJSで測って直接ピンポイント配置する
+    function openFixedOverlay(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const viewportH = window.innerHeight || document.documentElement.clientHeight;
+      el.style.position = 'absolute';
+      el.style.top = scrollY + 'px';
+      el.style.left = '0';
+      el.style.width = '100%';
+      el.style.height = viewportH + 'px';
+      el.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFixedOverlay(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('active');
+      document.body.style.overflow = '';
     }
 
     function toggleChipVisual(cb) {
