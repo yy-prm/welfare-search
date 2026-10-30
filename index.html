@@ -1051,7 +1051,7 @@
           detailEl.innerHTML = `<p style="color:#E91E63; font-size:12px; margin:0;">この商品名は車椅子付属品としてまだ登録されていません。<br>商品名の表記が完全一致しているか確認してください。</p>`;
         } else {
           const imgUrl = acc._str.imgUrl ? acc._str.imgUrl.replace("sz=w600", "sz=w300") : "";
-          const imgHtml = imgUrl ? `<img class="acc-inline-detail-img" src="${imgUrl}">` : "";
+          const imgHtml = imgUrl ? `<img class="acc-inline-detail-img" src="${imgUrl}" onerror="retryImg(this)">` : "";
           let specHtml = "";
           if (acc._str.type) specHtml += `<span class="spec-line"><strong>タイプ:</strong> ${acc._str.type}</span>`;
           if (acc._str.func) specHtml += `<span class="spec-line" style="margin-top:4px; color:#555; display:block;">${acc._str.func.replace(/\n/g, "<br>")}</span>`;
@@ -1188,6 +1188,21 @@
           navModalImage(-1); // 右スワイプ → 前の画像
         }
       }
+    }
+
+    // 画像の読み込みに失敗したとき（Googleドライブの一時的な制限など）に、間隔を空けて最大3回やり直す
+    function retryImg(img) {
+      try {
+        const tries = parseInt(img.dataset.tries || "0", 10);
+        if (tries >= 3) { img.onerror = null; return; }
+        if (!img.dataset.src) img.dataset.src = img.getAttribute('src') || "";
+        const base = img.dataset.src;
+        if (!base) return;
+        img.dataset.tries = String(tries + 1);
+        setTimeout(function() {
+          img.src = base + (base.indexOf('?') > -1 ? '&' : '?') + 'r=' + (tries + 1);
+        }, 1200 * (tries + 1));
+      } catch (e) {}
     }
 
     function openImageModal(url) {
@@ -1696,7 +1711,7 @@
       // ▼ 画像読み込み速度改善コード ▼
       let thumbUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w200") : "";
       let largeUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w800") : "";
-      let imgHtml = thumbUrl ? `<img class="thumb-img" src="${thumbUrl}" onclick="openImageModal('${largeUrl}')">` : "";
+      let imgHtml = thumbUrl ? `<img class="thumb-img" src="${thumbUrl}" onerror="retryImg(this)" onclick="openImageModal('${largeUrl}')">` : "";
 
       let contentHtml = "";
       let typeStr = item._str.type;
@@ -1990,7 +2005,7 @@
       let imgUrl = compareBaseItem._str.imgUrl;
       let previewHtml = `
         <div style="display:flex; gap:10px; align-items:flex-start;">
-          ${imgUrl ? `<img src="${imgUrl}" style="width:60px; height:60px; object-fit:contain; border-radius:4px; border:1px solid #ccc; background:#fff; flex-shrink:0;" onclick="openImageModal('${imgUrl}')">` : ''}
+          ${imgUrl ? `<img onerror="retryImg(this)" src="${imgUrl}" style="width:60px; height:60px; object-fit:contain; border-radius:4px; border:1px solid #ccc; background:#fff; flex-shrink:0;" onclick="openImageModal('${imgUrl}')">` : ''}
           <div>${specStr}</div>
         </div>
       `;
@@ -2259,7 +2274,7 @@
       tableHtml += `<th style="padding:8px; border:1px solid #ccc; width:60px;">項目</th>`;
       specs.forEach(s => {
         tableHtml += `<th style="padding:8px; border:1px solid #ccc; text-align:center; min-width:110px;">
-          ${s.imgUrl ? `<img src="${s.imgUrl}" style="width:50px; height:50px; object-fit:contain; border-radius:4px; margin-bottom:4px;"><br>` : ''}
+          ${s.imgUrl ? `<img onerror="retryImg(this)" src="${s.imgUrl}" style="width:50px; height:50px; object-fit:contain; border-radius:4px; margin-bottom:4px;"><br>` : ''}
           <div style="font-size:10px; color:#666; font-weight:normal;">${s.maker}</div>
           <div style="font-size:12px; font-weight:bold; white-space:normal;">${s.name}</div>
         </th>`;
