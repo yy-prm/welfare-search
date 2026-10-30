@@ -1184,6 +1184,140 @@
       }
     }
 
+    // =====================================================================
+    // 一覧のサムネイル：端末に保存（キャッシュ）＋ 同時6枚までの順番読み込み
+    //  1) 一度取得した画像は、端末の中（IndexedDB）に保存し、次からはそれを表示する
+    //     → 2回目以降は速く、オフライン（機内モード）でも表示できる
+    //  2) ネットから取るときは、同時に6枚までにする（数百枚を一斉に取りに行くとGoogleドライブに断られるため）
+    //  3) 失敗した画像は、間隔を空けて最大2回やり直す
+    //  4) 端末への保存ができない環境では、従来どおり <img> で直接読み込む（動作は壊れない）
+    // =====================================================================
+    const IMG_DB_NAME = "welsync_thumb_cache";
+    const IMG_STORE = "thumbs";
+    const IMG_MAX_ACTIVE = 6;
+    let imgDbPromise = null;
+    let imgNetQueue = [];
+    let imgActive = 0;
+    let imgFetchOk = true;   // 画像を「データとして」取得できる環境か（だめなら従来の読み込みに切り替える）
+    let imgFetchFail = 0;
+
+    function openImgDb() {
+      if (imgDbPromise) return imgDbPromise;
+      imgDbPromise = new Promise(function(resolve) {
+        try {
+          const rq = indexedDB.open(IMG_DB_NAME, 1);
+          rq.onupgradeneeded = function() { rq.result.createObjectStore(IMG_STORE); };
+          rq.onsuccess = function() { resolve(rq.result); };
+          rq.onerror = function() { resolve(null); };
+          rq.onblocked = function() { resolve(null); };
+        } catch (e) { resolve(null); }
+      });
+      return imgDbPromise;
+    }
+    function imgCacheGet(url) {
+      return openImgDb().then(function(db) {
+        if (!db) return null;
+        return new Promise(function(resolve) {
+          try {
+            const rq = db.transaction(IMG_STORE, "readonly").objectStore(IMG_STORE).get(url);
+            rq.onsuccess = function() { resolve(rq.result || null); };
+            rq.onerror = function() { resolve(null); };
+          } catch (e) { resolve(null); }
+        });
+      });
+    }
+    function imgCachePut(url, blob) {
+      openImgDb().then(function(db) {
+        if (!db) return;
+        try { db.transaction(IMG_STORE, "readwrite").objectStore(IMG_STORE).put(blob, url); } catch (e) {}
+      });
+    }
+    function showBlob(img, blob) {
+      try {
+        const u = URL.createObjectURL(blob);
+        img.onload = function() { try { URL.revokeObjectURL(u); } catch (e) {} img.onload = null; };
+        img.src = u;
+      } catch (e) {}
+    }
+    function scheduleImgRetry(img, tries) {
+      if (tries >= 2) return;
+      img.dataset.qtries = String(tries + 1);
+      setTimeout(function() {
+        if (img.isConnected) { imgNetQueue.push(img); pumpImgQueue(); }
+      }, 1500 * (tries + 1));
+    }
+    function loadViaImg(img, url, tries) {
+      return new Promise(function(resolve) {
+        let done = false;
+        const fin = function(ok) {
+          if (done) return;
+          done = true;
+          img.onload = null; img.onerror = null;
+          resolve(ok);
+        };
+        img.onload = function() { fin(true); };
+        img.onerror = function() { fin(false); };
+        setTimeout(function() { fin(false); }, 15000);
+        img.src = tries ? url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=' + tries : url;
+      });
+    }
+    async function loadThumbNet(img) {
+      const url = img.dataset.qsrc;
+      const tries = parseInt(img.dataset.qtries || "0", 10);
+      let state = "skip";
+      if (imgFetchOk && typeof fetch === "function") {
+        try {
+          const ctrl = (typeof AbortController === "function") ? new AbortController() : null;
+          const timer = setTimeout(function() { if (ctrl) ctrl.abort(); }, 15000);
+          const res = await fetch(url, { mode: "cors", credentials: "omit", signal: ctrl ? ctrl.signal : undefined });
+          clearTimeout(timer);
+          if (res.ok) {
+            const blob = await res.blob();
+            if (blob && blob.size > 0 && /^image\//.test(blob.type || "")) {
+              imgCachePut(url, blob);
+              if (img.isConnected) showBlob(img, blob);
+              return;
+            }
+            state = "http";
+          } else {
+            state = "http";   // 429など：断られた → あとでやり直す
+          }
+        } catch (e) {
+          state = "neterr";   // 通信できない／データとして取得できない → 従来の読み込みに切り替えて試す
+        }
+      }
+      if (state === "http") { scheduleImgRetry(img, tries); return; }
+      const loaded = await loadViaImg(img, url, tries);
+      if (loaded) {
+        // fetchは失敗したのに<img>では読めた → この環境では「データとして取得」できないと判断
+        if (state === "neterr") { imgFetchFail++; if (imgFetchFail >= 3) imgFetchOk = false; }
+      } else {
+        scheduleImgRetry(img, tries);
+      }
+    }
+    function pumpImgQueue() {
+      while (imgActive < IMG_MAX_ACTIVE && imgNetQueue.length > 0) {
+        const img = imgNetQueue.shift();
+        if (!img.isConnected) continue;   // カテゴリを切り替えて消えた画像は飛ばす
+        imgActive++;
+        loadThumbNet(img).catch(function() {}).then(function() { imgActive--; pumpImgQueue(); });
+      }
+    }
+    function queueThumbs(root) {
+      try {
+        (root || document).querySelectorAll('img[data-qsrc]').forEach(function(img) {
+          if (img.dataset.queued) return;
+          img.dataset.queued = "1";
+          imgCacheGet(img.dataset.qsrc).then(function(blob) {
+            if (!img.isConnected) return;
+            if (blob) { showBlob(img, blob); return; }
+            imgNetQueue.push(img);
+            pumpImgQueue();
+          });
+        });
+      } catch (e) {}
+    }
+
     function openImageModal(url) {
       if (!url) return;
       openImageGallery([url]);
@@ -1690,7 +1824,7 @@
       // ▼ 画像読み込み速度改善コード ▼
       let thumbUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w200") : "";
       let largeUrl = imgUrl ? imgUrl.replace("sz=w600", "sz=w800") : "";
-      let imgHtml = thumbUrl ? `<img class="thumb-img" src="${thumbUrl}" onclick="openImageModal('${largeUrl}')">` : "";
+      let imgHtml = thumbUrl ? `<img class="thumb-img" data-qsrc="${thumbUrl}" onclick="openImageModal('${largeUrl}')">` : "";
 
       let contentHtml = "";
       let typeStr = item._str.type;
@@ -1925,6 +2059,7 @@
         htmlStr += buildCardHtml(item, appMode);
       });
       container.insertAdjacentHTML('beforeend', htmlStr);
+      queueThumbs(container);
       currentRenderIndex += RENDER_CHUNK;
 
       if (currentRenderIndex < dataToRender.length) {
