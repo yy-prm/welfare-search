@@ -193,6 +193,7 @@
         <li class="side-menu-item" onclick="closeSideMenu(); showSearch('スロープ')"><span class="material-icons">grade</span>スロープ</li>
         <li class="side-menu-item" onclick="closeSideMenu(); showSearch('移動用リフト')"><span class="material-icons">airline_seat_recline_extra</span>移動用リフト</li>
         <li class="side-menu-item" onclick="selectSideCategory('徘徊感知器')"><span class="material-icons">elderly</span>徘徊感知器</li>
+        <li class="side-menu-item side-menu-action" onclick="showImgCacheStatus()"><span class="material-icons">image</span>画像保存の状態を確認</li>
         <li class="side-menu-item side-menu-action" onclick="forceRefreshSide()"><span class="material-icons">sync</span>最新データを取得</li>
       </ul>
     </div>
@@ -754,6 +755,7 @@
         })
         .catch(error => {
           console.error("データ取得エラー:", error);
+          document.getElementById('results').innerHTML = '';
           alert("データの取得に失敗しました。通信環境を確認してください。");
         });
     }
@@ -875,8 +877,7 @@
     function forceRefreshSide() {
       closeSideMenu();
       if(confirm("最新の商品データを取得しますか？")) {
-        localStorage.removeItem('welfare_data_cache');
-        loadDataFromSheet();
+        loadDataFromSheet();   // 端末のデータは消さない（取得に失敗しても、以前のデータが残る）
       }
     }
 
@@ -1206,6 +1207,7 @@
     let imgActive = 0;
     let imgFetchOk = true;   // 画像を「データとして」取得できる環境か（だめなら従来の読み込みに切り替える）
     let imgFetchFail = 0;
+    let imgStat = { saved: 0, direct: 0, httpErr: 0, lastErr: "" };   // 診断用の記録
 
     function openImgDb() {
       if (imgDbPromise) return imgDbPromise;
@@ -1281,21 +1283,25 @@
             const blob = await res.blob();
             if (blob && blob.size > 0 && /^image\//.test(blob.type || "")) {
               imgCachePut(url, blob);
+              imgStat.saved++;
               if (img.isConnected) showBlob(img, blob);
               return;
             }
             state = "http";
           } else {
             state = "http";   // 429など：断られた → あとでやり直す
+            imgStat.httpErr++; imgStat.lastErr = "HTTP " + res.status;
           }
         } catch (e) {
           state = "neterr";   // 通信できない／データとして取得できない → 従来の読み込みに切り替えて試す
+          imgStat.lastErr = String((e && (e.name + ": " + e.message)) || e).slice(0, 80);
         }
       }
       if (state === "http") { scheduleImgRetry(img, tries); return; }
       const loaded = await loadViaImg(img, url, tries);
       if (loaded) {
         // fetchは失敗したのに<img>では読めた → この環境では「データとして取得」できないと判断
+        imgStat.direct++;
         if (state === "neterr") { imgFetchFail++; if (imgFetchFail >= 3) imgFetchOk = false; }
       } else {
         scheduleImgRetry(img, tries);
@@ -1322,6 +1328,28 @@
           });
         });
       } catch (e) {}
+    }
+
+    // 「その他」メニューから、画像の保存の状態を確認する（原因の切り分け用）
+    function showImgCacheStatus() {
+      closeSideMenu();
+      const lines = ["【画像保存の状態】", "端末への保存機能（IndexedDB）：" + (typeof indexedDB === "undefined" ? "使えません" : "あり")];
+      openImgDb().then(function(db) {
+        if (!db) { lines.push("保存先を開けませんでした（保存は無効）"); alert(lines.join("\n")); return; }
+        let cnt = 0;
+        function finish() {
+          lines.push("保存されている画像：" + cnt + "枚");
+          lines.push("読み込み方式：" + (imgFetchOk ? "保存できる方式" : "直接読み込み（保存できない環境と判定）"));
+          lines.push("今回の起動での記録：保存 " + imgStat.saved + " / 直接 " + imgStat.direct + " / 断られた " + imgStat.httpErr);
+          if (imgStat.lastErr) lines.push("最後のエラー：" + imgStat.lastErr);
+          alert(lines.join("\n"));
+        }
+        try {
+          const rq = db.transaction(IMG_STORE, "readonly").objectStore(IMG_STORE).count();
+          rq.onsuccess = function() { cnt = rq.result; finish(); };
+          rq.onerror = function() { finish(); };
+        } catch (e) { finish(); }
+      });
     }
 
     function openImageModal(url) {
