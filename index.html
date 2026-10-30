@@ -690,13 +690,15 @@
         .then(data => {
           data.forEach(item => {
             item._cat = getCatDisplay(item);
-            let func = String(getVal(item, ["機能", "特徴"]) || ""); 
+            let func = String(getVal(item, ["機能"]) || "");
+            let feat = String(getVal(item, ["特徴"]) || "").trim();
             let tags = String(getVal(item, ["検索用タグ", "タグ"]) || "");
             let type = String(getVal(item, ["タイプ", "種類"]) || "");
             let motor = String(getVal(item, ["モーター数", "モーター"]) || "");
             
             item._str = {
                 func: func,
+                feat: feat,
                 tags: tags,
                 type: type,
                 motor: motor,
@@ -723,7 +725,7 @@
             
             item._searchStr = (
                 item._cat + " " + item._str.name + " " + item._str.maker + " " +
-                func + " " + type + " " + tags + " " + motor + " " +
+                func + " " + feat + " " + type + " " + tags + " " + motor + " " +
                 item._str.wStr + " " + item._str.sizeStr + " " + item._str.hStr
             ).toLowerCase();
 
@@ -1082,6 +1084,10 @@
     function getCatDisplay(item) {
       if (!item) return "";
       const catStr = String(getVal(item, ["カテゴリー", "カテゴリ"])).replace(/[\s ]/g, "");
+
+      // シート名（＝カテゴリー）が確定している商品は、そのまま採用（商品名に「マット」等が含まれても誤分類しない）
+      if (catStr === "室外手すり") return "室外玄関手すり";
+      if (["特殊寝台","マットレス","車椅子","クッション","歩行器","歩行補助杖","室内手すり","室外玄関手すり","特殊寝台付属品","車椅子付属品","体位変換器","スロープ","移動用リフト","徘徊感知器"].includes(catStr)) return catStr;
       
       if (catStr.includes("特殊寝台付属品")) return "特殊寝台付属品";
       if (catStr.includes("特殊寝台")) return "特殊寝台";
@@ -1863,7 +1869,7 @@
           <span class="spec-line"><strong>幅:</strong> ${item._str.wStr || "-"}</span>
           <span class="spec-line"><strong>長さ:</strong> ${item._str.sizeStr || "-"}</span>
           <span class="spec-line"><strong>厚み:</strong> ${displayThick !== "-" ? displayThick + 'cm' : "-"}</span>
-          <span class="spec-line"><strong>機能:</strong> ${funcStr || "特になし"}</span>
+          ${(funcStr && funcStr.trim() !== "") ? `<span class="spec-line"><strong>機能:</strong> ${funcStr}</span>` : ""}
         `;
       } else if (catDisplay === "クッション") {
         contentHtml = `
@@ -1934,6 +1940,11 @@
         let l = item._str.sizeStr;
         if (l) specTexts.push(`<span class="spec-line"><strong>長さ:</strong> ${l}</span>`);
         contentHtml = specTexts.join("");
+      }
+
+      // 「特徴」列：全カテゴリ共通で、ラベルなしの自由記述として表示
+      if (item._str.feat) {
+        contentHtml += `<span class="spec-line" style="margin-top:5px; color:#555;">${item._str.feat.replace(/\n/g, "<br>")}</span>`;
       }
 
       let tagHtml = "";
