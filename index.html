@@ -690,15 +690,13 @@
         .then(data => {
           data.forEach(item => {
             item._cat = getCatDisplay(item);
-            let func = String(getVal(item, ["機能"]) || "");
-            let feat = String(getVal(item, ["特徴"]) || "").trim();
+            let func = String(getVal(item, ["機能", "特徴"]) || ""); 
             let tags = String(getVal(item, ["検索用タグ", "タグ"]) || "");
             let type = String(getVal(item, ["タイプ", "種類"]) || "");
             let motor = String(getVal(item, ["モーター数", "モーター"]) || "");
             
             item._str = {
                 func: func,
-                feat: feat,
                 tags: tags,
                 type: type,
                 motor: motor,
@@ -725,7 +723,7 @@
             
             item._searchStr = (
                 item._cat + " " + item._str.name + " " + item._str.maker + " " +
-                func + " " + feat + " " + type + " " + tags + " " + motor + " " +
+                func + " " + type + " " + tags + " " + motor + " " +
                 item._str.wStr + " " + item._str.sizeStr + " " + item._str.hStr
             ).toLowerCase();
 
@@ -1802,11 +1800,6 @@
         let l = item._str.sizeStr;
         if (l) specTexts.push(`<span class="spec-line"><strong>長さ:</strong> ${l}</span>`);
         contentHtml = specTexts.join("");
-      }
-
-      // 「特徴」列：全カテゴリ共通で、ラベルなしの自由記述として表示
-      if (item._str.feat) {
-        contentHtml += `<span class="spec-line" style="margin-top:5px; color:#555;">${item._str.feat.replace(/\n/g, "<br>")}</span>`;
       }
 
       let tagHtml = "";
