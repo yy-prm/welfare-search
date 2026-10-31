@@ -1196,13 +1196,16 @@
     //  ・失敗した画像は、間隔を空けて最大2回やり直す
     //  ・画面から消えた画像（カテゴリ切替など）は読み込まない
     // =====================================================================
-    const IMG_MAX_ACTIVE = 6;
+    const IMG_MAX_ACTIVE = 8;
+    let imgPriQueue = [];   // いま画面に見えている画像（先に読む）
+    let imgObserver = null;
     let imgNetQueue = [];
     let imgActive = 0;
 
     function scheduleImgRetry(img, tries) {
       if (tries >= 2) return;
       img.dataset.qtries = String(tries + 1);
+      delete img.dataset.qdone;
       setTimeout(function() {
         if (img.isConnected) { imgNetQueue.push(img); pumpImgQueue(); }
       }, 1500 * (tries + 1));
@@ -1229,19 +1232,32 @@
       if (!loaded) scheduleImgRetry(img, tries);
     }
     function pumpImgQueue() {
-      while (imgActive < IMG_MAX_ACTIVE && imgNetQueue.length > 0) {
-        const img = imgNetQueue.shift();
-        if (!img.isConnected) continue;
+      while (imgActive < IMG_MAX_ACTIVE && (imgPriQueue.length > 0 || imgNetQueue.length > 0)) {
+        const img = imgPriQueue.length > 0 ? imgPriQueue.shift() : imgNetQueue.shift();
+        if (!img.isConnected || img.dataset.qdone) continue;
+        img.dataset.qdone = "1";
         imgActive++;
         loadThumbNet(img).catch(function() {}).then(function() { imgActive--; pumpImgQueue(); });
       }
     }
     function queueThumbs(root) {
       try {
+        if (!imgObserver && typeof IntersectionObserver === "function") {
+          imgObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+              if (e.isIntersecting) {
+                imgObserver.unobserve(e.target);
+                imgPriQueue.push(e.target);   // 見えた画像を優先
+              }
+            });
+            pumpImgQueue();
+          }, { rootMargin: "400px 0px" });
+        }
         (root || document).querySelectorAll('img[data-qsrc]').forEach(function(img) {
           if (img.dataset.queued) return;
           img.dataset.queued = "1";
-          imgNetQueue.push(img);
+          imgNetQueue.push(img);              // 見えていない画像は後回し（空いた時間に読む）
+          if (imgObserver) imgObserver.observe(img);
         });
         pumpImgQueue();
       } catch (e) {}
