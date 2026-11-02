@@ -105,6 +105,8 @@ const TEXT_KEYS = ['manual', ...SECTIONS.map(s => s.k)];
 const KEYS = TEXT_KEYS;
 const label = k => ({ manual: '説明書URL' })[k] || SECTIONS.find(s => s.k === k).t;
 const $ = s => document.querySelector(s);
+const main = $('#main');
+let listCache = null;
 
 /* ---------- 通信 ---------- */
 async function api(action, data = {}) {
