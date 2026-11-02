@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>福祉用具Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f6f6; --paper:#fff; --ink:#202122; --sub:#54595d; --line:#a2a9b1; --line2:#eaecf0;
+  --link:#3366cc; --link2:#6b4ba1; --red:#d73333; --box:#f8f9fa; --warn:#fef6e7; --warnline:#fc3;
+  --add:#e6f4ea; --addink:#1e6b34; --del:#fde8e8; --delink:#9b1c1c; --accent:#36c;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#101418; --paper:#1a1f24; --ink:#e8eaed; --sub:#a2a9b1; --line:#3a4148; --line2:#2a3036;
+    --link:#88a3e8; --link2:#b29bd6; --box:#22282e; --warn:#3a3020; --warnline:#a8892c;
+    --add:#183224; --addink:#8fd6a5; --del:#3a1f1f; --delink:#f2a5a5; --accent:#88a3e8;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",sans-serif;font-size:15px;line-height:1.7}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+a.new{color:var(--red)}
+header{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.hd{max-width:960px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center}
+.logo{display:flex;align-items:center;gap:8px;color:var(--ink);font-family:"Noto Serif JP",serif;font-weight:700;font-size:18px;white-space:nowrap}
+.logo:hover{text-decoration:none}
+.logo svg{width:26px;height:26px}
+.hd form{flex:1;display:flex;min-width:0}
+.hd input{flex:1;min-width:0;padding:7px 10px;border:1px solid var(--line);border-radius:2px 0 0 2px;font:inherit;background:var(--paper);color:var(--ink)}
+.hd button{padding:0 12px;border:1px solid var(--line);border-left:0;background:var(--box);color:var(--ink);border-radius:0 2px 2px 0;cursor:pointer}
+main{max-width:960px;margin:0 auto;padding:0 16px 40px}
+.tabs{display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--line)}
+.tabs a{padding:6px 12px;font-size:14px;color:var(--link);border:1px solid transparent;border-bottom:0;margin-bottom:-1px}
+.tabs a.on{background:var(--paper);border-color:var(--line);color:var(--ink);font-weight:700}
+.paper{background:var(--paper);border:1px solid var(--line);border-top:0;padding:16px 18px 24px}
+.paper.solo{border-top:1px solid var(--line);margin-top:14px}
+h1{font-family:"Noto Serif JP",serif;font-weight:500;font-size:26px;line-height:1.35;margin:4px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h2{font-family:"Noto Serif JP",serif;font-weight:500;font-size:20px;margin:26px 0 8px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+h3{font-size:15px;margin:16px 0 4px}
+.from{color:var(--sub);font-size:13px;margin-bottom:12px}
+.toc{display:inline-block;background:var(--box);border:1px solid var(--line);padding:8px 16px 10px;font-size:14px;margin:6px 0 4px}
+.toc b{display:block;text-align:center;margin-bottom:2px}
+.toc ol{margin:0;padding-left:20px}
+.cat{margin-top:28px;border:1px solid var(--line);background:var(--box);padding:6px 10px;font-size:13px}
+.notice{background:var(--warn);border:1px solid var(--warnline);border-left-width:6px;padding:8px 12px;margin:10px 0;font-size:14px}
+.empty{color:var(--sub);font-size:14px;font-style:italic}
+ul{padding-left:22px;margin:6px 0} p{margin:6px 0}
+.q,.a{display:flex;gap:8px;margin:6px 0}
+.q{font-weight:700;margin-top:12px}
+.q span,.a span{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#fff;margin-top:2px}
+.q span{background:var(--accent)} .a span{background:#14866d}
+.meta{margin-top:24px;color:var(--sub);font-size:12px;border-top:1px solid var(--line2);padding-top:8px}
+label{display:block;font-weight:700;margin:14px 0 4px}
+label small{font-weight:400;color:var(--sub)}
+textarea,input.f{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:2px;background:var(--paper);color:var(--ink)}
+textarea{min-height:110px;resize:vertical;line-height:1.6}
+.help{font-size:12px;color:var(--sub);background:var(--box);border:1px solid var(--line2);padding:6px 10px;margin:10px 0}
+.btn{display:inline-block;padding:8px 16px;border:1px solid var(--line);background:var(--box);color:var(--ink);border-radius:2px;font:inherit;font-weight:700;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ng{color:var(--red)}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.list{columns:2;column-gap:28px;padding-left:20px}
+@media (max-width:600px){.list{columns:1}.logo span{display:none}h1{font-size:23px}}
+.card{border:1px solid var(--line);background:var(--paper);margin:14px 0;padding:12px 14px}
+.card h3{margin:0 0 2px;font-size:17px}
+.diff{font-size:13px;border:1px solid var(--line2);margin:4px 0 8px;white-space:pre-wrap;word-break:break-all}
+.diff div{padding:1px 8px}
+.diff .add{background:var(--add);color:var(--addink)} .diff .del{background:var(--del);color:var(--delink);text-decoration:line-through}
+.fl{font-size:13px;font-weight:700;margin-top:10px}
+.loading{padding:40px 0;text-align:center;color:var(--sub)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#202122;color:#fff;padding:10px 18px;border-radius:4px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;max-width:90%}
+#toast.show{opacity:1}
+footer{max-width:960px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:var(--sub)}
+</style>
+</head>
+<body>
+<header><div class="hd">
+  <a class="logo" href="./" data-nav>
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6h9a3 3 0 0 1 3 3v17a2 2 0 0 0-2-2H5zM27 6h-9a3 3 0 0 0-3 3v17a2 2 0 0 1 2-2h10z"/></svg>
+    <span>福祉用具Wiki</span>
+  </a>
+  <form id="sf"><input id="sq" type="search" placeholder="商品名で検索"><button aria-label="検索">🔍</button></form>
+</div></header>
+<main id="main"></main>
+<footer>編集提案は管理者の承認後に反映されます ・ <a href="?admin" data-nav>管理者</a></footer>
+<div id="toast"></div>
+
+<script>
+// ★ GASのウェブアプリURLをここに貼る
+const API_URL = 'https://script.google.com/macros/s/AKfycbznaJ3oCuPSq7fiHrsDeV5OTDV5-CBAjkEIDeV35SSzxn4-yloboLRnZgBzl4ZxA0VQxQ/exec';
+
+const SECTIONS = [
+  { k: 'features', t: '特徴' },
+  { k: 'cautions', t: '注意事項' },
+  { k: 'faq', t: 'よくある質問' },
+  { k: 'trouble', t: 'トラブル対応' }
+];
+const $ = s => document.querySelector(s);
+const main = $('#main');
+let listCache = null;
+
+/* ---------- 通信 ---------- */
+async function api(action, data = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...data })
+  });
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'エラー');
+  return j;
+}
+
+/* ---------- ユーティリティ ---------- */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function unesc(s) {
+  return s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+}
+function pageUrl(name, mode) {
+  return '?name=' + encodeURIComponent(name) + (mode ? '&mode=' + mode : '');
+}
+function fmt(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+}
+function store(k, v) {
+  try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; }
+}
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function loading() { main.innerHTML = '<div class="loading">読み込み中…</div>'; }
+function fail(e) { main.innerHTML = '<div class="paper solo"><p>読み込みに失敗しました：' + esc(e.message) + '</p></div>'; }
+
+/* ---------- 簡易記法 ---------- */
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/\[\[(.+?)\]\]/g, (_, n) => '<a href="' + pageUrl(unesc(n)) + '" data-nav>' + n + '</a>');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return s;
+}
+function md(text) {
+  const lines = String(text || '').replace(/\r/g, '').split('\n');
+  let out = '', list = false, para = [];
+  const flushP = () => { if (para.length) { out += '<p>' + para.map(inline).join('<br>') + '</p>'; para = []; } };
+  const closeL = () => { if (list) { out += '</ul>'; list = false; } };
+  for (const raw of lines) {
+    const l = raw.trim(); let m;
+    if (!l) { flushP(); closeL(); continue; }
+    if ((m = l.match(/^##\s*(.+)/))) { flushP(); closeL(); out += '<h3>' + inline(m[1]) + '</h3>'; }
+    else if ((m = l.match(/^(?:-|・|\*(?!\*))\s*(.+)/))) { flushP(); if (!list) { out += '<ul>'; list = true; } out += '<li>' + inline(m[1]) + '</li>'; }
+    else if ((m = l.match(/^[QＱ][:：.．]\s*(.*)/))) { flushP(); closeL(); out += '<div class="q"><span>Q</span><div>' + inline(m[1]) + '</div></div>'; }
+    else if ((m = l.match(/^[AＡ][:：.．]\s*(.*)/))) { flushP(); closeL(); out += '<div class="a"><span>A</span><div>' + inline(m[1]) + '</div></div>'; }
+    else { closeL(); para.push(l); }
+  }
+  flushP(); closeL();
+  return out;
+}
+
+/* ---------- 差分 ---------- */
+function diffLines(a, b) {
+  a = String(a || '').split('\n'); b = String(b || '').split('\n');
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const out = []; let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { out.push([' ', a[i]]); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) out.push(['-', a[i++]]);
+    else out.push(['+', b[j++]]);
+  }
+  while (i < n) out.push(['-', a[i++]]);
+  while (j < m) out.push(['+', b[j++]]);
+  return out;
+}
+function diffHtml(a, b) {
+  return '<div class="diff">' + diffLines(a, b).filter(d => d[1] !== '' || d[0] !== ' ').map(([t, s]) =>
+    '<div class="' + (t === '+' ? 'add' : t === '-' ? 'del' : '') + '">' + (t === ' ' ? '' : t + ' ') + esc(s || ' ') + '</div>'
+  ).join('') + '</div>';
+}
+
+/* ---------- ルーティング ---------- */
+function go(url) { history.pushState(null, '', url); route(); window.scrollTo(0, 0); }
+window.addEventListener('popstate', route);
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-nav]');
+  if (a) { e.preventDefault(); go(a.getAttribute('href')); }
+});
+$('#sf').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = $('#sq').value.trim();
+  go(q ? '?q=' + encodeURIComponent(q) : './');
+});
+function route() {
+  const p = new URLSearchParams(location.search);
+  if (p.has('admin')) return viewAdmin();
+  const name = p.get('name');
+  if (name) {
+    const mode = p.get('mode');
+    if (mode === 'edit') return viewEdit(name);
+    if (mode === 'history') return viewHistory(name);
+    return viewPage(name);
+  }
+  viewIndex(p.get('q') || '');
+}
+function tabs(name, on) {
+  const t = [['read', '閲覧', pageUrl(name)], ['edit', '編集を提案', pageUrl(name, 'edit')], ['history', '履歴', pageUrl(name, 'history')]];
+  return '<div class="tabs">' + t.map(([k, l, u]) => '<a href="' + u + '" data-nav class="' + (k === on ? 'on' : '') + '">' + l + '</a>').join('') + '</div>';
+}
+
+/* ---------- トップ／検索 ---------- */
+async function viewIndex(q) {
+  document.title = '福祉用具Wiki';
+  $('#sq').value = q;
+  loading();
+  try { if (!listCache) listCache = (await api('list')).pages; } catch (e) { return fail(e); }
+  const pages = listCache.filter(p => p.name);
+  const ql = q.toLowerCase();
+  const hit = q ? pages.filter(p => String(p.name).toLowerCase().includes(ql)) : pages;
+  let h = '<div class="paper solo">';
+  if (q) {
+    h += '<h1>「' + esc(q) + '」の検索結果</h1>';
+    if (!pages.some(p => p.name === q)) h += '<p>記事「<a class="new" href="' + pageUrl(q, 'edit') + '" data-nav>' + esc(q) + '</a>」を新しく作成できます。</p>';
+    h += hit.length ? '<ul>' + hit.map(p => '<li><a href="' + pageUrl(p.name) + '" data-nav>' + esc(p.name) + '</a> <small style="color:var(--sub)">' + esc(p.category) + '</small></li>').join('') + '</ul>' : '<p class="empty">一致する記事はありません</p>';
+  } else {
+    h += '<h1>福祉用具Wikiへようこそ</h1><p class="from">現在 ' + pages.length + ' 本の記事があります。WelSyncの商品名からも開けます。</p>';
+    const recent = [...pages].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))).slice(0, 5);
+    if (recent.length) h += '<h2>最近の更新</h2><ul>' + recent.map(p => '<li><a href="' + pageUrl(p.name) + '" data-nav>' + esc(p.name) + '</a> <small style="color:var(--sub)">' + fmt(p.updatedAt) + '</small></li>').join('') + '</ul>';
+    const groups = {};
+    pages.forEach(p => (groups[p.category || '未分類'] ||= []).push(p));
+    Object.keys(groups).sort().forEach(c => {
+      h += '<h2>' + esc(c) + '</h2><ul class="list">' + groups[c].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'))
+        .map(p => '<li><a href="' + pageUrl(p.name) + '" data-nav>' + esc(p.name) + '</a></li>').join('') + '</ul>';
+    });
+  }
+  main.innerHTML = h + '</div>';
+}
+
+/* ---------- 記事 ---------- */
+async function viewPage(name) {
+  document.title = name + ' - 福祉用具Wiki';
+  loading();
+  let r; try { r = await api('get', { name }); } catch (e) { return fail(e); }
+  const pg = r.page;
+  let h = tabs(name, 'read') + '<div class="paper"><h1>' + esc(name) + '</h1><div class="from">出典：福祉用具Wiki（社内）</div>';
+  if (r.pending) h += '<div class="notice">この記事には承認待ちの編集提案が ' + r.pending + ' 件あります。</div>';
+  if (!pg) {
+    h += '<p>この記事はまだありません。</p><p>商品の特徴や注意点を知っていたら、<a href="' + pageUrl(name, 'edit') + '" data-nav>最初の内容を提案</a>してください。管理者の承認後に公開されます。</p>';
+    return main.innerHTML = h + '</div>';
+  }
+  const filled = SECTIONS.filter(s => pg[s.k]);
+  if (filled.length >= 2) h += '<div class="toc"><b>目次</b><ol>' + filled.map(s => '<li><a href="#' + s.k + '">' + s.t + '</a></li>').join('') + '</ol></div>';
+  SECTIONS.forEach(s => {
+    h += '<h2 id="' + s.k + '">' + s.t + '</h2>' + (pg[s.k] ? md(pg[s.k]) : '<p class="empty">まだ記載がありません。<a href="' + pageUrl(name, 'edit') + '" data-nav>追記を提案</a></p>');
+  });
+  if (pg.category) h += '<div class="cat">カテゴリ：<a href="?q=" data-nav>' + esc(pg.category) + '</a></div>';
+  h += '<div class="meta">最終更新：' + fmt(pg.updatedAt) + '（' + esc(pg.updatedBy) + ' さんの提案）</div>';
+  main.innerHTML = h + '</div>';
+}
+
+/* ---------- 編集提案 ---------- */
+async function viewEdit(name) {
+  document.title = name + ' を編集 - 福祉用具Wiki';
+  loading();
+  let r; try { r = await api('get', { name }); } catch (e) { return fail(e); }
+  const pg = r.page || {};
+  let h = tabs(name, 'edit') + '<div class="paper"><h1>「' + esc(name) + '」の編集を提案</h1>';
+  h += '<p class="from">送信した内容はすぐには反映されず、管理者が確認してから公開されます。</p>';
+  h += '<div class="help">書き方：<b>- </b>で箇条書き ／ <b>Q:</b> と <b>A:</b> で質問と回答 ／ <b>**太字**</b> ／ <b>[[商品名]]</b>で他の記事へリンク ／ <b>## </b>で小見出し</div>';
+  h += '<form id="ef"><label>カテゴリ</label><input class="f" name="category" value="' + esc(pg.category) + '" placeholder="例：車いす">';
+  SECTIONS.forEach(s => { h += '<label>' + s.t + '</label><textarea name="' + s.k + '">' + esc(pg[s.k]) + '</textarea>'; });
+  h += '<label>あなたの名前</label><input class="f" name="proposer" required value="' + esc(store('wiki_name') || '') + '">';
+  h += '<label>編集の要約 <small>（任意・何を直したか）</small></label><input class="f" name="comment" placeholder="例：注意事項にブレーキの件を追加">';
+  h += '<div class="row"><button class="btn pri" id="sb">提案を送信</button><a class="btn" href="' + pageUrl(name) + '" data-nav>キャンセル</a></div></form>';
+  main.innerHTML = h + '</div>';
+  $('#ef').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target));
+    const changed = ['category', ...SECTIONS.map(s => s.k)].some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim());
+    if (!changed) return toast('変更がありません');
+    $('#sb').disabled = true;
+    try {
+      store('wiki_name', fd.proposer.trim());
+      await api('propose', { name, ...fd });
+      toast('提案を送信しました。承認後に反映されます');
+      go(pageUrl(name));
+    } catch (err) { toast(err.message); $('#sb').disabled = false; }
+  });
+}
+
+/* ---------- 履歴 ---------- */
+async function viewHistory(name) {
+  document.title = name + ' の履歴 - 福祉用具Wiki';
+  loading();
+  let r; try { r = await api('history', { name }); } catch (e) { return fail(e); }
+  let h = tabs(name, 'history') + '<div class="paper"><h1>「' + esc(name) + '」の更新履歴</h1>';
+  h += r.history.length ? '<ul>' + r.history.map(x => '<li>' + fmt(x.reviewedAt) + ' ― ' + esc(x.proposer) + ' さん' + (x.comment ? '：' + esc(x.comment) : '') + '</li>').join('') + '</ul>' : '<p class="empty">まだ履歴はありません</p>';
+  main.innerHTML = h + '</div>';
+}
+
+/* ---------- 管理者 ---------- */
+async function viewAdmin() {
+  document.title = '管理者 - 福祉用具Wiki';
+  const key = store('wiki_admin');
+  if (!key) {
+    main.innerHTML = '<div class="paper solo"><h1>管理者ログイン</h1><form id="lf"><label>管理者キー</label><input class="f" type="password" name="key" required><div class="row"><button class="btn pri">ログイン</button></div></form></div>';
+    $('#lf').addEventListener('submit', async e => {
+      e.preventDefault();
+      const k = e.target.key.value.trim();
+      try { await api('login', { key: k }); store('wiki_admin', k); viewAdmin(); } catch (err) { toast(err.message); }
+    });
+    return;
+  }
+  loading();
+  let r;
+  try { r = await api('pending', { key }); }
+  catch (e) { if (/キー/.test(e.message)) { store('wiki_admin', null); return viewAdmin(); } return fail(e); }
+  let h = '<div class="paper solo"><h1>承認待ちの提案（' + r.list.length + '件）</h1>';
+  if (!r.list.length) h += '<p class="empty">承認待ちはありません。</p>';
+  r.list.forEach(({ proposal: p, current: c, conflict }, i) => {
+    c = c || {};
+    h += '<div class="card" data-i="' + i + '"><h3><a href="' + pageUrl(p.name) + '" data-nav>' + esc(p.name) + '</a>' + (c.name ? '' : ' <small style="color:var(--red)">新規</small>') + '</h3>';
+    h += '<div class="from">' + esc(p.proposer) + ' さん ・ ' + fmt(p.createdAt) + (p.comment ? ' ・ ' + esc(p.comment) : '') + '</div>';
+    if (conflict) h += '<div class="notice">この提案の後に記事が更新されています。承認すると上書きされるので、内容を確認してください。</div>';
+    let any = false;
+    ['category', ...SECTIONS.map(s => s.k)].forEach(k => {
+      if (String(p[k] || '') === String(c[k] || '')) return;
+      any = true;
+      const label = k === 'category' ? 'カテゴリ' : SECTIONS.find(s => s.k === k).t;
+      h += '<div class="fl">' + label + '</div>' + diffHtml(c[k], p[k]);
+    });
+    if (!any) h += '<p class="empty">変更点はありません</p>';
+    h += '<div class="fix" hidden>' + ['category', ...SECTIONS.map(s => s.k)].map(k =>
+      '<label>' + (k === 'category' ? 'カテゴリ' : SECTIONS.find(s => s.k === k).t) + '</label>' +
+      (k === 'category' ? '<input class="f" data-k="category" value="' + esc(p[k]) + '">' : '<textarea data-k="' + k + '">' + esc(p[k]) + '</textarea>')
+    ).join('') + '</div>';
+    h += '<div class="row"><button class="btn pri" data-act="ok">承認</button><button class="btn" data-act="fix">修正して承認</button><button class="btn ng" data-act="ng">却下</button></div></div>';
+  });
+  h += '<div class="row"><button class="btn" id="lo">ログアウト</button></div>';
+  main.innerHTML = h + '</div>';
+  $('#lo').onclick = () => { store('wiki_admin', null); viewAdmin(); };
+  main.querySelectorAll('.card').forEach(card => {
+    const p = r.list[card.dataset.i].proposal;
+    const fix = card.querySelector('.fix');
+    card.querySelectorAll('[data-act]').forEach(b => b.onclick = async () => {
+      const act = b.dataset.act;
+      let body = { key, id: p.id };
+      if (act === 'fix' && fix.hidden) { fix.hidden = false; b.textContent = 'この内容で承認'; return; }
+      if (act === 'ok') body.decision = 'approve';
+      if (act === 'fix') {
+        body.decision = 'approve'; body.final = {};
+        fix.querySelectorAll('[data-k]').forEach(el => body.final[el.dataset.k] = el.value);
+        body.note = '管理者が修正して承認';
+      }
+      if (act === 'ng') {
+        const note = prompt('却下の理由（任意）');
+        if (note === null) return;
+        body.decision = 'reject'; body.note = note;
+      }
+      card.querySelectorAll('button').forEach(x => x.disabled = true);
+      try {
+        await api('review', body);
+        listCache = null;
+        toast(body.decision === 'approve' ? '承認しました' : '却下しました');
+        viewAdmin();
+      } catch (err) { toast(err.message); card.querySelectorAll('button').forEach(x => x.disabled = false); }
+    });
+  });
+}
+
+route();
+</script>
+</body>
+</html>
