@@ -194,6 +194,7 @@
         <li class="side-menu-item" onclick="closeSideMenu(); showSearch('スロープ')"><span class="material-icons">grade</span>スロープ</li>
         <li class="side-menu-item" onclick="closeSideMenu(); showSearch('移動用リフト')"><span class="material-icons">airline_seat_recline_extra</span>移動用リフト</li>
         <li class="side-menu-item" onclick="selectSideCategory('徘徊感知器')"><span class="material-icons">elderly</span>徘徊感知器</li>
+        <li class="side-menu-item side-menu-video" style="padding:0;"><a href="https://youtu.be/woPH-NIiFz8" target="_blank" rel="noopener noreferrer" onclick="closeSideMenu()" style="display:flex; align-items:center; width:100%; padding:16px 20px; color:inherit; text-decoration:none;"><span class="material-icons" style="color:#e53935;">smart_display</span>使い方動画</a></li>
         <li class="side-menu-item side-menu-action" onclick="forceRefreshSide()"><span class="material-icons">sync</span>最新データを取得</li>
       </ul>
     </div>
@@ -2431,6 +2432,48 @@
       document.getElementById('floating-run-btn-container').style.display = 'none';
       document.getElementById('sm-report-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // ===================================================
+    // スワイプ・戻るボタンで「1つ前の画面」に戻る
+    // （画像 → メニュー → 比較 → カテゴリ → トップ の順に閉じる。トップで戻るとアプリ終了）
+    // ===================================================
+    let backGuarded = false;
+    function isModalOpen() { return document.getElementById('image-modal').style.display === 'flex'; }
+    function isSideMenuOpen() { return document.getElementById('side-menu').classList.contains('active'); }
+    function isDeepState() {
+      return isModalOpen() || isSideMenuOpen() || isCompareMode
+        || appMode === 'side' || appMode === 'select'
+        || (appMode === 'home' && !!currentCategory);
+    }
+    function ensureBackGuard() {
+      if (!backGuarded && isDeepState()) {
+        try { history.pushState({ welsyncBack: true }, ''); backGuarded = true; } catch (e) {}
+      }
+    }
+    // 一番手前の画面を1つだけ閉じる。閉じるものが無ければ false
+    function closeTopLayer() {
+      if (isModalOpen()) { closeImageModal(); return true; }
+      if (isSideMenuOpen()) { closeSideMenu(); return true; }
+      if (isCompareMode) { exitCompare(); return true; }
+      if (appMode === 'side' || appMode === 'select') { switchView('home'); return true; }
+      if (appMode === 'home' && currentCategory) { showSearch(currentCategory); window.scrollTo(0, 0); return true; }
+      return false;
+    }
+    window.addEventListener('popstate', function() {
+      backGuarded = false;
+      if (closeTopLayer()) ensureBackGuard();
+      else history.back(); // トップ画面なら、そのまま本当に戻る（アプリ終了）
+    });
+    // 画面が深くなる操作のあとに「戻る用の目印」を置く
+    ['openImageGallery', 'openSideMenu', 'selectSideCategory', 'showSearch', 'switchView', 'startCompare', 'exitCompare'].forEach(function(name) {
+      const original = window[name];
+      if (typeof original !== 'function') return;
+      window[name] = function() {
+        const result = original.apply(this, arguments);
+        ensureBackGuard();
+        return result;
+      };
+    });
   </script>
 </body>
 </html>
