@@ -111,7 +111,7 @@
     .thumb-img { width: 85px; height: 85px; object-fit: contain; border-radius: 8px; cursor: pointer; border: 1px solid #eee; background: #fff; flex-shrink: 0; }
     .card-details { flex-grow: 1; min-width: 0; }
 
-    #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); touch-action: pan-y; }
+    #image-modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(3px); touch-action: none; overflow: hidden; }
     #image-modal img { max-width: 90%; max-height: 80%; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); margin-top: env(safe-area-inset-top); margin-bottom: env(safe-area-inset-bottom); }
     .modal-close { color: white; font-size: 40px; position: absolute; top: calc(20px + env(safe-area-inset-top)); right: 25px; cursor: pointer; font-weight: normal; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2; }
     .modal-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); display: none; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 2; transition: 0.2s; }
@@ -120,7 +120,7 @@
     .modal-nav-prev { left: 12px; }
     .modal-nav-next { right: 12px; }
     #modal-counter { display: none; position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.55); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; }
-    #enlarged-img { transition: opacity 0.15s ease; }
+    #enlarged-img { transition: opacity 0.15s ease; transform-origin: center center; will-change: transform; user-select: none; -webkit-user-drag: none; }
     #modal-loading { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; z-index: 1; pointer-events: none; }
     #modal-loading .material-icons { font-size: 36px; animation: spin 1.2s linear infinite; }
 
@@ -172,7 +172,7 @@
 </head>
 <body>
 
-  <div id="image-modal" onclick="closeImageModal()" ontouchstart="handleModalTouchStart(event)" ontouchend="handleModalTouchEnd(event)">
+  <div id="image-modal" onclick="modalClick(event)" ontouchstart="handleModalTouchStart(event)" ontouchend="handleModalTouchEnd(event)">
     <span class="modal-close">&times;</span>
     <div id="modal-nav-prev" class="modal-nav modal-nav-prev" onclick="event.stopPropagation(); navModalImage(-1)"><span class="material-icons">chevron_left</span></div>
     <img id="enlarged-img" src="" alt="拡大画像">
@@ -1165,32 +1165,141 @@
     let modalTouchStartY = null;
     let modalPreloadedUrls = new Set();
 
+    // =====================================================================
+    //  拡大画像のズーム（ピンチ・ダブルタップ・ホイール）とスワイプ送り
+    //  ・ズームしていないとき：1回タップで閉じる／左右スワイプで画像送り
+    //  ・ダブルタップ：2.5倍に拡大（もう一度で元に戻る）
+    //  ・ズーム中：1本指で移動。×ボタンかダブルタップで戻す
+    // =====================================================================
+    const MZ_MAX = 5;
+    let mz = { s: 1, x: 0, y: 0 };
+    let mzT = null, mzLastTap = 0, mzLastTouch = 0, mzCloseTimer = null, mzDrag = null;
+
+    function mzImg() { return document.getElementById('enlarged-img'); }
+    function mzApply(anim) {
+      const img = mzImg();
+      img.style.transition = anim ? 'transform 0.2s, opacity 0.15s' : 'opacity 0.15s';
+      img.style.transform = (mz.s === 1 && mz.x === 0 && mz.y === 0) ? '' : 'translate(' + mz.x + 'px,' + mz.y + 'px) scale(' + mz.s + ')';
+    }
+    function mzReset() { mz = { s: 1, x: 0, y: 0 }; mzT = null; mzApply(false); }
+    // 画像の（ズーム前の）中心
+    function mzCenter() {
+      const r = mzImg().getBoundingClientRect();
+      return { x: r.left + r.width / 2 - mz.x, y: r.top + r.height / 2 - mz.y };
+    }
+    function mzClamp() {
+      if (mz.s <= 1.02) { mz = { s: 1, x: 0, y: 0 }; return; }
+      const img = mzImg();
+      const mx = Math.max(0, (img.offsetWidth * mz.s - window.innerWidth) / 2 + 20);
+      const my = Math.max(0, (img.offsetHeight * mz.s - window.innerHeight) / 2 + 20);
+      mz.x = Math.min(mx, Math.max(-mx, mz.x));
+      mz.y = Math.min(my, Math.max(-my, mz.y));
+    }
+    function mzZoomAt(ns, px, py, anim) {
+      ns = Math.min(MZ_MAX, Math.max(1, ns));
+      const c = mzCenter(), cx = px - c.x, cy = py - c.y;
+      mz.x = cx - (cx - mz.x) * (ns / mz.s);
+      mz.y = cy - (cy - mz.y) * (ns / mz.s);
+      mz.s = ns;
+      mzClamp(); mzApply(anim);
+    }
+    function mzToggle(px, py) {
+      if (mz.s > 1) { mz = { s: 1, x: 0, y: 0 }; mzApply(true); }
+      else mzZoomAt(2.5, px, py, true);
+    }
+    function mzDist(a, b) { return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+    function mzMid(a, b) { return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 }; }
+
+    // クリック（パソコン）。タッチ直後の疑似クリックは無視する
+    function modalClick(e) {
+      if (e.target.closest('.modal-close')) { closeImageModal(); return; }
+      if (Date.now() - mzLastTouch < 700) return;
+      if (mz.s > 1) return;
+      clearTimeout(mzCloseTimer);
+      mzCloseTimer = setTimeout(closeImageModal, 250); // ダブルクリックなら取り消す
+    }
+
     function handleModalTouchStart(e) {
-      if (!e.changedTouches || e.changedTouches.length === 0) return;
-      modalTouchStartX = e.changedTouches[0].clientX;
-      modalTouchStartY = e.changedTouches[0].clientY;
+      mzLastTouch = Date.now();
+      if (e.target.closest('.modal-nav, .modal-close')) return;
+      const t = e.touches;
+      if (t.length === 2) {
+        clearTimeout(mzCloseTimer); mzLastTap = 0;
+        mzT = { pinch: true, d: mzDist(t[0], t[1]), m: mzMid(t[0], t[1]), c: mzCenter(), s: mz.s, x: mz.x, y: mz.y };
+      } else if (t.length === 1 && !(mzT && mzT.pinch)) {
+        mzT = { pinch: false, sx: t[0].clientX, sy: t[0].clientY, x: mz.x, y: mz.y, moved: false };
+      }
+    }
+
+    function handleModalTouchMove(e) {
+      if (!mzT) return;
+      e.preventDefault();
+      const t = e.touches;
+      if (mzT.pinch && t.length === 2) {
+        const ns = Math.min(MZ_MAX, Math.max(1, mzT.s * mzDist(t[0], t[1]) / mzT.d));
+        const m = mzMid(t[0], t[1]), c = mzT.c;
+        mz.x = (m.x - c.x) - ((mzT.m.x - c.x) - mzT.x) * (ns / mzT.s);
+        mz.y = (m.y - c.y) - ((mzT.m.y - c.y) - mzT.y) * (ns / mzT.s);
+        mz.s = ns; mzApply(false);
+      } else if (!mzT.pinch && t.length === 1) {
+        const dx = t[0].clientX - mzT.sx, dy = t[0].clientY - mzT.sy;
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) mzT.moved = true;
+        if (mz.s > 1) { mz.x = mzT.x + dx; mz.y = mzT.y + dy; mzClamp(); mzApply(false); }
+      }
     }
 
     function handleModalTouchEnd(e) {
-      if (modalTouchStartX === null || !e.changedTouches || e.changedTouches.length === 0) return;
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
-      const diffX = endX - modalTouchStartX;
-      const diffY = endY - modalTouchStartY;
-      modalTouchStartX = null;
-      modalTouchStartY = null;
-
-      // 横方向への一定以上のスワイプのみ画像送りとして扱う（縦スワイプ・タップは無視）
-      if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.5 && modalImages.length > 1) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (diffX < 0) {
-          navModalImage(1); // 左スワイプ → 次の画像
-        } else {
-          navModalImage(-1); // 右スワイプ → 前の画像
-        }
+      mzLastTouch = Date.now();
+      if (!mzT) return;
+      if (mzT.pinch) {
+        if (e.touches.length === 0) { mzClamp(); mzApply(true); mzT = null; }
+        return;
       }
+      const ct = e.changedTouches[0];
+      const diffX = ct.clientX - mzT.sx, diffY = ct.clientY - mzT.sy;
+      if (!mzT.moved) {
+        if (Date.now() - mzLastTap < 300) {
+          // ダブルタップ
+          clearTimeout(mzCloseTimer); mzLastTap = 0;
+          mzToggle(ct.clientX, ct.clientY);
+        } else {
+          mzLastTap = Date.now();
+          if (mz.s === 1) {
+            clearTimeout(mzCloseTimer);
+            mzCloseTimer = setTimeout(function() { if (mzLastTap) { mzLastTap = 0; closeImageModal(); } }, 300);
+          }
+        }
+      } else if (mz.s === 1 && Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.5 && modalImages.length > 1) {
+        // 横スワイプで画像送り（ズームしていないときだけ）
+        if (diffX < 0) navModalImage(1); else navModalImage(-1);
+      }
+      mzT = null;
     }
+
+    (function() {
+      const modal = document.getElementById('image-modal');
+      const img = mzImg();
+      modal.addEventListener('touchmove', handleModalTouchMove, { passive: false });
+      modal.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        clearTimeout(mzCloseTimer);
+        mzZoomAt(mz.s * (e.deltaY < 0 ? 1.2 : 1 / 1.2), e.clientX, e.clientY, false);
+      }, { passive: false });
+      img.addEventListener('dblclick', function(e) {
+        if (Date.now() - mzLastTouch < 700) return;
+        clearTimeout(mzCloseTimer);
+        mzToggle(e.clientX, e.clientY);
+      });
+      img.addEventListener('mousedown', function(e) {
+        if (mz.s > 1) { e.preventDefault(); mzDrag = { sx: e.clientX, sy: e.clientY, x: mz.x, y: mz.y, moved: false }; }
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!mzDrag) return;
+        mz.x = mzDrag.x + e.clientX - mzDrag.sx; mz.y = mzDrag.y + e.clientY - mzDrag.sy;
+        mzClamp(); mzApply(false);
+      });
+      document.addEventListener('mouseup', function() { mzDrag = null; });
+    })();
 
     // =====================================================================
     //  サムネイル画像の読み込み（順番読み込み）
@@ -1297,6 +1406,7 @@
     }
 
     function renderModalImage() {
+      mzReset();
       const img = document.getElementById('enlarged-img');
       const loading = document.getElementById('modal-loading');
       const url = modalImages[modalIndex];
@@ -1344,6 +1454,7 @@
     }
 
     function closeImageModal() {
+      clearTimeout(mzCloseTimer); mzReset();
       document.getElementById('image-modal').style.display = 'none';
       document.getElementById('enlarged-img').src = '';
       modalImages = [];
