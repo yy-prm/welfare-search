@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow, noarchive">
   <base target="_top">
   <meta charset="UTF-8">
   <title>WelSync（福祉用具検索）</title>
@@ -1902,7 +1903,7 @@
 
       let itemNameHtml = item._str.name;
       if (item._str.manual) {
-        itemNameHtml = `<a href="${item._str.manual}" target="_blank" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">${itemNameHtml}</a>`;
+        itemNameHtml = `<a href="${item._str.manual}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">${itemNameHtml}</a>`;
       }
 
       let bottomActionBtnHtml = "";
