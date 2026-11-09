@@ -2438,6 +2438,8 @@
     // （画像 → メニュー → 比較 → カテゴリ → トップ の順に閉じる。トップで戻るとアプリ終了）
     // ===================================================
     let backGuarded = false;
+    // 戻ったときにブラウザが勝手にスクロール位置を変えないようにする
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
     function isModalOpen() { return document.getElementById('image-modal').style.display === 'flex'; }
     function isSideMenuOpen() { return document.getElementById('side-menu').classList.contains('active'); }
     function isDeepState() {
