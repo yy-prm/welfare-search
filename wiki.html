@@ -74,6 +74,14 @@ textarea{min-height:110px;resize:vertical;line-height:1.6}
 .fl{font-size:13px;font-weight:700;margin-top:10px}
 .loading{padding:40px 0;text-align:center;color:var(--sub)}
 .note{background:var(--box);border:1px solid var(--line2);border-left:4px solid var(--accent);padding:8px 12px;margin:10px 0;font-size:14px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:8px 0}
+.gal>a,.gal>div{display:block;aspect-ratio:1;border:1px solid var(--line2);background:var(--box);overflow:hidden;position:relative}
+.gal img{width:100%;height:100%;object-fit:cover;display:block}
+.gal .x{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:16px;line-height:28px;cursor:pointer;padding:0}
+.gal .tag{position:absolute;left:0;bottom:0;right:0;font-size:11px;font-weight:700;text-align:center;color:#fff;padding:2px}
+.gal .tag.add{background:#1e6b34}.gal .tag.del{background:#9b1c1c}
+.gal .up{display:grid;place-items:center;font-size:12px;color:var(--sub)}
+.addimg{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 12px;margin-top:2px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#202122;color:#fff;padding:10px 18px;border-radius:4px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;max-width:90%}
 #toast.show{opacity:1}
 footer{max-width:960px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:var(--sub)}
@@ -93,7 +101,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:va
 
 <script>
 // ★ GASのウェブアプリURLをここに貼る
-const API_URL = 'https://script.google.com/macros/s/AKfycbznaJ3oCuPSq7fiHrsDeV5OTDV5-CBAjkEIDeV35SSzxn4-yloboLRnZgBzl4ZxA0VQxQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzsUrPBQZVrl8qK1-v5JKqQepp83GOx1HOfAbZc_CA_I_B2Oy0Ey9ILr-xXx8Ffzoo/exec';
 
 const SECTIONS = [
   { k: 'features', t: '特徴' },
@@ -105,6 +113,35 @@ const TEXT_KEYS = ['manual', ...SECTIONS.map(s => s.k)];
 const KEYS = TEXT_KEYS;
 const label = k => ({ manual: '説明書URL' })[k] || SECTIONS.find(s => s.k === k).t;
 const $ = s => document.querySelector(s);
+const MAX_IMG = 10;
+const emptyImgs = () => Object.fromEntries(SECTIONS.map(s => [s.k, []]));
+const imgsOf = o => { const r = emptyImgs(); const src = (o && o.images) || {}; SECTIONS.forEach(s => { if (Array.isArray(src[s.k])) r[s.k] = src[s.k].slice(); }); return r; };
+const thumb = id => 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w800';
+const fullImg = id => 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view';
+// list は ID の配列、または [ID, 'add'|'del'] の配列
+function gallery(list) {
+  return '<div class="gal">' + list.map(x => {
+    const [id, tag] = Array.isArray(x) ? x : [x];
+    return '<a href="' + fullImg(id) + '" target="_blank" rel="noopener noreferrer"><img src="' + thumb(id) + '" loading="lazy" alt="">'
+      + (tag ? '<span class="tag ' + tag + '">' + (tag === 'add' ? '追加' : '削除') + '</span>' : '') + '</a>';
+  }).join('') + '</div>';
+}
+// スマホ写真を長辺1280pxのJPEGに縮めてから送る
+function resizeImage(file, max = 1280) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+    };
+    img.onerror = () => rej(new Error('画像を読み込めませんでした'));
+    img.src = URL.createObjectURL(file);
+  });
+}
 const main = $('#main');
 let listCache = null;
 
@@ -260,11 +297,14 @@ async function viewPage(name) {
     h += '<p>この記事はまだありません。</p><p>商品の特徴や注意点を知っていたら、<a href="' + pageUrl(name, 'edit') + '" data-nav>最初の内容を提案</a>してください。管理者の承認後に公開されます。</p>';
     return main.innerHTML = h + '</div>';
   }
-  const filled = SECTIONS.filter(s => pg[s.k]);
+  const imgs = imgsOf(pg);
+  const filled = SECTIONS.filter(s => pg[s.k] || imgs[s.k].length);
   if (filled.length >= 2) h += '<div class="toc"><b>目次</b><ol>' + filled.map(s => '<li><a href="#' + s.k + '">' + s.t + '</a></li>').join('') + '</ol></div>';
-  if (pg.manual) h += '<h2>取扱説明書</h2><p><a href="' + esc(pg.manual) + '" target="_blank" rel="noopener noreferrer">📄 取扱説明書を開く</a></p>';
+  if (/^https?:\/\//i.test(String(pg.manual || ''))) h += '<h2>取扱説明書</h2><p><a href="' + esc(pg.manual) + '" target="_blank" rel="noopener noreferrer">📄 取扱説明書を開く</a></p>';
   SECTIONS.forEach(s => {
-    h += '<h2 id="' + s.k + '">' + s.t + '</h2>' + (pg[s.k] ? md(pg[s.k]) : '<p class="empty">まだ記載がありません。<a href="' + pageUrl(name, 'edit') + '" data-nav>追記を提案</a></p>');
+    const has = pg[s.k] || imgs[s.k].length;
+    h += '<h2 id="' + s.k + '">' + s.t + '</h2>' + (pg[s.k] ? md(pg[s.k]) : '') + (imgs[s.k].length ? gallery(imgs[s.k]) : '')
+      + (has ? '' : '<p class="empty">まだ記載がありません。<a href="' + pageUrl(name, 'edit') + '" data-nav>追記を提案</a></p>');
   });
   h += '<div class="meta">最終更新：' + fmt(pg.updatedAt) + '（' + esc(pg.updatedBy) + ' さんの提案）</div>';
   main.innerHTML = h + '</div>';
@@ -280,15 +320,47 @@ async function viewEdit(name) {
   h += '<div class="note"><b>全部うめなくて大丈夫です。</b>わかる項目だけ書いて送ってください。1行だけの追記でもOKです。<br>送った内容はすぐには反映されず、管理者が確認してから公開されます。</div>';
   h += '<form id="ef">';
   h += '<label>説明書URL <small>（メーカーの取扱説明書のページなど）</small></label><input class="f" type="url" name="manual" value="' + esc(pg.manual) + '" placeholder="https://">';
-  SECTIONS.forEach(s => { h += '<label>' + s.t + '</label><textarea name="' + s.k + '">' + esc(pg[s.k]) + '</textarea>'; });
+  SECTIONS.forEach(s => {
+    h += '<label>' + s.t + '</label><textarea name="' + s.k + '">' + esc(pg[s.k]) + '</textarea>';
+    h += '<div class="gal" data-gal="' + s.k + '"></div><label class="btn addimg">📷 ' + s.t + 'に画像を追加<input type="file" accept="image/*" multiple hidden data-file="' + s.k + '"></label>';
+  });
+  h += '<p class="from" style="margin-top:14px">※ お客様のお宅や、人が写った写真は載せないでください。</p>';
   h += '<label>あなたの名前</label><input class="f" name="proposer" required value="' + esc(store('wiki_name') || '') + '">';
   h += '<div class="row"><button class="btn pri" id="sb">提案を送信</button><a class="btn" href="' + pageUrl(name) + '" data-nav>キャンセル</a></div></form>';
   main.innerHTML = h + '</div>';
 
+  // 画像の追加・削除（項目ごと）
+  const orig = imgsOf(pg), imgs = imgsOf(pg), busy = emptyImgs();
+  const draw = k => {
+    main.querySelector('[data-gal="' + k + '"]').innerHTML =
+      imgs[k].map((id, i) => '<div><img src="' + thumb(id) + '" alt=""><button type="button" class="x" data-k="' + k + '" data-i="' + i + '" aria-label="削除">×</button></div>').join('')
+      + (busy[k].length ? '<div class="up">アップ中…</div>' : '');
+  };
+  SECTIONS.forEach(s => draw(s.k));
+  main.addEventListener('click', e => {
+    const b = e.target.closest('.x[data-k]');
+    if (b) { imgs[b.dataset.k].splice(Number(b.dataset.i), 1); draw(b.dataset.k); }
+  });
+  main.querySelectorAll('[data-file]').forEach(inp => inp.addEventListener('change', async e => {
+    const k = inp.dataset.file, files = [...e.target.files]; e.target.value = '';
+    for (const f of files) {
+      if (imgs[k].length + busy[k].length >= MAX_IMG) { toast('1項目につき画像は' + MAX_IMG + '枚までです'); break; }
+      busy[k].push(1); draw(k);
+      try {
+        const data = await resizeImage(f);
+        const r = await api('upload', { name, data });
+        imgs[k].push(r.id);
+      } catch (err) { toast('画像のアップに失敗：' + err.message); }
+      busy[k].pop(); draw(k);
+    }
+  }));
+
   $('#ef').addEventListener('submit', async e => {
     e.preventDefault();
+    if (SECTIONS.some(s => busy[s.k].length)) return toast('画像のアップが終わるまで待ってください');
     const fd = Object.fromEntries(new FormData(e.target));
-    const changed = KEYS.some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim());
+    fd.images = imgs;
+    const changed = KEYS.some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim()) || JSON.stringify(imgs) !== JSON.stringify(orig);
     if (!changed) return toast('変更がありません');
     $('#sb').disabled = true;
     try {
@@ -339,6 +411,13 @@ async function viewAdmin() {
       if (String(p[k] || '') === String(c[k] || '')) return;
       any = true;
       h += '<div class="fl">' + label(k) + '</div>' + diffHtml(c[k], p[k]);
+    });
+    const ci = imgsOf(c), pi = imgsOf(p);
+    SECTIONS.forEach(s => {
+      const added = pi[s.k].filter(x => !ci[s.k].includes(x)), removed = ci[s.k].filter(x => !pi[s.k].includes(x));
+      if (!added.length && !removed.length) return;
+      any = true;
+      h += '<div class="fl">' + s.t + 'の画像</div>' + gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
     });
     if (!any) h += '<p class="empty">変更点はありません</p>';
     h += '<div class="fix" hidden>' + TEXT_KEYS.map(k =>
