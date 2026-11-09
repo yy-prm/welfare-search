@@ -60,12 +60,20 @@
     .side-menu-action { background: #fff3e0; color: #E65100; margin-top: auto; border-top: 1px solid #ffe0b2; }
     .side-menu-action .material-icons { color: #FF9800; }
     
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 10px; max-width: 600px; margin: 0 auto 15px auto; }
+    .grid-container { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 600px; margin: 0 auto 15px auto; }
+
     
     .panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #fff; padding: 12px 2px; border-radius: var(--card-radius); text-align: center; cursor: pointer; border: 2px solid transparent; border-top: 4px solid var(--theme-color); font-weight: bold; font-size: 11px; box-shadow: 0 3px 6px rgba(0,0,0,0.04); transition: 0.2s; color: #555; }
     .panel:active { background: #f0f0f0; transform: scale(0.95); }
     .panel.active { background: var(--theme-light); border-color: var(--theme-color); color: var(--theme-dark); box-shadow: 0 4px 10px rgba(75, 156, 179, 0.15); }
     .panel .material-icons { font-size: 28px; color: var(--theme-color); } 
+    /* パソコンなど広い画面：4×2のまま、少しゆったり */
+    @media (min-width: 700px) {
+      .grid-container { gap: 14px; }
+      .panel { padding: 20px 6px; font-size: 13.5px; gap: 8px; }
+      .panel .material-icons { font-size: 34px; }
+      .panel:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    }
     
     #filter-wrapper { display: none; background: #fff; padding: 18px; border-radius: var(--card-radius); max-width: 600px; margin: 0 auto 20px auto; border: none; border-top: 4px solid var(--theme-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box; }
     .search-area-box { display: none; padding-bottom: 10px; }
@@ -166,6 +174,34 @@
     
     #compare-view { background: #fff; padding: 18px; border-radius: var(--card-radius); border: none; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 4px solid var(--theme-color); display: none; max-width: 600px; margin-left: auto; margin-right: auto; }
     .compare-cond-row { display: flex; gap: 10px; margin-bottom: 10px; }
+
+    /* 比較モード：カテゴリ選択（チップ） */
+    .sm-cat-label { font-size: 12px; font-weight: bold; color: #888; margin: 4px 0 8px 2px; letter-spacing: 0.04em; }
+    .sm-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .sm-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 4px; border-radius: 14px; border: 1.5px solid #e3ecef; background: #f7fafb; color: #555; font-size: 12px; font-weight: bold; font-family: inherit; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
+    .sm-chip .material-icons { font-size: 26px; color: var(--theme-color); transition: color 0.2s; }
+    .sm-chip:active { transform: scale(0.96); }
+    .sm-chip.active { background: var(--theme-color); border-color: var(--theme-color); color: #fff; box-shadow: 0 6px 16px rgba(75,156,179,0.35); }
+    .sm-chip.active .material-icons { color: #fff; }
+
+    /* 比較モード：比較表（商品ごとのカードに数値をまとめ、横の項目をそろえる） */
+    .cmp { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 6px; }
+    .cmp.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (min-width: 560px) { .cmp.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .cmp-card { display: grid; grid-row: span var(--r); grid-template-rows: subgrid; row-gap: 0; background: #fff; border: 1px solid #e3ecef; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(16,40,52,0.05); min-width: 0; }
+    @supports not (grid-template-rows: subgrid) { .cmp-card { grid-row: auto; grid-template-rows: none; } }
+    .cmp-top { padding: 14px 10px 12px; text-align: center; background: linear-gradient(180deg, #f3f9fb 0%, #fff 100%); }
+    .cmp-top img, .cmp-top .cmp-noimg { width: 72px; height: 72px; object-fit: contain; display: block; margin: 0 auto 8px; border-radius: 10px; }
+    .cmp-top .cmp-noimg { background: #eef3f5; color: #c3d0d5; font-size: 30px; line-height: 72px; }
+    .cmp-maker { font-size: 10px; color: #8a959a; margin-bottom: 2px; letter-spacing: 0.02em; }
+    .cmp-name { font-size: 13px; font-weight: bold; color: #1f2d33; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+    .cmp-spec { padding: 9px 12px 10px; border-top: 1px solid #eef3f5; min-width: 0; }
+    .cmp-k { font-size: 10.5px; color: #8a959a; margin-bottom: 2px; }
+    .cmp-v { font-size: 16px; font-weight: 800; color: #1f2d33; letter-spacing: 0.01em; word-break: break-all; line-height: 1.3; }
+    .cmp-v.sm { font-size: 12px; font-weight: normal; color: #4a565b; line-height: 1.55; }
+    .cmp-v.best { color: #17845a; }
+    .cmp-badge { display: inline-block; vertical-align: 2px; margin-left: 4px; padding: 1px 6px; border-radius: 6px; background: #e3f5ec; color: #17845a; font-size: 10px; font-weight: bold; letter-spacing: 0; white-space: nowrap; }
+    .cmp-v.na { color: #b9c3c7; font-weight: normal; }
     .comp-select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; outline: none; background: #fafafa; }
     .compare-base-container { background: #fafafa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--theme-color); }
 
@@ -615,7 +651,14 @@
         </h3>
         <p style="margin: 0 0 12px 0; font-size:13px; color:#555;">最大4つまで比較表を作成します。</p>
         
-        <select id="sm-category" class="search-box" onchange="changeSmCategory()" style="border-radius: 8px; border: 1px solid #ddd; margin-bottom: 0;">
+        <div class="sm-cat-label">カテゴリを選ぶ</div>
+        <div class="sm-chips" id="sm-chips">
+          <button type="button" class="sm-chip" data-cat="車椅子" onclick="pickSmCategory('車椅子')"><span class="material-icons">accessible_forward</span>車いす</button>
+          <button type="button" class="sm-chip" data-cat="歩行器" onclick="pickSmCategory('歩行器')"><span class="material-icons">directions_walk</span>歩行器</button>
+          <button type="button" class="sm-chip" data-cat="歩行補助杖" onclick="pickSmCategory('歩行補助杖')"><span class="material-icons">elderly</span>杖</button>
+          <button type="button" class="sm-chip" data-cat="クッション" onclick="pickSmCategory('クッション')"><span class="material-icons">chair</span>クッション</button>
+        </div>
+        <select id="sm-category" class="search-box" onchange="changeSmCategory()" style="display:none;" aria-hidden="true" tabindex="-1">
           <option value="">-- カテゴリを選択（必須） --</option>
           <option value="車椅子">車椅子</option>
           <option value="歩行器">歩行器</option>
@@ -702,7 +745,7 @@
     };
 
     function loadDataFromSheet() {
-      document.getElementById('results').innerHTML = '<div style="text-align:center; padding: 40px 20px; color: var(--theme-color);"><span class="material-icons" style="font-size: 40px; animation: spin 1.5s linear infinite;">autorenew</span><p style="font-weight:bold; margin-top:15px; color:#555;">初回データを取得中...</p></div>';
+      document.getElementById('results').innerHTML = '<div style="text-align:center; padding: 40px 20px; color: var(--theme-color);"><span class="material-icons" style="font-size: 40px; animation: spin 1.5s linear infinite;">autorenew</span><p style="font-weight:bold; margin-top:15px; color:#555;">データを更新中...</p></div>';
       
       if (GAS_URL.includes("★")) {
         alert("エラー：HTML内にGAS_URLが設定されていません。コードを書き換えてください。");
@@ -2500,60 +2543,58 @@
         });
       });
 
-      let tableHtml = `<div class="table-responsive"><table style="width:100%; border-collapse: collapse; margin-bottom: 15px; font-size:12px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); white-space:nowrap;">`;
-      tableHtml += `<tr style="background:var(--theme-light); border-bottom:2px solid var(--theme-color);">`;
-      tableHtml += `<th style="padding:8px; border:1px solid #ccc; width:60px;">項目</th>`;
-      specs.forEach(s => {
-        tableHtml += `<th style="padding:8px; border:1px solid #ccc; text-align:center; min-width:110px;">
-          ${s.imgUrl ? `<img src="${s.imgUrl}" style="width:50px; height:50px; object-fit:contain; border-radius:4px; margin-bottom:4px;"><br>` : ''}
-          <div style="font-size:10px; color:#666; font-weight:normal;">${s.maker}</div>
-          <div style="font-size:12px; font-weight:bold; white-space:normal;">${s.name}</div>
-        </th>`;
-      });
-      tableHtml += `</tr>`;
-
+      // ---- 比較表（カード型）。スマホでは2列（3商品なら3列）、広い画面では横一列 ----
+      const rows = [];
       if (cat !== "クッション") {
         let wUnit = cat === "歩行補助杖" ? "g" : "kg";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">重量</td>`;
-        specs.forEach(s => { 
-          let wVal = s.rawWeight !== "-" ? s.rawWeight + (s.rawWeight.match(/[a-zA-Zｇｋ]/i) ? "" : wUnit) : "-";
-          tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${wVal}</td>`; 
-        });
-        tableHtml += `</tr>`;
+        rows.push({ label: "重量", vals: specs.map(s => s.rawWeight !== "-" ? s.rawWeight + (s.rawWeight.match(/[a-zA-Zｇｋ]/i) ? "" : wUnit) : "-") });
       }
-
       let hLabel = "高さ";
-      if(cat === "車椅子") hLabel = "前座高";
-      else if(cat === "クッション") hLabel = "厚み";
-      
-      tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">${hLabel}</td>`;
-      specs.forEach(s => { 
+      if (cat === "車椅子") hLabel = "前座高";
+      else if (cat === "クッション") hLabel = "厚み";
+      rows.push({ label: hLabel, vals: specs.map(s => {
         let val = "-";
-        if(cat === "車椅子" && s.rawFHeight !== "-") val = s.rawFHeight + 'cm';
-        else if(cat === "クッション" && s.rawThick !== "-") val = s.rawThick + 'cm';
-        else if(cat === "歩行器" || cat === "歩行補助杖") {
-          if(s.rawMinH !== "-" && s.rawMaxH !== "-") {
+        if (cat === "車椅子" && s.rawFHeight !== "-") val = s.rawFHeight + 'cm';
+        else if (cat === "クッション" && s.rawThick !== "-") val = s.rawThick + 'cm';
+        else if (cat === "歩行器" || cat === "歩行補助杖") {
+          if (s.rawMinH !== "-" && s.rawMaxH !== "-") {
             val = s.rawMinH === s.rawMaxH ? s.rawMinH + 'cm' : s.rawMinH + '〜' + s.rawMaxH + 'cm';
-          } else if(s.rawMinH !== "-") val = s.rawMinH + 'cm';
-          else if(s.rawMaxH !== "-") val = s.rawMaxH + 'cm';
+          } else if (s.rawMinH !== "-") val = s.rawMinH + 'cm';
+          else if (s.rawMaxH !== "-") val = s.rawMaxH + 'cm';
         }
-        else if(s.rawMaxH !== "-") val = s.rawMaxH + 'cm'; 
-        tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${val}</td>`; 
-      });
-      tableHtml += `</tr>`;
-
+        else if (s.rawMaxH !== "-") val = s.rawMaxH + 'cm';
+        return val;
+      }) });
       if (cat !== "クッション" && cat !== "歩行補助杖") {
         let wLabel = "幅";
-        if(cat === "車椅子") wLabel = "座幅";
-        else if(cat === "歩行器") wLabel = "外寸幅";
-        tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">幅</td>`;
-        specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; text-align:center;">${s.rawWidth !== "-" ? s.rawWidth + 'cm' : '-'}</td>`; });
-        tableHtml += `</tr>`;
+        if (cat === "車椅子") wLabel = "座幅";
+        else if (cat === "歩行器") wLabel = "外寸幅";
+        rows.push({ label: wLabel, vals: specs.map(s => s.rawWidth !== "-" ? s.rawWidth + 'cm' : '-') });
       }
+      rows.push({ label: "機能・タグ", vals: specs.map(s => s.func || '-'), small: true });
 
-      tableHtml += `<tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold; background:#fafafa;">機能・タグ</td>`;
-      specs.forEach(s => { tableHtml += `<td style="padding:8px; border:1px solid #ccc; font-size:11px; white-space:normal; text-align:center;">${s.func || '-'}</td>`; });
-      tableHtml += `</tr></table></div>`;
+      // 一番軽い商品に「最軽量」バッジ
+      const wNums = specs.map(s => s.weight);
+      const valid = wNums.filter(v => v !== null);
+      const minW = valid.length >= 2 ? Math.min(...valid) : null;
+      const bestW = wNums.map(v => minW !== null && v === minW && valid.some(x => x !== minW));
+      if (rows.length && rows[0].label === "重量") rows[0].best = bestW;
+
+      const cols = specs.length === 3 ? 3 : (specs.length === 4 ? 4 : 2);
+      let tableHtml = `<div class="cmp c${cols}" style="--r:${rows.length + 1}">`;
+      specs.forEach((s, i) => {
+        tableHtml += `<div class="cmp-card"><div class="cmp-top">`
+          + (s.imgUrl ? `<img src="${s.imgUrl}" alt="">` : `<span class="cmp-noimg material-icons">image</span>`)
+          + `<div class="cmp-maker">${s.maker}</div><div class="cmp-name">${s.name}</div></div>`;
+        rows.forEach(r => {
+          const v = r.vals[i];
+          const isBest = r.best && r.best[i];
+          const cls = 'cmp-v' + (r.small ? ' sm' : '') + (isBest ? ' best' : '') + (v === '-' ? ' na' : '');
+          tableHtml += `<div class="cmp-spec"><div class="cmp-k">${r.label}</div><div class="${cls}">${v}${isBest ? '<span class="cmp-badge">最軽量</span>' : ''}</div></div>`;
+        });
+        tableHtml += `</div>`;
+      });
+      tableHtml += `</div>`;
 
       let report = tableHtml;
       report += `<div style="padding-top:10px; border-top:1px dashed #ccc;">`;
@@ -2602,6 +2643,25 @@
       document.getElementById('floating-run-btn-container').style.display = 'none';
       document.getElementById('sm-report-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // ===================================================
+    // 比較モードのカテゴリ選択（チップ）
+    // ===================================================
+    function syncSmChips() {
+      const v = document.getElementById('sm-category').value;
+      document.querySelectorAll('#sm-chips .sm-chip').forEach(function(b) { b.classList.toggle('active', b.dataset.cat === v); });
+    }
+    function pickSmCategory(cat) {
+      const sel = document.getElementById('sm-category');
+      if (sel.value === cat) return;
+      sel.value = cat;
+      changeSmCategory();
+    }
+    ['changeSmCategory', 'switchView'].forEach(function(name) {
+      const original = window[name];
+      if (typeof original !== 'function') return;
+      window[name] = function() { const r = original.apply(this, arguments); syncSmChips(); return r; };
+    });
 
     // ===================================================
     // スワイプ・戻るボタンで「1つ前の画面」に戻る
