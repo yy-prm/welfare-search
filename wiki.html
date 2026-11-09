@@ -91,6 +91,9 @@ textarea{min-height:110px;resize:vertical;line-height:1.6}
 #lb .cnt{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#ddd;font-size:13px}
 .tr{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:14px 0}
 .trh{font-weight:700;font-size:14px;color:var(--sub);margin-bottom:2px}
+.trl{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:10px;margin-top:6px;color:#fff}
+.trl.sy{background:#c0392b}.trl.rs{background:#14866d}
+.trc-b label.sm{font-size:13px;margin:8px 0 3px}
 .trc{border:1px solid var(--line);border-radius:4px;margin:10px 0;background:var(--paper)}
 .trc-h{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;background:var(--box);border-radius:4px}
 .trc-h b{flex:none}
@@ -133,7 +136,8 @@ const TEXT_KEYS = ['manual', ...PLAIN.map(s => s.k)];
 const KEYS = TEXT_KEYS;
 const MAX_TR = 30, MAX_TR_IMG = 8;
 // [{t:'内容', img:[id...]}] の形で取り出す
-const troublesOf = o => (Array.isArray(o && o.troubles) ? o.troubles : []).map(x => ({ t: String(x.t || ''), img: Array.isArray(x.img) ? x.img.slice() : [] }));
+// [{s:'症状', r:'対応と結果', img:[id...]}] の形で取り出す
+const troublesOf = o => (Array.isArray(o && o.troubles) ? o.troubles : []).map(x => ({ s: String((x.s != null ? x.s : x.t) || ''), r: String(x.r || ''), img: Array.isArray(x.img) ? x.img.slice() : [] }));
 const label = k => ({ manual: '説明書URL' })[k] || SECTIONS.find(s => s.k === k).t;
 const $ = s => document.querySelector(s);
 const MAX_IMG = 10;
@@ -329,7 +333,10 @@ async function viewPage(name) {
   SECTIONS.forEach(s => {
     h += '<h2 id="' + s.k + '">' + s.t + '</h2>';
     if (s.k === 'trouble') {
-      h += trs.length ? trs.map((x, i) => '<div class="tr"><div class="trh">トラブル ' + (i + 1) + '</div>' + md(x.t) + (x.img.length ? gallery(x.img) : '') + '</div>').join('') : none;
+      h += trs.length ? trs.map((x, i) => '<div class="tr"><div class="trh">トラブル ' + (i + 1) + '</div>'
+        + (x.s ? '<span class="trl sy">症状</span>' + md(x.s) : '')
+        + (x.r ? '<span class="trl rs">対応と結果</span>' + md(x.r) : '')
+        + (x.img.length ? gallery(x.img) : '') + '</div>').join('') : none;
       return;
     }
     const has = pg[s.k] || imgs[s.k].length;
@@ -376,9 +383,9 @@ async function viewEdit(name) {
   // ----- トラブル対応：1件ずつカードで追加 -----
   const origTr = troublesOf(pg);
   let seq = 0;
-  const trs = origTr.map(x => ({ key: ++seq, t: x.t, img: x.img, busy: 0, open: false }));
+  const trs = origTr.map(x => ({ key: ++seq, s: x.s, r: x.r, img: x.img, busy: 0, open: false }));
   const trBox = $('#trs');
-  const trSum = x => (x.t.split('\n').find(l => l.trim()) || '（内容なし）').trim() + (x.img.length ? '　📷' + x.img.length : '');
+  const trSum = x => ((x.s + '\n' + x.r).split('\n').find(l => l.trim()) || '（内容なし）').trim() + (x.img.length ? '　📷' + x.img.length : '');
   const trGal = x => x.img.map((id, i) => '<div><img src="' + thumb(id) + '" alt=""><button type="button" class="x" data-tkey="' + x.key + '" data-i="' + i + '" aria-label="削除">×</button></div>').join('')
     + (x.busy ? '<div class="up">アップ中…</div>' : '');
   const drawTrGal = x => { const g = trBox.querySelector('[data-tgal="' + x.key + '"]'); if (g) g.innerHTML = trGal(x); };
@@ -386,7 +393,8 @@ async function viewEdit(name) {
     trBox.innerHTML = trs.map((x, i) => '<div class="trc" data-key="' + x.key + '">'
       + '<div class="trc-h" data-toggle="' + x.key + '"><b>トラブル ' + (i + 1) + '</b><span class="sum">' + (x.open ? '' : esc(trSum(x))) + '</span><span class="arr">' + (x.open ? '▲ 閉じる' : '▼ 開く') + '</span></div>'
       + '<div class="trc-b"' + (x.open ? '' : ' hidden') + '>'
-      + '<textarea data-tt="' + x.key + '" placeholder="例：〇〇が動かない → △△を確認したら直った">' + esc(x.t) + '</textarea>'
+      + '<label class="sm">症状</label><textarea data-ts="' + x.key + '" placeholder="例：ブレーキをかけても止まらない">' + esc(x.s) + '</textarea>'
+      + '<label class="sm">対応と結果</label><textarea data-tr="' + x.key + '" placeholder="例：ワイヤーを調整したら直った">' + esc(x.r) + '</textarea>'
       + '<div class="gal" data-tgal="' + x.key + '">' + trGal(x) + '</div>'
       + '<label class="btn addimg">📷 このトラブルに画像を追加（' + MAX_TR_IMG + '枚まで）<input type="file" accept="image/*" multiple hidden data-tfile="' + x.key + '"></label>'
       + '<div><button type="button" class="trc-del" data-tdel="' + x.key + '">このトラブルを削除</button></div>'
@@ -397,19 +405,23 @@ async function viewEdit(name) {
   const findTr = k => trs.find(x => x.key === Number(k));
   $('#addtr').onclick = () => {
     trs.forEach(x => x.open = false);
-    trs.push({ key: ++seq, t: '', img: [], busy: 0, open: true });
+    trs.push({ key: ++seq, s: '', r: '', img: [], busy: 0, open: true });
     drawTr();
-    const ta = trBox.querySelector('[data-tt="' + seq + '"]');
+    const ta = trBox.querySelector('[data-ts="' + seq + '"]');
     if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus({ preventScroll: true }); }
   };
-  trBox.addEventListener('input', e => { const ta = e.target.closest('[data-tt]'); if (ta) findTr(ta.dataset.tt).t = ta.value; });
+  trBox.addEventListener('input', e => {
+    const a = e.target.closest('[data-ts]'), b = e.target.closest('[data-tr]');
+    if (a) findTr(a.dataset.ts).s = a.value;
+    if (b) findTr(b.dataset.tr).r = b.value;
+  });
   trBox.addEventListener('click', e => {
     const tg = e.target.closest('[data-toggle]');
     if (tg) { const x = findTr(tg.dataset.toggle); x.open = !x.open; drawTr(); return; }
     const del = e.target.closest('[data-tdel]');
     if (del) {
       const x = findTr(del.dataset.tdel), n = trs.indexOf(x) + 1;
-      if ((x.t.trim() || x.img.length) && !confirm('トラブル ' + n + ' を削除しますか？')) return;
+      if ((x.s.trim() || x.r.trim() || x.img.length) && !confirm('トラブル ' + n + ' を削除しますか？')) return;
       trs.splice(trs.indexOf(x), 1); drawTr(); return;
     }
     const xb = e.target.closest('.x[data-tkey]');
@@ -450,8 +462,10 @@ async function viewEdit(name) {
     if (PLAIN.some(s => busy[s.k].length) || trs.some(x => x.busy)) return toast('画像のアップが終わるまで待ってください');
     const fd = Object.fromEntries(new FormData(e.target));
     fd.images = imgs;
-    fd.troubles = trs.map(x => ({ t: x.t.trim(), img: x.img })).filter(x => x.t || x.img.length);
-    const origCmp = origTr.map(x => ({ t: x.t.trim(), img: x.img })).filter(x => x.t || x.img.length);
+    const norm = x => ({ s: x.s.trim(), r: x.r.trim(), img: x.img });
+    const keep = x => x.s || x.r || x.img.length;
+    fd.troubles = trs.map(norm).filter(keep);
+    const origCmp = origTr.map(norm).filter(keep);
     const changed = KEYS.some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim()) || JSON.stringify(imgs) !== JSON.stringify(orig)
       || JSON.stringify(fd.troubles) !== JSON.stringify(origCmp);
     if (!changed) return toast('変更がありません');
@@ -514,11 +528,12 @@ async function viewAdmin() {
     });
     const ct = troublesOf(c), pt = troublesOf(p);
     for (let j = 0; j < Math.max(ct.length, pt.length); j++) {
-      const a = ct[j] || { t: '', img: [] }, b2 = pt[j] || { t: '', img: [] };
+      const a = ct[j] || { s: '', r: '', img: [] }, b2 = pt[j] || { s: '', r: '', img: [] };
       if (JSON.stringify(a) === JSON.stringify(b2)) continue;
       any = true;
       h += '<div class="fl">トラブル ' + (j + 1) + (!ct[j] ? '（新規）' : !pt[j] ? '（削除）' : '') + '</div>';
-      if (a.t !== b2.t) h += diffHtml(a.t, b2.t);
+      if (a.s !== b2.s) h += '<div class="from" style="margin:4px 0 0">症状</div>' + diffHtml(a.s, b2.s);
+      if (a.r !== b2.r) h += '<div class="from" style="margin:4px 0 0">対応と結果</div>' + diffHtml(a.r, b2.r);
       const added = b2.img.filter(x => !a.img.includes(x)), removed = a.img.filter(x => !b2.img.includes(x));
       if (added.length || removed.length) h += gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
     }
@@ -526,7 +541,8 @@ async function viewAdmin() {
     h += '<div class="fix" hidden>' + TEXT_KEYS.map(k =>
       '<label>' + label(k) + '</label>' +
       (k === 'manual' ? '<input class="f" data-k="' + k + '" value="' + esc(p[k]) + '">' : '<textarea data-k="' + k + '">' + esc(p[k]) + '</textarea>')
-    ).join('') + pt.map((x, j) => '<label>トラブル ' + (j + 1) + ' <small>（画像はそのまま）</small></label><textarea data-tk="' + j + '">' + esc(x.t) + '</textarea>').join('') + '</div>';
+    ).join('') + pt.map((x, j) => '<label>トラブル ' + (j + 1) + ' の症状</label><textarea data-tks="' + j + '">' + esc(x.s) + '</textarea>'
+      + '<label>トラブル ' + (j + 1) + ' の対応と結果 <small>（画像はそのまま）</small></label><textarea data-tkr="' + j + '">' + esc(x.r) + '</textarea>').join('') + '</div>';
     h += '<div class="row"><button class="btn pri" data-act="ok">承認</button><button class="btn" data-act="fix">修正して承認</button><button class="btn ng" data-act="ng">却下</button></div></div>';
   });
   h += '<div class="row"><button class="btn" id="lo">ログアウト</button></div>';
@@ -543,7 +559,7 @@ async function viewAdmin() {
       if (act === 'fix') {
         body.decision = 'approve'; body.final = {};
         fix.querySelectorAll('[data-k]').forEach(el => body.final[el.dataset.k] = el.value);
-        body.final.troubleTexts = [...fix.querySelectorAll('[data-tk]')].map(el => el.value);
+        body.final.troubleFix = [...fix.querySelectorAll('[data-tks]')].map(el => ({ s: el.value, r: fix.querySelector('[data-tkr="' + el.dataset.tks + '"]').value }));
         body.note = '管理者が修正して承認';
       }
       if (act === 'ng') {
