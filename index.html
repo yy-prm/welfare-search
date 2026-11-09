@@ -31,6 +31,11 @@
     .view-container.active { display: block; }
 
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
+    #update-banner { display: none; max-width: 600px; margin: -8px auto 14px auto; padding: 10px 12px; border-radius: 10px; background: #fff7e0; border: 1px solid #f2c94c; color: #6b4e00; font-size: 14px; font-weight: bold; align-items: center; gap: 8px; box-sizing: border-box; }
+    #update-banner.show { display: flex; }
+    #update-banner .ub-text { flex: 1; min-width: 0; }
+    #update-banner .ub-btn { flex: none; border: 0; border-radius: 16px; padding: 7px 14px; background: var(--theme-color); color: #fff; font-weight: bold; font-size: 13px; cursor: pointer; }
+    #update-banner .ub-close { flex: none; border: 0; background: none; color: #9a7a1c; font-size: 20px; line-height: 1; cursor: pointer; padding: 4px; }
     .logo-img { max-width: 280px; height: auto; display: block; margin: 0 auto; }
     
     .side-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(2px); }
@@ -207,6 +212,13 @@
   <div id="view-home" class="view-container active">
     <div class="header">
       <img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';">
+    </div>
+
+    <div id="update-banner" role="status">
+      <span class="material-icons" style="font-size:20px;">campaign</span>
+      <span class="ub-text">商品データに新着・更新あり</span>
+      <button type="button" class="ub-btn" onclick="applyUpdateFromBanner()">更新する</button>
+      <button type="button" class="ub-close" onclick="hideUpdateBanner()" aria-label="閉じる">×</button>
     </div>
 
     <div id="top-search-container" style="max-width: 600px; margin: 0 auto 15px auto;">
@@ -674,6 +686,7 @@
         masterData = JSON.parse(cached);
         console.log("キャッシュから読み込みました");
         initAllSliders();
+        checkForUpdates();   // 裏で最新データと見比べて、違えばお知らせを出す
       } else {
         loadDataFromSheet();
       }
@@ -750,6 +763,7 @@
           });
           masterData = data;
           localStorage.setItem('welfare_data_cache', JSON.stringify(data));
+          hideUpdateBanner();
           document.getElementById('results').innerHTML = '';
           initAllSliders();
           alert("データを最新に更新しました");
@@ -875,6 +889,42 @@
       if(appMode === "select") document.getElementById('nav-compare').classList.add('active');
     }
     
+    // ===================================================
+    // 新着・更新のお知らせ
+    //  起動時（とアプリに戻ってきた時）に、裏でスプレッドシートの最新データを取得し、
+    //  端末に保存しているデータと中身が違えばトップにお知らせを出す。
+    //  ※ 自動では入れ替えない。「更新する」を押した時だけ反映する。
+    // ===================================================
+    let lastUpdateCheck = 0;
+    let updateChecking = false;
+    // 画面用に足した項目（_で始まるもの）を除いて、元のデータだけを比べる
+    function dataSignature(arr) {
+      return JSON.stringify((arr || []).map(function(item) {
+        const o = {};
+        Object.keys(item).forEach(function(k) { if (k.charAt(0) !== '_') o[k] = item[k]; });
+        return o;
+      }));
+    }
+    function checkForUpdates() {
+      if (updateChecking || !masterData || !masterData.length) return;
+      updateChecking = true;
+      lastUpdateCheck = Date.now();
+      fetch(GAS_URL)
+        .then(function(res) { return res.json(); })
+        .then(function(fresh) {
+          if (Array.isArray(fresh) && fresh.length && dataSignature(fresh) !== dataSignature(masterData)) showUpdateBanner();
+        })
+        .catch(function(e) { console.log('更新チェック失敗（無視）', e); })
+        .finally(function() { updateChecking = false; });
+    }
+    function showUpdateBanner() { document.getElementById('update-banner').classList.add('show'); }
+    function hideUpdateBanner() { document.getElementById('update-banner').classList.remove('show'); }
+    function applyUpdateFromBanner() { hideUpdateBanner(); loadDataFromSheet(); }
+    // 開きっぱなしのアプリに戻ってきた時も、30分以上たっていればチェック
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible' && Date.now() - lastUpdateCheck > 30 * 60 * 1000) checkForUpdates();
+    });
+
     function forceRefreshSide() {
       closeSideMenu();
       if(confirm("最新の商品データを取得しますか？")) {
