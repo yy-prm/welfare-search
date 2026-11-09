@@ -31,11 +31,18 @@
     .view-container.active { display: block; }
 
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
-    #update-banner { display: none; max-width: 600px; margin: -8px auto 14px auto; padding: 10px 12px; border-radius: 10px; background: #fff7e0; border: 1px solid #f2c94c; color: #6b4e00; font-size: 14px; font-weight: bold; align-items: center; gap: 8px; box-sizing: border-box; }
-    #update-banner.show { display: flex; }
-    #update-banner .ub-text { flex: 1; min-width: 0; }
-    #update-banner .ub-btn { flex: none; border: 0; border-radius: 16px; padding: 7px 14px; background: var(--theme-color); color: #fff; font-weight: bold; font-size: 13px; cursor: pointer; }
-    #update-banner .ub-close { flex: none; border: 0; background: none; color: #9a7a1c; font-size: 20px; line-height: 1; cursor: pointer; padding: 4px; }
+    /* 新着お知らせ（画面上部に浮かぶピル型） */
+    #update-banner { position: fixed; top: calc(env(safe-area-inset-top) + 12px); left: 50%; z-index: 10001; display: flex; align-items: center; width: max-content; max-width: calc(100% - 32px); padding: 6px 6px 6px 8px; background: rgba(255,255,255,0.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; box-shadow: 0 8px 28px rgba(16,40,52,0.16), 0 2px 6px rgba(16,40,52,0.08); opacity: 0; visibility: hidden; transform: translate(-50%, -24px) scale(0.96); transition: transform 0.35s cubic-bezier(.2,.9,.3,1.2), opacity 0.25s ease, visibility 0s linear 0.35s; box-sizing: border-box; }
+    #update-banner.show { opacity: 1; visibility: visible; transform: translate(-50%, 0) scale(1); transition: transform 0.35s cubic-bezier(.2,.9,.3,1.2), opacity 0.25s ease, visibility 0s; }
+    #update-banner .ub-main { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 0 4px 0 0; cursor: pointer; font: inherit; color: #1f2d33; min-width: 0; }
+    #update-banner .ub-ico { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--theme-color); color: #fff; display: grid; place-items: center; }
+    #update-banner .ub-ico .material-icons { font-size: 18px; }
+    #update-banner .ub-text { font-size: 13.5px; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #update-banner .ub-act { flex: none; margin-left: 4px; padding: 7px 14px; border-radius: 999px; background: rgba(75,156,179,0.12); color: var(--theme-color); font-size: 13px; font-weight: 700; }
+    #update-banner .ub-main:active .ub-act { background: rgba(75,156,179,0.22); }
+    #update-banner .ub-close { flex: none; width: 30px; height: 30px; margin-left: 2px; border: 0; border-radius: 50%; background: none; color: #8a979c; display: grid; place-items: center; cursor: pointer; padding: 0; }
+    #update-banner .ub-close .material-icons { font-size: 18px; }
+    #update-banner .ub-close:active { background: rgba(0,0,0,0.06); }
     .logo-img { max-width: 280px; height: auto; display: block; margin: 0 auto; }
     
     .side-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(2px); }
@@ -205,6 +212,15 @@
     </div>
   </div>
 
+  <div id="update-banner" role="status" aria-live="polite">
+    <button type="button" class="ub-main" onclick="applyUpdateFromBanner()">
+      <span class="ub-ico"><span class="material-icons">arrow_upward</span></span>
+      <span class="ub-text">新着データがあります</span>
+      <span class="ub-act">更新</span>
+    </button>
+    <button type="button" class="ub-close" onclick="hideUpdateBanner()" aria-label="閉じる"><span class="material-icons">close</span></button>
+  </div>
+
   <div id="floating-run-btn-container" class="floating-btn-container">
     <button id="floating-run-btn" onclick="runSmSummary()">この商品で比較表を作成 <span id="float-count"></span></button>
   </div>
@@ -212,13 +228,6 @@
   <div id="view-home" class="view-container active">
     <div class="header">
       <img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';">
-    </div>
-
-    <div id="update-banner" role="status">
-      <span class="material-icons" style="font-size:20px;">campaign</span>
-      <span class="ub-text">商品データに新着・更新あり</span>
-      <button type="button" class="ub-btn" onclick="applyUpdateFromBanner()">更新する</button>
-      <button type="button" class="ub-close" onclick="hideUpdateBanner()" aria-label="閉じる">×</button>
     </div>
 
     <div id="top-search-container" style="max-width: 600px; margin: 0 auto 15px auto;">
