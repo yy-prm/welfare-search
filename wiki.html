@@ -91,6 +91,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.6}
 #lb .cnt{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#ddd;font-size:13px}
 .tr{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:14px 0}
 .trh{font-weight:700;font-size:14px;color:var(--sub);margin-bottom:2px}
+.qa .q,.qa .a{margin:4px 0}.qa .q div p,.qa .a div p{margin:0 0 4px}
+.qa .q{margin-top:2px}
 .trl{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:10px;margin-top:6px;color:#fff}
 .trl.sy{background:#c0392b}.trl.rs{background:#14866d}
 .trc-b label.sm{font-size:13px;margin:8px 0 3px}
@@ -128,16 +130,29 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzsUrPBQZVrl8qK1-v5JKqQ
 const SECTIONS = [
   { k: 'features', t: '特徴' },
   { k: 'cautions', t: '注意事項' },
-  { k: 'faq', t: 'よくある質問' },
-  { k: 'trouble', t: 'トラブル・不具合対応' }
+  { k: 'faqs', t: 'よくある質問' },
+  { k: 'troubles', t: 'トラブル・不具合対応' }
 ];
-const PLAIN = SECTIONS.filter(s => s.k !== 'trouble');   // 文章＋画像の項目（トラブル対応は別扱い）
+const PLAIN = SECTIONS.filter(s => s.k === 'features' || s.k === 'cautions');   // 文章＋画像の項目
 const TEXT_KEYS = ['manual', ...PLAIN.map(s => s.k)];
 const KEYS = TEXT_KEYS;
-const MAX_TR = 30, MAX_TR_IMG = 8;
-// [{t:'内容', img:[id...]}] の形で取り出す
-// [{s:'症状', r:'対応と結果', img:[id...]}] の形で取り出す
-const troublesOf = o => (Array.isArray(o && o.troubles) ? o.troubles : []).map(x => ({ s: String((x.s != null ? x.s : x.t) || ''), r: String(x.r || ''), img: Array.isArray(x.img) ? x.img.slice() : [] }));
+// カードを積んでいく項目
+const LISTS = {
+  faqs: {
+    unit: '質問', max: 50, maxImg: 8, add: '＋ 質問を追加', hint: '1件ごとに、質問と回答をセットで書きます',
+    fields: [{ k: 'q', label: '質問', ph: '例：カバーは洗えますか？' }, { k: 'a', label: '回答', ph: '例：カバーは洗濯機で洗えます' }]
+  },
+  troubles: {
+    unit: 'トラブル', max: 30, maxImg: 8, add: '＋ トラブルを追加', hint: '1件ごとに、内容と画像をセットで書きます',
+    fields: [{ k: 's', label: '症状', ph: '例：ブレーキをかけても止まらない' }, { k: 'r', label: '対応と結果', ph: '例：ワイヤーを調整したら直った' }]
+  }
+};
+// [{id, (各項目), img:[id...]}] の形で取り出す
+const listOf = (o, key) => (Array.isArray(o && o[key]) ? o[key] : []).map(x => {
+  const e = { id: String(x.id || ''), img: Array.isArray(x.img) ? x.img.slice() : [] };
+  LISTS[key].fields.forEach(f => e[f.k] = String(x[f.k] || ''));
+  return e;
+});
 const label = k => ({ manual: '説明書URL' })[k] || SECTIONS.find(s => s.k === k).t;
 const $ = s => document.querySelector(s);
 const MAX_IMG = 10;
@@ -239,7 +254,7 @@ function md(text) {
 
 /* ---------- 差分 ---------- */
 function diffLines(a, b) {
-  a = String(a || '').split('\n'); b = String(b || '').split('\n');
+  a = String(a || '') === '' ? [] : String(a).split('\n'); b = String(b || '') === '' ? [] : String(b).split('\n');
   const n = a.length, m = b.length;
   const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
   for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
@@ -314,6 +329,17 @@ async function viewIndex(q) {
 }
 
 /* ---------- 記事 ---------- */
+function viewList(pg, key) {
+  const items = listOf(pg, key);
+  if (key === 'faqs') return items.map(x => '<div class="tr qa">'
+    + '<div class="q"><span>Q</span><div>' + md(x.q) + '</div></div>'
+    + (x.a ? '<div class="a"><span>A</span><div>' + md(x.a) + '</div></div>' : '')
+    + (x.img.length ? gallery(x.img) : '') + '</div>').join('');
+  return items.map((x, i) => '<div class="tr"><div class="trh">トラブル ' + (i + 1) + '</div>'
+    + (x.s ? '<span class="trl sy">症状</span>' + md(x.s) : '')
+    + (x.r ? '<span class="trl rs">対応と結果</span>' + md(x.r) : '')
+    + (x.img.length ? gallery(x.img) : '') + '</div>').join('');
+}
 async function viewPage(name) {
   document.title = name + ' - 福祉用具Wiki';
   loading();
@@ -325,20 +351,14 @@ async function viewPage(name) {
     h += '<p>この記事はまだありません。</p><p>商品の特徴や注意点を知っていたら、<a href="' + pageUrl(name, 'edit') + '" data-nav>最初の内容を提案</a>してください。管理者の承認後に公開されます。</p>';
     return main.innerHTML = h + '</div>';
   }
-  const imgs = imgsOf(pg), trs = troublesOf(pg);
-  const filled = SECTIONS.filter(s => s.k === 'trouble' ? trs.length : (pg[s.k] || imgs[s.k].length));
+  const imgs = imgsOf(pg);
+  const filled = SECTIONS.filter(s => LISTS[s.k] ? listOf(pg, s.k).length : (pg[s.k] || imgs[s.k].length));
   if (filled.length >= 2) h += '<div class="toc"><b>目次</b><ol>' + filled.map(s => '<li><a href="#' + s.k + '">' + s.t + '</a></li>').join('') + '</ol></div>';
   if (/^https?:\/\//i.test(String(pg.manual || ''))) h += '<h2>取扱説明書</h2><p><a href="' + esc(pg.manual) + '" target="_blank" rel="noopener noreferrer">📄 取扱説明書を開く</a></p>';
   const none = '<p class="empty">まだ記載がありません。<a href="' + pageUrl(name, 'edit') + '" data-nav>追記を提案</a></p>';
   SECTIONS.forEach(s => {
     h += '<h2 id="' + s.k + '">' + s.t + '</h2>';
-    if (s.k === 'trouble') {
-      h += trs.length ? trs.map((x, i) => '<div class="tr"><div class="trh">トラブル ' + (i + 1) + '</div>'
-        + (x.s ? '<span class="trl sy">症状</span>' + md(x.s) : '')
-        + (x.r ? '<span class="trl rs">対応と結果</span>' + md(x.r) : '')
-        + (x.img.length ? gallery(x.img) : '') + '</div>').join('') : none;
-      return;
-    }
+    if (LISTS[s.k]) { h += listOf(pg, s.k).length ? viewList(pg, s.k) : none; return; }
     const has = pg[s.k] || imgs[s.k].length;
     h += (pg[s.k] ? md(pg[s.k]) : '') + (imgs[s.k].length ? gallery(imgs[s.k]) : '') + (has ? '' : none);
   });
@@ -347,6 +367,77 @@ async function viewPage(name) {
 }
 
 /* ---------- 編集提案 ---------- */
+// カードを積んでいく入力欄（よくある質問／トラブル）
+function listEditor(box, addBtn, key, initial, name) {
+  const cfg = LISTS[key];
+  let seq = 0;
+  const items = initial.map(x => Object.assign({}, x, { key: ++seq, busy: 0, open: false }));
+  const sum = x => (cfg.fields.map(f => x[f.k]).join('\n').split('\n').find(l => l.trim()) || '（内容なし）').trim() + (x.img.length ? '　📷' + x.img.length : '');
+  const gal = x => x.img.map((id, i) => '<div><img src="' + thumb(id) + '" alt=""><button type="button" class="x" data-lkey="' + x.key + '" data-i="' + i + '" aria-label="削除">×</button></div>').join('')
+    + (x.busy ? '<div class="up">アップ中…</div>' : '');
+  const drawGal = x => { const g = box.querySelector('[data-lgal="' + x.key + '"]'); if (g) g.innerHTML = gal(x); };
+  const draw = () => {
+    box.innerHTML = items.map((x, i) => '<div class="trc">'
+      + '<div class="trc-h" data-toggle="' + x.key + '"><b>' + cfg.unit + ' ' + (i + 1) + '</b><span class="sum">' + (x.open ? '' : esc(sum(x))) + '</span><span class="arr">' + (x.open ? '▲ 閉じる' : '▼ 開く') + '</span></div>'
+      + '<div class="trc-b"' + (x.open ? '' : ' hidden') + '>'
+      + cfg.fields.map(f => '<label class="sm">' + f.label + '</label><textarea data-lf="' + f.k + '" data-lkey="' + x.key + '" placeholder="' + esc(f.ph) + '">' + esc(x[f.k]) + '</textarea>').join('')
+      + '<div class="gal" data-lgal="' + x.key + '">' + gal(x) + '</div>'
+      + '<label class="btn addimg">📷 画像を追加（' + cfg.maxImg + '枚まで）<input type="file" accept="image/*" multiple hidden data-lfile="' + x.key + '"></label>'
+      + '<div><button type="button" class="trc-del" data-ldel="' + x.key + '">この' + cfg.unit + 'を削除</button></div>'
+      + '</div></div>').join('');
+    addBtn.hidden = items.length >= cfg.max;
+  };
+  draw();
+  const find = k => items.find(x => x.key === Number(k));
+  addBtn.onclick = () => {
+    items.forEach(x => x.open = false);
+    const e = { key: ++seq, id: '', img: [], busy: 0, open: true };
+    cfg.fields.forEach(f => e[f.k] = '');
+    items.push(e);
+    draw();
+    const ta = box.querySelector('[data-lkey="' + seq + '"][data-lf]');
+    if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus({ preventScroll: true }); }
+  };
+  box.addEventListener('input', e => {
+    const ta = e.target.closest('[data-lf]');
+    if (ta) find(ta.dataset.lkey)[ta.dataset.lf] = ta.value;
+  });
+  box.addEventListener('click', e => {
+    const tg = e.target.closest('[data-toggle]');
+    if (tg) { const x = find(tg.dataset.toggle); x.open = !x.open; draw(); return; }
+    const del = e.target.closest('[data-ldel]');
+    if (del) {
+      const x = find(del.dataset.ldel), n = items.indexOf(x) + 1;
+      if ((cfg.fields.some(f => x[f.k].trim()) || x.img.length) && !confirm(cfg.unit + ' ' + n + ' を削除しますか？')) return;
+      items.splice(items.indexOf(x), 1); draw(); return;
+    }
+    const xb = e.target.closest('.x[data-lkey]');
+    if (xb) { const x = find(xb.dataset.lkey); x.img.splice(Number(xb.dataset.i), 1); drawGal(x); }
+  });
+  box.addEventListener('change', async e => {
+    const inp = e.target.closest('[data-lfile]');
+    if (!inp) return;
+    const x = find(inp.dataset.lfile), files = [...inp.files]; inp.value = '';
+    for (const f of files) {
+      if (x.img.length + x.busy >= cfg.maxImg) { toast('1件につき画像は' + cfg.maxImg + '枚までです'); break; }
+      x.busy++; drawGal(x);
+      try {
+        const data = await resizeImage(f);
+        const r = await api('upload', { name, data });
+        x.img.push(r.id);
+      } catch (err) { toast('画像のアップに失敗：' + err.message); }
+      x.busy--; drawGal(x);
+    }
+  });
+  const clean = x => { const o = { id: x.id || '', img: x.img }; cfg.fields.forEach(f => o[f.k] = String(x[f.k] || '').trim()); return o; };
+  const keep = x => cfg.fields.some(f => x[f.k]) || x.img.length;
+  return {
+    busy: () => items.some(x => x.busy),
+    value: () => items.map(clean).filter(keep),
+    original: () => initial.map(clean).filter(keep)
+  };
+}
+
 async function viewEdit(name) {
   document.title = name + ' を編集 - 福祉用具Wiki';
   loading();
@@ -360,14 +451,16 @@ async function viewEdit(name) {
     h += '<label>' + s.t + '</label><textarea name="' + s.k + '">' + esc(pg[s.k]) + '</textarea>';
     h += '<div class="gal" data-gal="' + s.k + '"></div><label class="btn addimg">📷 ' + s.t + 'に画像を追加<input type="file" accept="image/*" multiple hidden data-file="' + s.k + '"></label>';
   });
-  h += '<label>トラブル・不具合対応 <small>（1件ごとに、内容と画像をセットで書きます）</small></label><div id="trs"></div>';
-  h += '<button type="button" class="btn addtr" id="addtr">＋ トラブルを追加</button>';
+  Object.keys(LISTS).forEach(key => {
+    h += '<label>' + label(key) + ' <small>（' + LISTS[key].hint + '）</small></label><div id="lb-' + key + '"></div>';
+    h += '<button type="button" class="btn addtr" id="add-' + key + '">' + LISTS[key].add + '</button>';
+  });
   h += '<p class="from" style="margin-top:14px">※ お客様のお宅や、人が写った写真は載せないでください。</p>';
   h += '<label>あなたの名前</label><input class="f" name="proposer" required value="' + esc(store('wiki_name') || '') + '">';
   h += '<div class="row"><button class="btn pri" id="sb">提案を送信</button><a class="btn" href="' + pageUrl(name) + '" data-nav>キャンセル</a></div></form>';
   main.innerHTML = h + '</div>';
 
-  // 画像の追加・削除（項目ごと）
+  // 画像の追加・削除（特徴・注意事項）
   const orig = imgsOf(pg), imgs = imgsOf(pg), busy = emptyImgs();
   const draw = k => {
     main.querySelector('[data-gal="' + k + '"]').innerHTML =
@@ -379,70 +472,6 @@ async function viewEdit(name) {
     const b = e.target.closest('.x[data-k]');
     if (b) { imgs[b.dataset.k].splice(Number(b.dataset.i), 1); draw(b.dataset.k); }
   });
-
-  // ----- トラブル対応：1件ずつカードで追加 -----
-  const origTr = troublesOf(pg);
-  let seq = 0;
-  const trs = origTr.map(x => ({ key: ++seq, s: x.s, r: x.r, img: x.img, busy: 0, open: false }));
-  const trBox = $('#trs');
-  const trSum = x => ((x.s + '\n' + x.r).split('\n').find(l => l.trim()) || '（内容なし）').trim() + (x.img.length ? '　📷' + x.img.length : '');
-  const trGal = x => x.img.map((id, i) => '<div><img src="' + thumb(id) + '" alt=""><button type="button" class="x" data-tkey="' + x.key + '" data-i="' + i + '" aria-label="削除">×</button></div>').join('')
-    + (x.busy ? '<div class="up">アップ中…</div>' : '');
-  const drawTrGal = x => { const g = trBox.querySelector('[data-tgal="' + x.key + '"]'); if (g) g.innerHTML = trGal(x); };
-  const drawTr = () => {
-    trBox.innerHTML = trs.map((x, i) => '<div class="trc" data-key="' + x.key + '">'
-      + '<div class="trc-h" data-toggle="' + x.key + '"><b>トラブル ' + (i + 1) + '</b><span class="sum">' + (x.open ? '' : esc(trSum(x))) + '</span><span class="arr">' + (x.open ? '▲ 閉じる' : '▼ 開く') + '</span></div>'
-      + '<div class="trc-b"' + (x.open ? '' : ' hidden') + '>'
-      + '<label class="sm">症状</label><textarea data-ts="' + x.key + '" placeholder="例：ブレーキをかけても止まらない">' + esc(x.s) + '</textarea>'
-      + '<label class="sm">対応と結果</label><textarea data-tr="' + x.key + '" placeholder="例：ワイヤーを調整したら直った">' + esc(x.r) + '</textarea>'
-      + '<div class="gal" data-tgal="' + x.key + '">' + trGal(x) + '</div>'
-      + '<label class="btn addimg">📷 このトラブルに画像を追加（' + MAX_TR_IMG + '枚まで）<input type="file" accept="image/*" multiple hidden data-tfile="' + x.key + '"></label>'
-      + '<div><button type="button" class="trc-del" data-tdel="' + x.key + '">このトラブルを削除</button></div>'
-      + '</div></div>').join('');
-    $('#addtr').hidden = trs.length >= MAX_TR;
-  };
-  drawTr();
-  const findTr = k => trs.find(x => x.key === Number(k));
-  $('#addtr').onclick = () => {
-    trs.forEach(x => x.open = false);
-    trs.push({ key: ++seq, s: '', r: '', img: [], busy: 0, open: true });
-    drawTr();
-    const ta = trBox.querySelector('[data-ts="' + seq + '"]');
-    if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus({ preventScroll: true }); }
-  };
-  trBox.addEventListener('input', e => {
-    const a = e.target.closest('[data-ts]'), b = e.target.closest('[data-tr]');
-    if (a) findTr(a.dataset.ts).s = a.value;
-    if (b) findTr(b.dataset.tr).r = b.value;
-  });
-  trBox.addEventListener('click', e => {
-    const tg = e.target.closest('[data-toggle]');
-    if (tg) { const x = findTr(tg.dataset.toggle); x.open = !x.open; drawTr(); return; }
-    const del = e.target.closest('[data-tdel]');
-    if (del) {
-      const x = findTr(del.dataset.tdel), n = trs.indexOf(x) + 1;
-      if ((x.s.trim() || x.r.trim() || x.img.length) && !confirm('トラブル ' + n + ' を削除しますか？')) return;
-      trs.splice(trs.indexOf(x), 1); drawTr(); return;
-    }
-    const xb = e.target.closest('.x[data-tkey]');
-    if (xb) { const x = findTr(xb.dataset.tkey); x.img.splice(Number(xb.dataset.i), 1); drawTrGal(x); }
-  });
-  trBox.addEventListener('change', async e => {
-    const inp = e.target.closest('[data-tfile]');
-    if (!inp) return;
-    const x = findTr(inp.dataset.tfile), files = [...inp.files]; inp.value = '';
-    for (const f of files) {
-      if (x.img.length + x.busy >= MAX_TR_IMG) { toast('1つのトラブルにつき画像は' + MAX_TR_IMG + '枚までです'); break; }
-      x.busy++; drawTrGal(x);
-      try {
-        const data = await resizeImage(f);
-        const r = await api('upload', { name, data });
-        x.img.push(r.id);
-      } catch (err) { toast('画像のアップに失敗：' + err.message); }
-      x.busy--; drawTrGal(x);
-    }
-  });
-
   main.querySelectorAll('[data-file]').forEach(inp => inp.addEventListener('change', async e => {
     const k = inp.dataset.file, files = [...e.target.files]; e.target.value = '';
     for (const f of files) {
@@ -457,17 +486,20 @@ async function viewEdit(name) {
     }
   }));
 
+  // よくある質問・トラブル（カード）
+  const eds = {};
+  Object.keys(LISTS).forEach(key => eds[key] = listEditor($('#lb-' + key), $('#add-' + key), key, listOf(pg, key), name));
+
   $('#ef').addEventListener('submit', async e => {
     e.preventDefault();
-    if (PLAIN.some(s => busy[s.k].length) || trs.some(x => x.busy)) return toast('画像のアップが終わるまで待ってください');
+    if (PLAIN.some(s => busy[s.k].length) || Object.values(eds).some(x => x.busy())) return toast('画像のアップが終わるまで待ってください');
     const fd = Object.fromEntries(new FormData(e.target));
     fd.images = imgs;
-    const norm = x => ({ s: x.s.trim(), r: x.r.trim(), img: x.img });
-    const keep = x => x.s || x.r || x.img.length;
-    fd.troubles = trs.map(norm).filter(keep);
-    const origCmp = origTr.map(norm).filter(keep);
-    const changed = KEYS.some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim()) || JSON.stringify(imgs) !== JSON.stringify(orig)
-      || JSON.stringify(fd.troubles) !== JSON.stringify(origCmp);
+    let changed = KEYS.some(k => (fd[k] || '').trim() !== String(pg[k] || '').trim()) || JSON.stringify(imgs) !== JSON.stringify(orig);
+    Object.keys(eds).forEach(key => {
+      fd[key] = eds[key].value();
+      if (JSON.stringify(fd[key]) !== JSON.stringify(eds[key].original())) changed = true;
+    });
     if (!changed) return toast('変更がありません');
     $('#sb').disabled = true;
     try {
@@ -490,6 +522,41 @@ async function viewHistory(name) {
 }
 
 /* ---------- 管理者 ---------- */
+// 今の記事 c と、承認後の内容 t の違いを表示
+function diffContent(c, t) {
+  let h = '';
+  TEXT_KEYS.forEach(k => {
+    if (String(t[k] || '') === String(c[k] || '')) return;
+    h += '<div class="fl">' + label(k) + '</div>' + diffHtml(c[k], t[k]);
+  });
+  const ci = imgsOf(c), ti = imgsOf(t);
+  PLAIN.forEach(s => {
+    const added = ti[s.k].filter(x => !ci[s.k].includes(x)), removed = ci[s.k].filter(x => !ti[s.k].includes(x));
+    if (!added.length && !removed.length) return;
+    h += '<div class="fl">' + s.t + 'の画像</div>' + gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
+  });
+  Object.keys(LISTS).forEach(key => {
+    const cfg = LISTS[key], cl = listOf(c, key), tl = listOf(t, key);
+    const cm = Object.fromEntries(cl.map(x => [x.id, x]));
+    const tm = Object.fromEntries(tl.map(x => [x.id, x]));
+    const blank = () => { const o = { img: [] }; cfg.fields.forEach(f => o[f.k] = ''); return o; };
+    const show = (a, b, title) => {
+      if (JSON.stringify(a) === JSON.stringify(b)) return;
+      h += '<div class="fl">' + title + '</div>';
+      cfg.fields.forEach(f => { if (a[f.k] !== b[f.k]) h += '<div class="from" style="margin:4px 0 0">' + f.label + '</div>' + diffHtml(a[f.k], b[f.k]); });
+      const added = b.img.filter(x => !a.img.includes(x)), removed = a.img.filter(x => !b.img.includes(x));
+      if (added.length || removed.length) h += gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
+    };
+    tl.forEach((x, i) => {
+      const a = cm[x.id];
+      const strip = o => { const r = Object.assign({}, o); delete r.id; return r; };
+      show(a ? strip(a) : blank(), strip(x), cfg.unit + ' ' + (i + 1) + (a ? '' : '（新規）'));
+    });
+    cl.forEach(x => { if (!tm[x.id]) { const r = Object.assign({}, x); delete r.id; show(r, blank(), cfg.unit + '（削除）'); } });
+  });
+  return h;
+}
+
 async function viewAdmin() {
   document.title = '管理者 - 福祉用具Wiki';
   const key = store('wiki_admin');
@@ -508,41 +575,19 @@ async function viewAdmin() {
   catch (e) { if (/キー/.test(e.message)) { store('wiki_admin', null); return viewAdmin(); } return fail(e); }
   let h = '<div class="paper solo"><h1>承認待ちの提案（' + r.list.length + '件）</h1>';
   if (!r.list.length) h += '<p class="empty">承認待ちはありません。</p>';
-  r.list.forEach(({ proposal: p, current: c, conflict }, i) => {
+  r.list.forEach(({ proposal: p, current: c, result: t, merged }, i) => {
     c = c || {};
     h += '<div class="card" data-i="' + i + '"><h3><a href="' + pageUrl(p.name) + '" data-nav>' + esc(p.name) + '</a>' + (c.name ? '' : ' <small style="color:var(--red)">新規</small>') + '</h3>';
     h += '<div class="from">' + esc(p.proposer) + ' さん ・ ' + fmt(p.createdAt) + '</div>';
-    if (conflict) h += '<div class="notice">この提案の後に記事が更新されています。承認すると上書きされるので、内容を確認してください。</div>';
-    let any = false;
-    TEXT_KEYS.forEach(k => {
-      if (String(p[k] || '') === String(c[k] || '')) return;
-      any = true;
-      h += '<div class="fl">' + label(k) + '</div>' + diffHtml(c[k], p[k]);
-    });
-    const ci = imgsOf(c), pi = imgsOf(p);
-    PLAIN.forEach(s => {
-      const added = pi[s.k].filter(x => !ci[s.k].includes(x)), removed = ci[s.k].filter(x => !pi[s.k].includes(x));
-      if (!added.length && !removed.length) return;
-      any = true;
-      h += '<div class="fl">' + s.t + 'の画像</div>' + gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
-    });
-    const ct = troublesOf(c), pt = troublesOf(p);
-    for (let j = 0; j < Math.max(ct.length, pt.length); j++) {
-      const a = ct[j] || { s: '', r: '', img: [] }, b2 = pt[j] || { s: '', r: '', img: [] };
-      if (JSON.stringify(a) === JSON.stringify(b2)) continue;
-      any = true;
-      h += '<div class="fl">トラブル ' + (j + 1) + (!ct[j] ? '（新規）' : !pt[j] ? '（削除）' : '') + '</div>';
-      if (a.s !== b2.s) h += '<div class="from" style="margin:4px 0 0">症状</div>' + diffHtml(a.s, b2.s);
-      if (a.r !== b2.r) h += '<div class="from" style="margin:4px 0 0">対応と結果</div>' + diffHtml(a.r, b2.r);
-      const added = b2.img.filter(x => !a.img.includes(x)), removed = a.img.filter(x => !b2.img.includes(x));
-      if (added.length || removed.length) h += gallery([...added.map(id => [id, 'add']), ...removed.map(id => [id, 'del'])]);
-    }
-    if (!any) h += '<p class="empty">変更点はありません</p>';
+    if (merged) h += '<div class="notice">この提案のあとに、別の提案が承認されています。<b>両方の変更を合体した内容</b>で表示しています（先に承認した内容は消えません）。同じ行を両方が書き換えていた場合は両方の文が残るので、必要なら「修正して承認」で整えてください。</div>';
+    const d = diffContent(c, t);
+    h += d || '<p class="empty">変更点はありません</p>';
     h += '<div class="fix" hidden>' + TEXT_KEYS.map(k =>
       '<label>' + label(k) + '</label>' +
-      (k === 'manual' ? '<input class="f" data-k="' + k + '" value="' + esc(p[k]) + '">' : '<textarea data-k="' + k + '">' + esc(p[k]) + '</textarea>')
-    ).join('') + pt.map((x, j) => '<label>トラブル ' + (j + 1) + ' の症状</label><textarea data-tks="' + j + '">' + esc(x.s) + '</textarea>'
-      + '<label>トラブル ' + (j + 1) + ' の対応と結果 <small>（画像はそのまま）</small></label><textarea data-tkr="' + j + '">' + esc(x.r) + '</textarea>').join('') + '</div>';
+      (k === 'manual' ? '<input class="f" data-k="' + k + '" value="' + esc(t[k]) + '">' : '<textarea data-k="' + k + '">' + esc(t[k]) + '</textarea>')
+    ).join('') + Object.keys(LISTS).map(lk => listOf(t, lk).map((x, j) => LISTS[lk].fields.map(f =>
+      '<label>' + LISTS[lk].unit + ' ' + (j + 1) + ' の' + f.label + (f === LISTS[lk].fields[1] ? ' <small>（画像はそのまま）</small>' : '') + '</label>'
+      + '<textarea data-list="' + lk + '" data-id="' + esc(x.id) + '" data-f="' + f.k + '">' + esc(x[f.k]) + '</textarea>').join('')).join('')).join('') + '</div>';
     h += '<div class="row"><button class="btn pri" data-act="ok">承認</button><button class="btn" data-act="fix">修正して承認</button><button class="btn ng" data-act="ng">却下</button></div></div>';
   });
   h += '<div class="row"><button class="btn" id="lo">ログアウト</button></div>';
@@ -559,7 +604,12 @@ async function viewAdmin() {
       if (act === 'fix') {
         body.decision = 'approve'; body.final = {};
         fix.querySelectorAll('[data-k]').forEach(el => body.final[el.dataset.k] = el.value);
-        body.final.troubleFix = [...fix.querySelectorAll('[data-tks]')].map(el => ({ s: el.value, r: fix.querySelector('[data-tkr="' + el.dataset.tks + '"]').value }));
+        fix.querySelectorAll('[data-list]').forEach(el => {
+          const lk = el.dataset.list, id = el.dataset.id;
+          body.final[lk] = body.final[lk] || {};
+          body.final[lk][id] = body.final[lk][id] || {};
+          body.final[lk][id][el.dataset.f] = el.value;
+        });
         body.note = '管理者が修正して承認';
       }
       if (act === 'ng') {
