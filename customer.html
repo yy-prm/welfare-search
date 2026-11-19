@@ -33,14 +33,20 @@
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
     /* 新着お知らせ（画面上部に浮かぶピル型） */
     /* お困りごとから探す */
-    .navi-entry { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 600px; margin: 2px auto 14px; padding: 12px 12px 12px 12px; border: 1px solid #dde8eb; border-radius: 16px; background: #fff; color: #1f2d33; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 6px 16px rgba(16,40,52,0.06); box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: transform 0.12s, box-shadow 0.2s; }
-    .navi-entry:active { transform: scale(0.985); }
-    .navi-entry .ne-ico { flex: none; width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #e6f4f8 0%, #d3ebf2 100%); display: grid; place-items: center; }
-    .navi-entry .ne-ico .material-icons { font-size: 24px; color: var(--theme-color); }
-    .navi-entry .ne-t { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; letter-spacing: 0.01em; }
-    .navi-entry .ne-tag { font-size: 10px; font-weight: 700; color: var(--theme-color); background: #e9f5f8; border-radius: 999px; padding: 2px 7px; letter-spacing: 0.04em; }
-    .navi-entry .ne-s { display: block; font-size: 12px; color: #7a888d; margin-top: 2px; line-height: 1.4; }
-    .navi-entry .ne-arrow { flex: none; margin-left: auto; color: #b3c1c6; font-size: 22px; }
+    /* トップ：見出しで「種類から探す」「お困りごとから探す」を区切る */
+    .home-sec { display: flex; align-items: baseline; justify-content: space-between; max-width: 600px; margin: 4px auto 10px; padding: 0 2px; box-sizing: border-box; }
+    .home-sec h3 { margin: 0; font-size: 15px; font-weight: 800; color: #1f2d33; letter-spacing: 0.02em; }
+    .home-sec .more { border: 0; background: none; padding: 4px 0 4px 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--theme-color); cursor: pointer; display: inline-flex; align-items: center; }
+    .home-sec .more .material-icons { font-size: 18px; margin-right: -4px; }
+    #navi-home { max-width: 600px; margin: 18px auto 6px; }
+    .trouble-rail { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 15px; margin: 0 -15px; padding: 2px 15px 14px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .trouble-rail::-webkit-scrollbar { display: none; }
+    .trouble-card { flex: none; scroll-snap-align: start; width: 136px; min-height: 128px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 12px 12px; border: 1px solid #e3ecef; border-radius: 16px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 4px 12px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; transition: transform 0.12s; box-sizing: border-box; }
+    .trouble-card:active { transform: scale(0.97); }
+    .trouble-card .ic { width: 38px; height: 38px; border-radius: 12px; background: #eaf5f8; display: grid; place-items: center; }
+    .trouble-card .ic .material-icons { font-size: 22px; color: var(--theme-color); }
+    .trouble-card .lb { font-size: 13.5px; font-weight: 800; color: #1f2d33; line-height: 1.4; }
+    .trouble-card .ct { margin-top: auto; font-size: 11px; color: #8a959a; }
     #navi { position: fixed; inset: 0; z-index: 10002; background: #f4f8f9; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; visibility: hidden; transform: translateY(18px); transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0.28s; }
     #navi.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s; }
     .navi-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 14px 6px; background: linear-gradient(180deg, #f4f8f9 70%, rgba(244,248,249,0) 100%); }
@@ -59,24 +65,28 @@
     .navi-cat:active { transform: scale(0.96); border-color: var(--theme-color); }
     .navi-cat .ic { width: 44px; height: 44px; border-radius: 50%; background: #eaf5f8; display: grid; place-items: center; }
     .navi-cat .ic .material-icons { font-size: 24px; color: var(--theme-color); }
-    .navi-list { background: #fff; border: 1px solid #e3ecef; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,40,52,0.04); }
-    .navi-opt { display: flex; align-items: center; gap: 14px; width: 100%; padding: 15px 16px; border: 0; border-top: 1px solid #edf2f4; background: #fff; text-align: left; font-family: inherit; cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
-    .navi-opt:first-child { border-top: 0; }
-    .navi-opt:active { background: #f6fafb; }
-    .navi-opt .txt { flex: 1; min-width: 0; font-size: 14.5px; font-weight: 700; color: #1f2d33; line-height: 1.5; }
-    .navi-opt .hint { display: block; font-size: 12px; font-weight: 500; color: #8a959a; margin-top: 3px; line-height: 1.5; }
-    .navi-opt .chk { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ccd9dd; display: grid; place-items: center; transition: background 0.18s, border-color 0.18s, transform 0.18s; }
-    .navi-opt .chk .material-icons { font-size: 17px; color: #fff; opacity: 0; transform: scale(0.6); transition: opacity 0.18s, transform 0.18s; }
-    .navi-opt.on { background: #f3fafc; }
-    .navi-opt.on .chk { background: var(--theme-color); border-color: var(--theme-color); }
-    .navi-opt.on .chk .material-icons { opacity: 1; transform: scale(1); }
+    .navi-opts { display: flex; flex-direction: column; gap: 10px; }
+    .navi-opt { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 16px 16px 14px; border: 1.5px solid #e3ecef; border-radius: 16px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04); transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    .navi-opt .radio { flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; border: 2px solid #ccd9dd; display: grid; place-items: center; transition: border-color 0.18s; box-sizing: border-box; }
+    .navi-opt .radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--theme-color); transform: scale(0); transition: transform 0.18s; }
+    .navi-opt .body { flex: 1; min-width: 0; }
+    .navi-opt .k { display: block; font-size: 10.5px; font-weight: 800; color: #8a959a; letter-spacing: 0.08em; margin-bottom: 3px; }
+    .navi-opt .sym { display: block; font-size: 14.5px; font-weight: 700; color: #1f2d33; line-height: 1.55; }
+    .navi-opt .sug { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #f3f8fa; border: 1px solid #e3eef2; transition: background 0.2s, border-color 0.2s; }
+    .navi-opt .sug .material-icons { flex: none; font-size: 18px; color: var(--theme-color); }
+    .navi-opt .sug .k { margin: 0 0 1px; color: var(--theme-color); }
+    .navi-opt .sug b { display: block; font-size: 13.5px; color: #1f4f5c; line-height: 1.45; }
+    .navi-opt.on { border-color: var(--theme-color); box-shadow: 0 6px 18px rgba(75,156,179,0.18); }
+    .navi-opt.on .radio { border-color: var(--theme-color); }
+    .navi-opt.on .radio::after { transform: scale(1); }
+    .navi-opt.on .sug { background: #e6f4f8; border-color: #cbe5ec; }
     .navi-note { display: flex; gap: 6px; font-size: 11.5px; color: #8a959a; line-height: 1.6; margin: 16px 2px 0; }
     .navi-note .material-icons { font-size: 15px; color: #a9b8bd; margin-top: 2px; flex: none; }
     .navi-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 14px 18px calc(env(safe-area-inset-bottom) + 14px); background: linear-gradient(180deg, rgba(244,248,249,0) 0%, #f4f8f9 35%); }
     .navi-go { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 604px; margin: 0 auto; padding: 15px; border: 0; border-radius: 14px; background: var(--theme-color); color: #fff; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(75,156,179,0.32); transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
     .navi-go .material-icons { font-size: 18px; }
     .navi-go.ghost { background: #fff; color: var(--theme-dark); border: 1px solid #d5e2e7; box-shadow: 0 2px 8px rgba(16,40,52,0.06); }
-    .navi-go .cnt { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,0.25); font-size: 12px; }
+
     #navi-applied { display: none; align-items: flex-start; gap: 10px; max-width: 600px; margin: 0 auto 12px; padding: 11px 12px; border-radius: 14px; background: #fff; border: 1px solid #dde8eb; border-left: 3px solid var(--theme-color); color: #33434a; font-size: 12.5px; line-height: 1.55; box-sizing: border-box; box-shadow: 0 1px 2px rgba(16,40,52,0.04); }
     #navi-applied.show { display: flex; }
     #navi-applied .material-icons { font-size: 18px; color: var(--theme-color); margin-top: 1px; }
@@ -340,6 +350,7 @@
       </div>
     </div>
 
+    <div class="home-sec" id="sec-kind"><h3>種類から探す</h3></div>
     <div class="grid-container" id="panel-area">
       <div id="panel-特殊寝台" class="panel" onclick="showSearch('特殊寝台')">
         <span class="material-icons">bed</span>特殊寝台
@@ -366,12 +377,10 @@
         <span class="material-icons">fence</span>室外玄関手すり
       </div>
     </div>
-    <button type="button" class="navi-entry" id="navi-entry" onclick="openNavi()">
-      <span class="ne-ico"><span class="material-icons">manage_search</span></span>
-      <span><span class="ne-t">お困りごとから探す<span class="ne-tag">かんたん</span></span><span class="ne-s">症状やご希望から、合う商品をご提案します</span></span>
-      <span class="material-icons ne-arrow">chevron_right</span>
-    </button>
-
+    <div id="navi-home">
+      <div class="home-sec"><h3>お困りごとから探す</h3><button type="button" class="more" onclick="openNavi()">すべて見る<span class="material-icons">chevron_right</span></button></div>
+      <div class="trouble-rail" id="trouble-rail"></div>
+    </div>
     <div id="normal-filter-injection">
       <div id="filter-wrapper">
         <div id="bed-search-area" class="search-area-box">
@@ -2749,41 +2758,43 @@
     //    checks ：そのカテゴリの絞り込みで、最初からチェックを入れておく項目
     //    title  ：提案の見出し　／ reason：なぜこの商品か（お客様向けのやさしい言葉で）
     // ===================================================
+    // short：トップの「お困りごとから探す」に出す短い言葉（無ければトップには出さない）
+    // icon ：トップのカードのアイコン　／ title：症状・ご希望　／ suggest：ご提案する商品
     const NAVI = [
       { cat: '特殊寝台', items: [
-        { title: 'ベッドから転落するリスクがある・就寝時に床面を低くしたい', checks: ['#bed-low-20'], hint: '床面が20cm以下まで下がるベッド（超低床も含みます）' },
-        { title: '誤嚥のリスクが高い・呼吸がしにくい', checks: ['.bed-func-check[value="ハイバック"]'], hint: '背中を高く起こせるハイバックのベッド' },
-        { title: '高身長・なるべく大きめのベッドがいい', checks: ['.bed-width-check[value="100ロング"]'], hint: '幅100cm・ロングサイズ' },
-        { title: 'スペースがなく、できるだけ小さめのベッドがいい', checks: ['.bed-width-check[value="83ショート"]'], hint: '幅83cm・ショートサイズ' } ] },
+        { short: 'ベッドからの転落が心配', icon: 'warning_amber', title: 'ベッドから転落するリスクがある・就寝時に床面を低くしたい', suggest: '低床ベッド（床面20cm以下・超低床を含む）', checks: ['#bed-low-20'] },
+        { short: '誤嚥・呼吸が心配', icon: 'air', title: '誤嚥のリスクが高い・呼吸がしにくい', suggest: '背中を高く起こせるハイバックのベッド', checks: ['.bed-func-check[value="ハイバック"]'] },
+        { short: '大きめのベッドがいい', icon: 'open_in_full', title: '高身長・なるべく大きめのベッドがいい', suggest: '幅100cm・ロングサイズのベッド', checks: ['.bed-width-check[value="100ロング"]'] },
+        { short: '部屋がせまい', icon: 'close_fullscreen', title: 'スペースがなく、できるだけ小さめのベッドがいい', suggest: '幅83cm・ショートサイズのベッド', checks: ['.bed-width-check[value="83ショート"]'] } ] },
       // ↓ ここから下はたたき台（内容を決めたら書き換えてください）
       { cat: 'マットレス', items: [
-        { title: '床ずれが心配・寝ている時間が長い', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] } ] },
+        { short: '床ずれが心配', icon: 'healing', title: '床ずれが心配・寝ている時間が長い', suggest: '体圧を分散する床ずれ防止・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] } ] },
       { cat: '車椅子', items: [
-        { title: '外出したいが、長く歩くのがつらい', checks: ['.func-check[value="軽量"]'], hint: '軽くて、車への積み下ろしも楽な車いす' },
-        { title: '家族が押して使いたい', checks: ['.type-check[value="介助"]'], hint: '押す人が扱いやすい介助用の車いす' } ] },
+        { short: '長く歩くのがつらい', icon: 'park', title: '外出したいが、長く歩くのがつらい', suggest: '軽くて車への積み下ろしも楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
+        { title: '家族が押して使いたい', suggest: '押す人が扱いやすい介助用の車いす', checks: ['.type-check[value="介助"]'] } ] },
       { cat: 'クッション', items: [
-        { title: '座っているとお尻が痛い', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'] },
-        { title: '座っていると姿勢がくずれる', checks: ['.cushion-func-check[value="姿勢保持"]'] } ] },
+        { short: '座るとお尻が痛い', icon: 'event_seat', title: '座っているとお尻が痛い', suggest: '圧を分散する除圧・エアークッション', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'] },
+        { title: '座っていると姿勢がくずれる', suggest: '体の傾きやずり落ちを防ぐ姿勢保持クッション', checks: ['.cushion-func-check[value="姿勢保持"]'] } ] },
       { cat: '歩行器', items: [
-        { title: '家の中でふらつく', checks: ['.walker-env-check[value="室内"]'] },
-        { title: '外出したい・買い物に行きたい', checks: ['.walker-env-check[value="室外"]'] } ] },
+        { short: '家の中でふらつく', icon: 'directions_walk', title: '家の中でふらつく', suggest: '室内用の歩行器', checks: ['.walker-env-check[value="室内"]'] },
+        { title: '外出したい・買い物に行きたい', suggest: '屋外用の歩行器', checks: ['.walker-env-check[value="室外"]'] } ] },
       { cat: '室内手すり', items: [
-        { title: 'トイレでの立ち座りがつらい', checks: ['#in-handrail-func-toilet'] },
-        { title: '壁に穴を開けずに設置したい', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
+        { short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用手すり', checks: ['#in-handrail-func-toilet'] },
+        { title: '壁に穴を開けずに設置したい', suggest: '置き型・突っ張り型の手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
       { cat: '室外玄関手すり', items: [
-        { title: '玄関の段差（上がりかまち）がつらい', checks: ['.out-handrail-type-check[value="玄関"]'] },
-        { title: '家の外の段差がつらい', checks: ['.out-handrail-type-check[value="屋外"]'] } ] },
+        { short: '玄関の段差がつらい', icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', suggest: '玄関用の手すり', checks: ['.out-handrail-type-check[value="玄関"]'] },
+        { title: '家の外の段差がつらい', suggest: '屋外用の手すり', checks: ['.out-handrail-type-check[value="屋外"]'] } ] },
       { cat: '特殊寝台付属品', items: [
-        { title: 'ベッドからの立ち上がりを支えたい', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'] },
-        { title: 'ベッドからの転落を防ぎたい', checks: ['.bed-acc-type-check[value="サイドレール"]'] },
-        { title: 'ベッドと車いすの乗り移りが大変', checks: ['.bed-acc-type-check[value="移乗ボード"]'] } ] },
+        { title: 'ベッドからの立ち上がりを支えたい', suggest: '介助バー・グリップ', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'] },
+        { title: 'ベッドからの転落を防ぎたい', suggest: 'サイドレール', checks: ['.bed-acc-type-check[value="サイドレール"]'] },
+        { title: 'ベッドと車いすの乗り移りが大変', suggest: '移乗ボード', checks: ['.bed-acc-type-check[value="移乗ボード"]'] } ] },
       { cat: 'スロープ', items: [
-        { title: '屋外の段差を車いすで越えたい', checks: ['.slope-env-check[value="室外"]'] },
-        { title: '室内の段差を車いすで越えたい', checks: ['.slope-env-check[value="室内"]'] } ] }
+        { title: '屋外の段差を車いすで越えたい', suggest: '屋外用のスロープ', checks: ['.slope-env-check[value="室外"]'] },
+        { title: '室内の段差を車いすで越えたい', suggest: '室内用のスロープ', checks: ['.slope-env-check[value="室内"]'] } ] }
     ];
     const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'trending_up', '移動用リフト': 'airline_seat_recline_extra' };
     const NAVI_CAT_NAMES = { '特殊寝台': 'ベッド', '車椅子': '車いす', '歩行補助杖': '杖', '室外玄関手すり': '玄関・屋外の手すり', '特殊寝台付属品': 'ベッドの付属品' };
-    let naviStep = 0, naviCat = -1, naviSel = [];
+    let naviStep = 0, naviCat = -1, naviSel = -1;
 
     function escNavi(t) { return String(t).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function naviName(cat) { return NAVI_CAT_NAMES[cat] || cat; }
@@ -2796,7 +2807,7 @@
       if (naviStep === 0) {
         h += '<div class="navi-eyebrow">STEP 1 / 2</div>';
         h += '<h2 class="navi-title">どんな福祉用具を<br>お探しですか？</h2>';
-        h += '<p class="navi-lead">種類を選ぶと、症状やご希望に合わせて商品を絞り込めます。</p><div class="navi-cats">';
+        h += '<p class="navi-lead">種類を選ぶと、症状やご希望に合わせて商品をご提案します。</p><div class="navi-cats">';
         NAVI.forEach(function(g, i) {
           h += '<button type="button" class="navi-cat" onclick="pickNaviCat(' + i + ')"><span class="ic"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span></span>' + escNavi(naviName(g.cat)) + '</button>';
         });
@@ -2804,44 +2815,62 @@
       } else {
         const g = NAVI[naviCat];
         h += '<div class="navi-eyebrow">STEP 2 / 2<span class="dot"></span><span class="cat">' + escNavi(naviName(g.cat)) + '</span></div>';
-        h += '<h2 class="navi-title">当てはまるものを<br>選んでください</h2>';
-        h += '<p class="navi-lead">いくつでも選べます。選ばずに進むと、すべての' + escNavi(naviName(g.cat)) + 'を表示します。</p>';
-        h += '<div class="navi-list">';
+        h += '<h2 class="navi-title">いちばん近いものを<br>1つ選んでください</h2>';
+        h += '<p class="navi-lead">選んだ症状・ご希望に合わせて、おすすめの商品に絞り込みます。</p>';
+        h += '<div class="navi-opts" role="radiogroup">';
         g.items.forEach(function(it, j) {
-          const on = naviSel.indexOf(j) >= 0;
-          h += '<button type="button" class="navi-opt' + (on ? ' on' : '') + '" onclick="toggleNaviOpt(' + j + ')" aria-pressed="' + on + '"><span class="txt">' + escNavi(it.title) + (it.hint ? '<span class="hint">' + escNavi(it.hint) + '</span>' : '') + '</span><span class="chk"><span class="material-icons">check</span></span></button>';
+          const on = naviSel === j;
+          h += '<button type="button" class="navi-opt' + (on ? ' on' : '') + '" role="radio" aria-checked="' + on + '" onclick="toggleNaviOpt(' + j + ')"><span class="radio"></span><span class="body">'
+            + '<span class="k">症状・ご希望</span><span class="sym">' + escNavi(it.title) + '</span>'
+            + '<span class="sug"><span class="material-icons">east</span><span><span class="k">ご提案</span><b>' + escNavi(it.suggest || '') + '</b></span></span>'
+            + '</span></button>';
         });
         h += '</div>' + note + '<div style="height:96px"></div>';
-        h += '<div class="navi-foot">' + (naviSel.length
-          ? '<button type="button" class="navi-go" onclick="applyNavi()">この条件で商品を見る<span class="cnt">' + naviSel.length + '</span></button>'
+        h += '<div class="navi-foot">' + (naviSel >= 0
+          ? '<button type="button" class="navi-go" onclick="applyNavi()">この条件で商品を見る<span class="material-icons">arrow_forward</span></button>'
           : '<button type="button" class="navi-go ghost" onclick="applyNavi()">すべての' + escNavi(naviName(g.cat)) + 'を見る<span class="material-icons">arrow_forward</span></button>') + '</div>';
       }
       body.innerHTML = h;
     }
-    function openNavi() {
-      naviStep = 0; naviCat = -1; naviSel = [];
+    // トップの「お困りごとから探す」カード
+    function renderTroubleRail() {
+      const rail = document.getElementById('trouble-rail');
+      if (!rail) return;
+      let h = '';
+      NAVI.forEach(function(g, i) {
+        g.items.forEach(function(it, j) {
+          if (!it.short) return;
+          h += '<button type="button" class="trouble-card" onclick="openNaviAt(' + i + ',' + j + ')"><span class="ic"><span class="material-icons">' + (it.icon || NAVI_CAT_ICONS[g.cat] || 'help_outline') + '</span></span><span class="lb">' + escNavi(it.short) + '</span><span class="ct">' + escNavi(naviName(g.cat)) + '</span></button>';
+        });
+      });
+      rail.innerHTML = h;
+    }
+    function showNavi() {
       renderNavi();
       document.getElementById('navi').scrollTop = 0;
       document.getElementById('navi').classList.add('open');
       document.body.style.overflow = 'hidden';
       ensureBackGuard();
     }
+    function openNavi() { naviStep = 0; naviCat = -1; naviSel = -1; showNavi(); }
+    // トップのカードから：その種類の画面を、その症状を選んだ状態で開く
+    function openNaviAt(i, j) { naviStep = 1; naviCat = i; naviSel = j; showNavi(); }
     function closeNavi() {
       document.getElementById('navi').classList.remove('open');
       document.body.style.overflow = '';
     }
-    function pickNaviCat(i) { naviCat = i; naviSel = []; naviStep = 1; renderNavi(); document.getElementById('navi').scrollTop = 0; }
+    function pickNaviCat(i) { naviCat = i; naviSel = -1; naviStep = 1; renderNavi(); document.getElementById('navi').scrollTop = 0; }
     function toggleNaviOpt(j) {
-      const k = naviSel.indexOf(j);
-      if (k >= 0) naviSel.splice(k, 1); else naviSel.push(j);
+      naviSel = (naviSel === j) ? -1 : j;   // 1つだけ選べる（もう一度押すと解除）
       const y = document.getElementById('navi').scrollTop;
       renderNavi();
       document.getElementById('navi').scrollTop = y;
     }
     function naviBackStep() {
-      if (naviStep === 1) { naviStep = 0; renderNavi(); document.getElementById('navi').scrollTop = 0; }
+      if (naviStep === 1) { naviStep = 0; naviSel = -1; renderNavi(); document.getElementById('navi').scrollTop = 0; }
       else closeNavi();
     }
+    renderTroubleRail();
     function hideNaviApplied() { document.getElementById('navi-applied').classList.remove('show'); }
     let naviApplying = false;
     function setCheck(el, on) {
@@ -2850,7 +2879,7 @@
     }
     function applyNavi() {
       const g = NAVI[naviCat];
-      const picked = naviSel.slice().sort(function(a, b) { return a - b; }).map(function(j) { return g.items[j]; });
+      const picked = naviSel >= 0 ? [g.items[naviSel]] : [];
       closeNavi();
       naviApplying = true;
       if (appMode !== 'home') switchView('home');
@@ -2866,12 +2895,12 @@
       filterData();
       let msg = '';
       if (picked.length) {
-        msg = 'ご希望（' + picked.map(function(it) { return escNavi(it.title); }).join('／') + '）に合わせて絞り込んでいます。条件は上の絞り込みで変えられます。';
+        msg = '「' + escNavi(picked[0].title) + '」へのご提案：<b>' + escNavi(picked[0].suggest || '') + '</b> で絞り込んでいます。条件は上の絞り込みで変えられます。';
         if (checked.length && filteredData.length === 0) {
           // 条件に合う商品がなければ、カテゴリ全体を表示する
           checked.forEach(function(el) { setCheck(el, false); });
           filterData();
-          msg = 'ご希望の条件にすべて当てはまる商品が見つからなかったため、' + escNavi(naviName(g.cat)) + 'をすべて表示しています。';
+          msg = '「' + escNavi(picked[0].suggest || '') + '」に当てはまる商品が見つからなかったため、' + escNavi(naviName(g.cat)) + 'をすべて表示しています。';
         }
       }
       naviApplying = false;
@@ -2891,7 +2920,7 @@
         if (!naviApplying) hideNaviApplied();
         const r = original.apply(this, arguments);
         // カテゴリを開いている間は、お困りごとボタンは隠す（絞り込みとの間に挟まらないように）
-        const en = document.getElementById('navi-entry');
+        const en = document.getElementById('navi-home');
         if (en) en.style.display = currentCategory ? 'none' : '';
         return r;
       };
