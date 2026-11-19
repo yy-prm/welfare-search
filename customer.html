@@ -65,6 +65,23 @@
     .navi-go { width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--theme-color); color: #fff; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .navi-go:active { filter: brightness(0.95); }
     .navi-note { font-size: 11.5px; color: #7a888d; line-height: 1.6; margin-top: 18px; padding: 12px; border-radius: 10px; background: #eaf1f3; }
+    .navi-cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    @media (min-width: 600px) { .navi-cats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .navi-cat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 4px 14px; border: 1px solid #dfe9ec; border-top: 3px solid var(--theme-color); border-radius: 12px; background: #fff; font-family: inherit; font-size: 12.5px; font-weight: bold; color: #444; cursor: pointer; box-shadow: 0 1px 3px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; }
+    .navi-cat:active { transform: scale(0.97); }
+    .navi-cat .material-icons { font-size: 28px; color: var(--theme-color); }
+    .navi-cat small { font-size: 10.5px; font-weight: normal; color: #8a959a; }
+    .navi-opts { display: flex; flex-direction: column; gap: 10px; padding-bottom: 90px; }
+    .navi-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1.5px solid #dfe9ec; border-radius: 14px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+    .navi-opt .chk { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid #c5d3d8; display: grid; place-items: center; margin-top: 1px; transition: background 0.2s, border-color 0.2s; }
+    .navi-opt .chk .material-icons { font-size: 18px; color: #fff; opacity: 0; }
+    .navi-opt .txt { font-size: 14px; font-weight: bold; color: #2b3a3f; line-height: 1.5; }
+    .navi-opt .hint { display: block; font-size: 12px; font-weight: normal; color: #6b7b80; margin-top: 3px; }
+    .navi-opt.on { border-color: var(--theme-color); background: #f2f9fb; box-shadow: 0 4px 12px rgba(75,156,179,0.15); }
+    .navi-opt.on .chk { background: var(--theme-color); border-color: var(--theme-color); }
+    .navi-opt.on .chk .material-icons { opacity: 1; }
+    .navi-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px); background: linear-gradient(180deg, rgba(244,248,249,0) 0%, #f4f8f9 30%); }
+    .navi-foot .navi-go { max-width: 608px; margin: 0 auto; padding: 14px; font-size: 15px; border-radius: 12px; box-shadow: 0 6px 16px rgba(75,156,179,0.35); }
     .navi-back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--theme-dark); font-family: inherit; font-size: 13px; font-weight: bold; padding: 4px 0 12px; cursor: pointer; }
     #navi-applied { display: none; align-items: flex-start; gap: 8px; max-width: 600px; margin: 0 auto 10px; padding: 10px 12px; border-radius: 12px; background: #e9f5f8; border: 1px solid #c9e3ea; color: #2e5f6c; font-size: 12.5px; line-height: 1.5; box-sizing: border-box; }
     #navi-applied.show { display: flex; }
@@ -332,7 +349,7 @@
 
     <button type="button" class="navi-entry" onclick="openNavi()">
       <span class="ne-ico"><span class="material-icons">tips_and_updates</span></span>
-      <span><span class="ne-t">お困りごとから探す</span><span class="ne-s">症状や困りごとを選ぶと、合う福祉用具をご提案します</span></span>
+      <span><span class="ne-t">お困りごとから探す</span><span class="ne-s">種類と、症状・ご希望を選ぶと、合う商品をご提案します</span></span>
       <span class="material-icons ne-arrow">chevron_right</span>
     </button>
     <div class="grid-container" id="panel-area">
@@ -2739,75 +2756,75 @@
     //    checks ：そのカテゴリの絞り込みで、最初からチェックを入れておく項目
     //    title  ：提案の見出し　／ reason：なぜこの商品か（お客様向けのやさしい言葉で）
     // ===================================================
-    const NAVI_ITEMS = [
-      { icon: 'hotel', title: 'ベッドから起き上がる・立ち上がるのがつらい', picks: [
-        { cat: '特殊寝台', checks: ['.motor-check[value="2"]', '.motor-check[value="3"]'], title: '背上げ・高さ調整ができるベッド', reason: '背中を起こしたり、ベッドの高さを上げたりできます。起き上がりや立ち上がりの負担を軽くします。' },
-        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'], title: 'ベッド用の手すり（介助バー）', reason: 'ベッドの横につかまる所ができ、立ち上がりや車いすへの乗り移りを支えます。' } ] },
-      { icon: 'warning_amber', title: 'ベッドからの転落が心配', picks: [
-        { cat: '特殊寝台', checks: ['#bed-low-20'], title: '床に近い高さまで下がるベッド', reason: '床面を低くでき、万一落ちたときのけがのリスクを小さくします。' },
-        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="サイドレール"]'], title: 'サイドレール', reason: '寝ている間にベッドから転がり落ちるのを防ぎます。' } ] },
-      { icon: 'healing', title: '床ずれが心配・寝ている時間が長い', picks: [
-        { cat: 'マットレス', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'], title: '床ずれを防ぐマットレス', reason: '体の重さを分散し、同じ場所に圧がかかり続けるのを防ぎます。' },
-        { cat: '体位変換器', checks: ['.pos-type-check[value="クッション"]'], title: '体の向きを変えるクッション', reason: '寝返りを助け、楽な姿勢を保ちやすくします。' } ] },
-      { icon: 'event_seat', title: '座っているとお尻が痛い・姿勢がくずれる', picks: [
-        { cat: 'クッション', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'], title: 'お尻の痛みをやわらげるクッション', reason: '座ったときにお尻にかかる圧を分散します。' },
-        { cat: 'クッション', checks: ['.cushion-func-check[value="姿勢保持"]'], title: '姿勢をささえるクッション', reason: '体が傾いたり、ずり落ちたりするのを防ぎます。' } ] },
-      { icon: 'directions_walk', title: '歩くときにふらつく', picks: [
-        { cat: '歩行器', checks: ['.walker-env-check[value="室内"]'], title: '室内用の歩行器', reason: '両手で体を支えながら、家の中を安定して歩けます。' },
-        { cat: '歩行補助杖', checks: [], title: '杖', reason: '片手で支えがほしい方に。高さや重さで選べます。' } ] },
-      { icon: 'park', title: '外出したいが、長く歩くのがつらい', picks: [
-        { cat: '歩行器', checks: ['.walker-env-check[value="室外"]'], title: '屋外用の歩行器', reason: '途中で座って休めるものや、買い物かご付きのものもあり、外出を支えます。' },
-        { cat: '車椅子', checks: ['.func-check[value="軽量"]'], title: '軽い車いす', reason: '長い距離の移動に。軽いので、車への積み下ろしも楽です。' } ] },
-      { icon: 'accessible', title: '車いすを押す家族の負担を減らしたい', picks: [
-        { cat: '車椅子', checks: ['.type-check[value="介助"]'], title: '介助用の車いす', reason: '押す人が扱いやすい作りで、小回りがききます。' },
-        { cat: '車椅子', checks: ['.func-check[value="軽量"]'], title: '軽い車いす', reason: '押すのも持ち上げるのも楽になります。' } ] },
-      { icon: 'swap_horiz', title: 'ベッドと車いすの乗り移りが大変', picks: [
-        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="移乗ボード"]'], title: '移乗ボード', reason: '板の上をすべらせるようにして、座ったまま乗り移れます。' },
-        { cat: '移動用リフト', checks: ['.lift-type-check[value="移乗用リフト"]'], title: '移乗用リフト', reason: '抱え上げずに乗り移りでき、介助する方の腰の負担を減らします。' } ] },
-      { icon: 'wc', title: 'トイレでの立ち座りがつらい', picks: [
-        { cat: '室内手すり', checks: ['#in-handrail-func-toilet'], title: 'トイレ用の手すり', reason: '便器のまわりに置くだけで、立ち座りの支えになります。工事は不要です。' } ] },
-      { icon: 'chair', title: '部屋の中での立ち上がり・移動に支えがほしい', picks: [
-        { cat: '室内手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'], title: '置き型・突っ張り型の手すり', reason: '壁に穴を開けずに設置でき、ベッドやソファの横など好きな場所で使えます。' } ] },
-      { icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', picks: [
-        { cat: '室外玄関手すり', checks: ['.out-handrail-type-check[value="玄関"]'], title: '玄関用の手すり', reason: '上がりかまちの高さに合わせて置け、段差の上り下りを支えます。' } ] },
-      { icon: 'stairs', title: '家の外の段差・坂道がつらい', picks: [
-        { cat: '室外玄関手すり', checks: ['.out-handrail-type-check[value="屋外"]'], title: '屋外用の手すり', reason: '玄関先や庭の段差など、屋外の上り下りを支えます。' },
-        { cat: 'スロープ', checks: ['.slope-env-check[value="室外"]'], title: '段差をなくすスロープ', reason: '車いすや歩行器のまま段差を越えられます。' } ] }
+    const NAVI = [
+      { cat: '特殊寝台', items: [
+        { title: 'ベッドから転落するリスクがある・就寝時に床面を低くしたい', checks: ['#bed-low-20'], hint: '床面が20cm以下まで下がるベッド（超低床も含みます）' },
+        { title: '誤嚥のリスクが高い・呼吸がしにくい', checks: ['.bed-func-check[value="ハイバック"]'], hint: '背中を高く起こせるハイバックのベッド' },
+        { title: '高身長・なるべく大きめのベッドがいい', checks: ['.bed-width-check[value="100ロング"]'], hint: '幅100cm・ロングサイズ' },
+        { title: 'スペースがなく、できるだけ小さめのベッドがいい', checks: ['.bed-width-check[value="83ショート"]'], hint: '幅83cm・ショートサイズ' } ] },
+      // ↓ ここから下はたたき台（内容を決めたら書き換えてください）
+      { cat: 'マットレス', items: [
+        { title: '床ずれが心配・寝ている時間が長い', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] } ] },
+      { cat: '車椅子', items: [
+        { title: '外出したいが、長く歩くのがつらい', checks: ['.func-check[value="軽量"]'], hint: '軽くて、車への積み下ろしも楽な車いす' },
+        { title: '家族が押して使いたい', checks: ['.type-check[value="介助"]'], hint: '押す人が扱いやすい介助用の車いす' } ] },
+      { cat: 'クッション', items: [
+        { title: '座っているとお尻が痛い', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'] },
+        { title: '座っていると姿勢がくずれる', checks: ['.cushion-func-check[value="姿勢保持"]'] } ] },
+      { cat: '歩行器', items: [
+        { title: '家の中でふらつく', checks: ['.walker-env-check[value="室内"]'] },
+        { title: '外出したい・買い物に行きたい', checks: ['.walker-env-check[value="室外"]'] } ] },
+      { cat: '室内手すり', items: [
+        { title: 'トイレでの立ち座りがつらい', checks: ['#in-handrail-func-toilet'] },
+        { title: '壁に穴を開けずに設置したい', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
+      { cat: '室外玄関手すり', items: [
+        { title: '玄関の段差（上がりかまち）がつらい', checks: ['.out-handrail-type-check[value="玄関"]'] },
+        { title: '家の外の段差がつらい', checks: ['.out-handrail-type-check[value="屋外"]'] } ] },
+      { cat: '特殊寝台付属品', items: [
+        { title: 'ベッドからの立ち上がりを支えたい', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'] },
+        { title: 'ベッドからの転落を防ぎたい', checks: ['.bed-acc-type-check[value="サイドレール"]'] },
+        { title: 'ベッドと車いすの乗り移りが大変', checks: ['.bed-acc-type-check[value="移乗ボード"]'] } ] },
+      { cat: 'スロープ', items: [
+        { title: '屋外の段差を車いすで越えたい', checks: ['.slope-env-check[value="室外"]'] },
+        { title: '室内の段差を車いすで越えたい', checks: ['.slope-env-check[value="室内"]'] } ] }
     ];
     const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'grade', '移動用リフト': 'airline_seat_recline_extra' };
-    const NAVI_CAT_NAMES = { '車椅子': '車いす', '歩行補助杖': '杖' };
-    let naviStep = 0, naviCurrent = -1;
+    const NAVI_CAT_NAMES = { '特殊寝台': 'ベッド', '車椅子': '車いす', '歩行補助杖': '杖', '室外玄関手すり': '玄関・屋外の手すり', '特殊寝台付属品': 'ベッドの付属品' };
+    let naviStep = 0, naviCat = -1, naviSel = [];
 
     function escNavi(t) { return String(t).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function naviName(cat) { return NAVI_CAT_NAMES[cat] || cat; }
     function isNaviOpen() { return document.getElementById('navi').classList.contains('open'); }
     function renderNavi() {
       const body = document.getElementById('navi-body');
       let h = '';
       if (naviStep === 0) {
-        h += '<p class="navi-lead">ご本人の様子に近いものを選んでください。合う福祉用具の種類と、選ぶときのポイントをご提案します。</p><div class="navi-grid">';
-        NAVI_ITEMS.forEach(function(it, i) {
-          h += '<button type="button" class="navi-card" onclick="pickNavi(' + i + ')"><span class="material-icons">' + it.icon + '</span>' + escNavi(it.title) + '</button>';
+        h += '<p class="navi-lead">まず、探したい福祉用具の種類を選んでください。次の画面で、症状やご希望に合わせて絞り込みます。</p><div class="navi-cats">';
+        NAVI.forEach(function(g, i) {
+          h += '<button type="button" class="navi-cat" onclick="pickNaviCat(' + i + ')"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span>' + escNavi(naviName(g.cat)) + '</button>';
         });
         h += '</div>';
+        h += '<div class="navi-note">ご提案は一般的な目安です。体の状態やお住まいの環境によって合う商品は変わります。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
       } else {
-        const it = NAVI_ITEMS[naviCurrent];
-        h += '<button type="button" class="navi-back" onclick="naviBackStep()"><span class="material-icons" style="font-size:18px;">chevron_left</span>お困りごとを選び直す</button>';
-        h += '<div class="navi-q"><span class="material-icons">' + it.icon + '</span><b>' + escNavi(it.title) + '</b></div>';
-        h += '<div class="navi-sub">おすすめの福祉用具</div>';
-        it.picks.forEach(function(pk, j) {
-          const catName = NAVI_CAT_NAMES[pk.cat] || pk.cat;
-          h += '<div class="navi-pick"><div class="navi-pick-h"><span class="material-icons">' + (NAVI_CAT_ICONS[pk.cat] || 'inventory_2') + '</span><div><div class="navi-pick-cat">' + escNavi(catName) + '</div><div class="navi-pick-t">' + escNavi(pk.title) + '</div></div></div>'
-            + '<div class="navi-pick-r">' + escNavi(pk.reason) + '</div>'
-            + '<button type="button" class="navi-go" onclick="applyNavi(' + naviCurrent + ',' + j + ')">この条件で商品を見る<span class="material-icons" style="font-size:18px;">arrow_forward</span></button></div>';
+        const g = NAVI[naviCat];
+        h += '<button type="button" class="navi-back" onclick="naviBackStep()"><span class="material-icons" style="font-size:18px;">chevron_left</span>種類を選び直す</button>';
+        h += '<div class="navi-q"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span><b>' + escNavi(naviName(g.cat)) + '</b></div>';
+        h += '<div class="navi-sub">当てはまるものを選んでください（いくつでも）</div><div class="navi-opts">';
+        g.items.forEach(function(it, j) {
+          const on = naviSel.indexOf(j) >= 0;
+          h += '<button type="button" class="navi-opt' + (on ? ' on' : '') + '" onclick="toggleNaviOpt(' + j + ')" aria-pressed="' + on + '"><span class="chk"><span class="material-icons">check</span></span><span class="txt">' + escNavi(it.title) + (it.hint ? '<span class="hint">' + escNavi(it.hint) + '</span>' : '') + '</span></button>';
         });
+        h += '</div>';
+        h += '<div class="navi-note" style="margin-top:0">ご提案は一般的な目安です。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
+        h += '<div style="height:80px"></div>';
+        h += '<div class="navi-foot"><button type="button" class="navi-go" onclick="applyNavi()">' + (naviSel.length ? '条件に合う商品を見る（' + naviSel.length + '件選択中）' : 'すべての' + escNavi(naviName(g.cat)) + 'を見る') + '<span class="material-icons" style="font-size:18px;">arrow_forward</span></button></div>';
       }
-      h += '<div class="navi-note">ご提案は一般的な目安です。体の状態やお住まいの環境によって合う商品は変わります。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
       body.innerHTML = h;
-      document.getElementById('navi').scrollTop = 0;
     }
     function openNavi() {
-      naviStep = 0; naviCurrent = -1;
+      naviStep = 0; naviCat = -1; naviSel = [];
       renderNavi();
+      document.getElementById('navi').scrollTop = 0;
       document.getElementById('navi').classList.add('open');
       document.body.style.overflow = 'hidden';
       ensureBackGuard();
@@ -2816,43 +2833,57 @@
       document.getElementById('navi').classList.remove('open');
       document.body.style.overflow = '';
     }
-    function pickNavi(i) { naviCurrent = i; naviStep = 1; renderNavi(); }
+    function pickNaviCat(i) { naviCat = i; naviSel = []; naviStep = 1; renderNavi(); document.getElementById('navi').scrollTop = 0; }
+    function toggleNaviOpt(j) {
+      const k = naviSel.indexOf(j);
+      if (k >= 0) naviSel.splice(k, 1); else naviSel.push(j);
+      const y = document.getElementById('navi').scrollTop;
+      renderNavi();
+      document.getElementById('navi').scrollTop = y;
+    }
     function naviBackStep() {
-      if (naviStep === 1) { naviStep = 0; renderNavi(); }
+      if (naviStep === 1) { naviStep = 0; renderNavi(); document.getElementById('navi').scrollTop = 0; }
       else closeNavi();
     }
     function hideNaviApplied() { document.getElementById('navi-applied').classList.remove('show'); }
     let naviApplying = false;
-    function applyNavi(i, j) {
-      const it = NAVI_ITEMS[i], pk = it.picks[j];
+    function setCheck(el, on) {
+      el.checked = on;
+      if (el.closest('.lowfloor-chip') && typeof toggleChipVisual === 'function') toggleChipVisual(el);
+    }
+    function applyNavi() {
+      const g = NAVI[naviCat];
+      const picked = naviSel.slice().sort(function(a, b) { return a - b; }).map(function(j) { return g.items[j]; });
       closeNavi();
       naviApplying = true;
       if (appMode !== 'home') switchView('home');
-      if (currentCategory === pk.cat) showSearch(pk.cat);   // いったん閉じて、絞り込みをまっさらにする
-      showSearch(pk.cat);
+      if (currentCategory === g.cat) showSearch(g.cat);   // いったん閉じて、絞り込みをまっさらにする
+      showSearch(g.cat);
       const checked = [];
-      pk.checks.forEach(function(sel) {
-        const el = document.querySelector(sel);
-        if (!el) return;
-        el.checked = true;
-        if (el.closest('.lowfloor-chip') && typeof toggleChipVisual === 'function') toggleChipVisual(el);
-        checked.push(el);
+      picked.forEach(function(it) {
+        it.checks.forEach(function(sel) {
+          const el = document.querySelector(sel);
+          if (el && !el.checked) { setCheck(el, true); checked.push(el); }
+        });
       });
       filterData();
-      let msg = '「' + it.title + '」へのご提案：<b>' + escNavi(pk.title) + '</b> で絞り込んでいます。条件は上の絞り込みで変えられます。';
-      if (checked.length && filteredData.length === 0) {
-        // 条件に合う商品がなければ、カテゴリ全体を表示する
-        checked.forEach(function(el) { el.checked = false; if (el.closest('.lowfloor-chip') && typeof toggleChipVisual === 'function') toggleChipVisual(el); });
-        filterData();
-        msg = '「' + escNavi(pk.title) + '」に当てはまる商品が見つからなかったため、' + escNavi(NAVI_CAT_NAMES[pk.cat] || pk.cat) + 'をすべて表示しています。';
+      let msg = '';
+      if (picked.length) {
+        msg = 'ご希望（' + picked.map(function(it) { return escNavi(it.title); }).join('／') + '）に合わせて絞り込んでいます。条件は上の絞り込みで変えられます。';
+        if (checked.length && filteredData.length === 0) {
+          // 条件に合う商品がなければ、カテゴリ全体を表示する
+          checked.forEach(function(el) { setCheck(el, false); });
+          filterData();
+          msg = 'ご希望の条件にすべて当てはまる商品が見つからなかったため、' + escNavi(naviName(g.cat)) + 'をすべて表示しています。';
+        }
       }
       naviApplying = false;
       const note = document.getElementById('navi-applied');
-      note.querySelector('.t').innerHTML = msg;
-      note.classList.add('show');
+      if (msg) { note.querySelector('.t').innerHTML = msg; note.classList.add('show'); }
+      else note.classList.remove('show');
       setTimeout(function() {
         // 提案の説明と、その下の商品一覧が見える位置へ
-        const target = document.getElementById('navi-applied');
+        const target = msg ? note : document.getElementById('results-anchor');
         if (target && target.offsetParent) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 60);
     }
