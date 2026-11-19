@@ -33,57 +33,51 @@
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
     /* 新着お知らせ（画面上部に浮かぶピル型） */
     /* お困りごとから探す */
-    .navi-entry { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 600px; margin: 0 auto 14px; padding: 14px 14px 14px 16px; border: 0; border-radius: 16px; background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-dark) 100%); color: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px rgba(75,156,179,0.32); box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    .navi-entry { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 600px; margin: 2px auto 14px; padding: 12px 12px 12px 12px; border: 1px solid #dde8eb; border-radius: 16px; background: #fff; color: #1f2d33; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 6px 16px rgba(16,40,52,0.06); box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: transform 0.12s, box-shadow 0.2s; }
     .navi-entry:active { transform: scale(0.985); }
-    .navi-entry .ne-ico { flex: none; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; }
-    .navi-entry .ne-ico .material-icons { font-size: 26px; color: #fff; }
-    .navi-entry .ne-t { display: block; font-size: 16px; font-weight: 800; letter-spacing: 0.02em; }
-    .navi-entry .ne-s { display: block; font-size: 12px; opacity: 0.92; margin-top: 2px; line-height: 1.4; }
-    .navi-entry .ne-arrow { flex: none; margin-left: auto; opacity: 0.9; }
-    #navi { position: fixed; inset: 0; z-index: 10002; background: #f4f8f9; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; visibility: hidden; transform: translateY(16px); transition: opacity 0.22s, transform 0.22s, visibility 0s linear 0.22s; }
-    #navi.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.22s, transform 0.22s, visibility 0s; }
-    .navi-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top) + 10px) 12px 10px; background: rgba(244,248,249,0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid #e3ecef; }
-    .navi-head h2 { flex: 1; margin: 0; font-size: 16px; color: var(--theme-dark); }
-    .navi-icon-btn { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #fff; color: #555; display: grid; place-items: center; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .navi-body { max-width: 640px; margin: 0 auto; padding: 16px 16px 40px; box-sizing: border-box; }
-    .navi-lead { font-size: 13px; color: #5d6b70; margin: 0 0 14px; line-height: 1.6; }
-    .navi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    @media (min-width: 600px) { .navi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .navi-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 12px; border: 1px solid #dfe9ec; border-radius: 14px; background: #fff; text-align: left; font-family: inherit; font-size: 13.5px; font-weight: bold; color: #2b3a3f; line-height: 1.45; cursor: pointer; box-shadow: 0 1px 3px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; transition: transform 0.1s, border-color 0.2s; }
-    .navi-card:active { transform: scale(0.97); border-color: var(--theme-color); }
-    .navi-card .material-icons { font-size: 28px; color: var(--theme-color); background: var(--theme-light, #e8f4f7); border-radius: 10px; padding: 6px; }
-    .navi-q { display: flex; align-items: center; gap: 10px; margin: 2px 0 16px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #dfe9ec; }
-    .navi-q .material-icons { font-size: 26px; color: var(--theme-color); }
-    .navi-q b { font-size: 15px; color: #2b3a3f; line-height: 1.45; }
-    .navi-sub { font-size: 12px; font-weight: bold; color: #8a959a; margin: 0 0 8px 2px; letter-spacing: 0.04em; }
-    .navi-pick { background: #fff; border: 1px solid #d5e2e7; border-top: 3px solid var(--theme-color); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(16,40,52,0.06), 0 4px 12px rgba(16,40,52,0.06); }
-    .navi-pick-h { display: flex; align-items: center; gap: 10px; }
-    .navi-pick-h .material-icons { flex: none; font-size: 24px; color: var(--theme-color); }
-    .navi-pick-cat { font-size: 11px; color: #8a959a; }
-    .navi-pick-t { font-size: 15px; font-weight: 800; color: #1f2d33; line-height: 1.35; }
-    .navi-pick-r { font-size: 13px; color: #4a565b; line-height: 1.65; margin: 8px 0 12px; }
-    .navi-go { width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--theme-color); color: #fff; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .navi-go:active { filter: brightness(0.95); }
-    .navi-note { font-size: 11.5px; color: #7a888d; line-height: 1.6; margin-top: 18px; padding: 12px; border-radius: 10px; background: #eaf1f3; }
+    .navi-entry .ne-ico { flex: none; width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #e6f4f8 0%, #d3ebf2 100%); display: grid; place-items: center; }
+    .navi-entry .ne-ico .material-icons { font-size: 24px; color: var(--theme-color); }
+    .navi-entry .ne-t { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; letter-spacing: 0.01em; }
+    .navi-entry .ne-tag { font-size: 10px; font-weight: 700; color: var(--theme-color); background: #e9f5f8; border-radius: 999px; padding: 2px 7px; letter-spacing: 0.04em; }
+    .navi-entry .ne-s { display: block; font-size: 12px; color: #7a888d; margin-top: 2px; line-height: 1.4; }
+    .navi-entry .ne-arrow { flex: none; margin-left: auto; color: #b3c1c6; font-size: 22px; }
+    #navi { position: fixed; inset: 0; z-index: 10002; background: #f4f8f9; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; visibility: hidden; transform: translateY(18px); transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0.28s; }
+    #navi.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+    .navi-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 14px 6px; background: linear-gradient(180deg, #f4f8f9 70%, rgba(244,248,249,0) 100%); }
+    .navi-icon-btn { flex: none; width: 38px; height: 38px; border: 1px solid #e3ecef; border-radius: 50%; background: #fff; color: #4a565b; display: grid; place-items: center; cursor: pointer; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
+    .navi-icon-btn .material-icons { font-size: 20px; }
+    .navi-icon-btn.hide { opacity: 0; pointer-events: none; }
+    .navi-body { max-width: 640px; margin: 0 auto; padding: 4px 18px 40px; box-sizing: border-box; }
+    .navi-eyebrow { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: var(--theme-color); letter-spacing: 0.12em; margin: 4px 0 6px; }
+    .navi-eyebrow .dot { width: 3px; height: 3px; border-radius: 50%; background: #b9cbd1; }
+    .navi-eyebrow .cat { letter-spacing: 0.04em; color: #5d6b70; }
+    .navi-title { font-size: 21px; font-weight: 800; color: #1f2d33; line-height: 1.4; margin: 0 0 4px; letter-spacing: 0.01em; }
+    .navi-lead { font-size: 13px; color: #7a888d; margin: 0 0 18px; line-height: 1.6; }
     .navi-cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     @media (min-width: 600px) { .navi-cats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    .navi-cat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 4px 14px; border: 1px solid #dfe9ec; border-top: 3px solid var(--theme-color); border-radius: 12px; background: #fff; font-family: inherit; font-size: 12.5px; font-weight: bold; color: #444; cursor: pointer; box-shadow: 0 1px 3px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; }
-    .navi-cat:active { transform: scale(0.97); }
-    .navi-cat .material-icons { font-size: 28px; color: var(--theme-color); }
-    .navi-cat small { font-size: 10.5px; font-weight: normal; color: #8a959a; }
-    .navi-opts { display: flex; flex-direction: column; gap: 10px; padding-bottom: 90px; }
-    .navi-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1.5px solid #dfe9ec; border-radius: 14px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
-    .navi-opt .chk { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid #c5d3d8; display: grid; place-items: center; margin-top: 1px; transition: background 0.2s, border-color 0.2s; }
-    .navi-opt .chk .material-icons { font-size: 18px; color: #fff; opacity: 0; }
-    .navi-opt .txt { font-size: 14px; font-weight: bold; color: #2b3a3f; line-height: 1.5; }
-    .navi-opt .hint { display: block; font-size: 12px; font-weight: normal; color: #6b7b80; margin-top: 3px; }
-    .navi-opt.on { border-color: var(--theme-color); background: #f2f9fb; box-shadow: 0 4px 12px rgba(75,156,179,0.15); }
+    .navi-cat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 4px 14px; border: 1px solid #e3ecef; border-radius: 16px; background: #fff; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #33434a; line-height: 1.35; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04); -webkit-tap-highlight-color: transparent; transition: transform 0.12s, border-color 0.2s, box-shadow 0.2s; }
+    .navi-cat:active { transform: scale(0.96); border-color: var(--theme-color); }
+    .navi-cat .ic { width: 44px; height: 44px; border-radius: 50%; background: #eaf5f8; display: grid; place-items: center; }
+    .navi-cat .ic .material-icons { font-size: 24px; color: var(--theme-color); }
+    .navi-list { background: #fff; border: 1px solid #e3ecef; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,40,52,0.04); }
+    .navi-opt { display: flex; align-items: center; gap: 14px; width: 100%; padding: 15px 16px; border: 0; border-top: 1px solid #edf2f4; background: #fff; text-align: left; font-family: inherit; cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+    .navi-opt:first-child { border-top: 0; }
+    .navi-opt:active { background: #f6fafb; }
+    .navi-opt .txt { flex: 1; min-width: 0; font-size: 14.5px; font-weight: 700; color: #1f2d33; line-height: 1.5; }
+    .navi-opt .hint { display: block; font-size: 12px; font-weight: 500; color: #8a959a; margin-top: 3px; line-height: 1.5; }
+    .navi-opt .chk { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ccd9dd; display: grid; place-items: center; transition: background 0.18s, border-color 0.18s, transform 0.18s; }
+    .navi-opt .chk .material-icons { font-size: 17px; color: #fff; opacity: 0; transform: scale(0.6); transition: opacity 0.18s, transform 0.18s; }
+    .navi-opt.on { background: #f3fafc; }
     .navi-opt.on .chk { background: var(--theme-color); border-color: var(--theme-color); }
-    .navi-opt.on .chk .material-icons { opacity: 1; }
-    .navi-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px); background: linear-gradient(180deg, rgba(244,248,249,0) 0%, #f4f8f9 30%); }
-    .navi-foot .navi-go { max-width: 608px; margin: 0 auto; padding: 14px; font-size: 15px; border-radius: 12px; box-shadow: 0 6px 16px rgba(75,156,179,0.35); }
-    .navi-back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--theme-dark); font-family: inherit; font-size: 13px; font-weight: bold; padding: 4px 0 12px; cursor: pointer; }
-    #navi-applied { display: none; align-items: flex-start; gap: 8px; max-width: 600px; margin: 0 auto 10px; padding: 10px 12px; border-radius: 12px; background: #e9f5f8; border: 1px solid #c9e3ea; color: #2e5f6c; font-size: 12.5px; line-height: 1.5; box-sizing: border-box; }
+    .navi-opt.on .chk .material-icons { opacity: 1; transform: scale(1); }
+    .navi-note { display: flex; gap: 6px; font-size: 11.5px; color: #8a959a; line-height: 1.6; margin: 16px 2px 0; }
+    .navi-note .material-icons { font-size: 15px; color: #a9b8bd; margin-top: 2px; flex: none; }
+    .navi-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 14px 18px calc(env(safe-area-inset-bottom) + 14px); background: linear-gradient(180deg, rgba(244,248,249,0) 0%, #f4f8f9 35%); }
+    .navi-go { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 604px; margin: 0 auto; padding: 15px; border: 0; border-radius: 14px; background: var(--theme-color); color: #fff; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(75,156,179,0.32); transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
+    .navi-go .material-icons { font-size: 18px; }
+    .navi-go.ghost { background: #fff; color: var(--theme-dark); border: 1px solid #d5e2e7; box-shadow: 0 2px 8px rgba(16,40,52,0.06); }
+    .navi-go .cnt { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,0.25); font-size: 12px; }
+    #navi-applied { display: none; align-items: flex-start; gap: 10px; max-width: 600px; margin: 0 auto 12px; padding: 11px 12px; border-radius: 14px; background: #fff; border: 1px solid #dde8eb; border-left: 3px solid var(--theme-color); color: #33434a; font-size: 12.5px; line-height: 1.55; box-sizing: border-box; box-shadow: 0 1px 2px rgba(16,40,52,0.04); }
     #navi-applied.show { display: flex; }
     #navi-applied .material-icons { font-size: 18px; color: var(--theme-color); margin-top: 1px; }
     #navi-applied span.t { flex: 1; }
@@ -314,8 +308,7 @@
 
   <div id="navi" role="dialog" aria-modal="true" aria-label="お困りごとから探す">
     <div class="navi-head">
-      <button type="button" class="navi-icon-btn" onclick="naviBackStep()" aria-label="戻る"><span class="material-icons">arrow_back</span></button>
-      <h2>お困りごとから探す</h2>
+      <button type="button" class="navi-icon-btn hide" id="navi-back-btn" onclick="naviBackStep()" aria-label="戻る"><span class="material-icons">arrow_back_ios_new</span></button>
       <button type="button" class="navi-icon-btn" onclick="closeNavi()" aria-label="閉じる"><span class="material-icons">close</span></button>
     </div>
     <div class="navi-body" id="navi-body"></div>
@@ -347,11 +340,6 @@
       </div>
     </div>
 
-    <button type="button" class="navi-entry" onclick="openNavi()">
-      <span class="ne-ico"><span class="material-icons">tips_and_updates</span></span>
-      <span><span class="ne-t">お困りごとから探す</span><span class="ne-s">種類と、症状・ご希望を選ぶと、合う商品をご提案します</span></span>
-      <span class="material-icons ne-arrow">chevron_right</span>
-    </button>
     <div class="grid-container" id="panel-area">
       <div id="panel-特殊寝台" class="panel" onclick="showSearch('特殊寝台')">
         <span class="material-icons">bed</span>特殊寝台
@@ -378,6 +366,11 @@
         <span class="material-icons">fence</span>室外玄関手すり
       </div>
     </div>
+    <button type="button" class="navi-entry" id="navi-entry" onclick="openNavi()">
+      <span class="ne-ico"><span class="material-icons">manage_search</span></span>
+      <span><span class="ne-t">お困りごとから探す<span class="ne-tag">かんたん</span></span><span class="ne-s">症状やご希望から、合う商品をご提案します</span></span>
+      <span class="material-icons ne-arrow">chevron_right</span>
+    </button>
 
     <div id="normal-filter-injection">
       <div id="filter-wrapper">
@@ -712,7 +705,7 @@
     </div>
 
     <div id="shared-results-area">
-      <div id="navi-applied" role="status"><span class="material-icons">tips_and_updates</span><span class="t"></span><button type="button" onclick="hideNaviApplied()" aria-label="閉じる">×</button></div>
+      <div id="navi-applied" role="status"><span class="material-icons">manage_search</span><span class="t"></span><button type="button" onclick="hideNaviApplied()" aria-label="閉じる">×</button></div>
       <div id="results-anchor" style="position:relative; top:-20px;"></div>
       <div id="results-header" style="margin: 10px 0; font-size: 15px;"></div>
       <div id="results"></div>
@@ -2788,7 +2781,7 @@
         { title: '屋外の段差を車いすで越えたい', checks: ['.slope-env-check[value="室外"]'] },
         { title: '室内の段差を車いすで越えたい', checks: ['.slope-env-check[value="室内"]'] } ] }
     ];
-    const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'grade', '移動用リフト': 'airline_seat_recline_extra' };
+    const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'trending_up', '移動用リフト': 'airline_seat_recline_extra' };
     const NAVI_CAT_NAMES = { '特殊寝台': 'ベッド', '車椅子': '車いす', '歩行補助杖': '杖', '室外玄関手すり': '玄関・屋外の手すり', '特殊寝台付属品': 'ベッドの付属品' };
     let naviStep = 0, naviCat = -1, naviSel = [];
 
@@ -2797,27 +2790,31 @@
     function isNaviOpen() { return document.getElementById('navi').classList.contains('open'); }
     function renderNavi() {
       const body = document.getElementById('navi-body');
+      const note = '<div class="navi-note"><span class="material-icons">info</span><span>ご提案は一般的な目安です。体の状態やお住まいの環境によって合う商品は変わります。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</span></div>';
       let h = '';
+      document.getElementById('navi-back-btn').classList.toggle('hide', naviStep === 0);
       if (naviStep === 0) {
-        h += '<p class="navi-lead">まず、探したい福祉用具の種類を選んでください。次の画面で、症状やご希望に合わせて絞り込みます。</p><div class="navi-cats">';
+        h += '<div class="navi-eyebrow">STEP 1 / 2</div>';
+        h += '<h2 class="navi-title">どんな福祉用具を<br>お探しですか？</h2>';
+        h += '<p class="navi-lead">種類を選ぶと、症状やご希望に合わせて商品を絞り込めます。</p><div class="navi-cats">';
         NAVI.forEach(function(g, i) {
-          h += '<button type="button" class="navi-cat" onclick="pickNaviCat(' + i + ')"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span>' + escNavi(naviName(g.cat)) + '</button>';
+          h += '<button type="button" class="navi-cat" onclick="pickNaviCat(' + i + ')"><span class="ic"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span></span>' + escNavi(naviName(g.cat)) + '</button>';
         });
-        h += '</div>';
-        h += '<div class="navi-note">ご提案は一般的な目安です。体の状態やお住まいの環境によって合う商品は変わります。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
+        h += '</div>' + note;
       } else {
         const g = NAVI[naviCat];
-        h += '<button type="button" class="navi-back" onclick="naviBackStep()"><span class="material-icons" style="font-size:18px;">chevron_left</span>種類を選び直す</button>';
-        h += '<div class="navi-q"><span class="material-icons">' + (NAVI_CAT_ICONS[g.cat] || 'inventory_2') + '</span><b>' + escNavi(naviName(g.cat)) + '</b></div>';
-        h += '<div class="navi-sub">当てはまるものを選んでください（いくつでも）</div><div class="navi-opts">';
+        h += '<div class="navi-eyebrow">STEP 2 / 2<span class="dot"></span><span class="cat">' + escNavi(naviName(g.cat)) + '</span></div>';
+        h += '<h2 class="navi-title">当てはまるものを<br>選んでください</h2>';
+        h += '<p class="navi-lead">いくつでも選べます。選ばずに進むと、すべての' + escNavi(naviName(g.cat)) + 'を表示します。</p>';
+        h += '<div class="navi-list">';
         g.items.forEach(function(it, j) {
           const on = naviSel.indexOf(j) >= 0;
-          h += '<button type="button" class="navi-opt' + (on ? ' on' : '') + '" onclick="toggleNaviOpt(' + j + ')" aria-pressed="' + on + '"><span class="chk"><span class="material-icons">check</span></span><span class="txt">' + escNavi(it.title) + (it.hint ? '<span class="hint">' + escNavi(it.hint) + '</span>' : '') + '</span></button>';
+          h += '<button type="button" class="navi-opt' + (on ? ' on' : '') + '" onclick="toggleNaviOpt(' + j + ')" aria-pressed="' + on + '"><span class="txt">' + escNavi(it.title) + (it.hint ? '<span class="hint">' + escNavi(it.hint) + '</span>' : '') + '</span><span class="chk"><span class="material-icons">check</span></span></button>';
         });
-        h += '</div>';
-        h += '<div class="navi-note" style="margin-top:0">ご提案は一般的な目安です。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
-        h += '<div style="height:80px"></div>';
-        h += '<div class="navi-foot"><button type="button" class="navi-go" onclick="applyNavi()">' + (naviSel.length ? '条件に合う商品を見る（' + naviSel.length + '件選択中）' : 'すべての' + escNavi(naviName(g.cat)) + 'を見る') + '<span class="material-icons" style="font-size:18px;">arrow_forward</span></button></div>';
+        h += '</div>' + note + '<div style="height:96px"></div>';
+        h += '<div class="navi-foot">' + (naviSel.length
+          ? '<button type="button" class="navi-go" onclick="applyNavi()">この条件で商品を見る<span class="cnt">' + naviSel.length + '</span></button>'
+          : '<button type="button" class="navi-go ghost" onclick="applyNavi()">すべての' + escNavi(naviName(g.cat)) + 'を見る<span class="material-icons">arrow_forward</span></button>') + '</div>';
       }
       body.innerHTML = h;
     }
@@ -2890,7 +2887,14 @@
     // 自分でカテゴリを選び直したら、提案の表示は消す
     (function() {
       const original = window.showSearch;
-      window.showSearch = function() { if (!naviApplying) hideNaviApplied(); return original.apply(this, arguments); };
+      window.showSearch = function() {
+        if (!naviApplying) hideNaviApplied();
+        const r = original.apply(this, arguments);
+        // カテゴリを開いている間は、お困りごとボタンは隠す（絞り込みとの間に挟まらないように）
+        const en = document.getElementById('navi-entry');
+        if (en) en.style.display = currentCategory ? 'none' : '';
+        return r;
+      };
     })();
 
     // ===================================================
