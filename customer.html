@@ -32,6 +32,45 @@
 
     .header { text-align: center; margin-bottom: 20px; margin-top: 10px; }
     /* 新着お知らせ（画面上部に浮かぶピル型） */
+    /* お困りごとから探す */
+    .navi-entry { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 600px; margin: 0 auto 14px; padding: 14px 14px 14px 16px; border: 0; border-radius: 16px; background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-dark) 100%); color: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 6px 18px rgba(75,156,179,0.32); box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    .navi-entry:active { transform: scale(0.985); }
+    .navi-entry .ne-ico { flex: none; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.2); display: grid; place-items: center; }
+    .navi-entry .ne-ico .material-icons { font-size: 26px; color: #fff; }
+    .navi-entry .ne-t { display: block; font-size: 16px; font-weight: 800; letter-spacing: 0.02em; }
+    .navi-entry .ne-s { display: block; font-size: 12px; opacity: 0.92; margin-top: 2px; line-height: 1.4; }
+    .navi-entry .ne-arrow { flex: none; margin-left: auto; opacity: 0.9; }
+    #navi { position: fixed; inset: 0; z-index: 10002; background: #f4f8f9; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; visibility: hidden; transform: translateY(16px); transition: opacity 0.22s, transform 0.22s, visibility 0s linear 0.22s; }
+    #navi.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.22s, transform 0.22s, visibility 0s; }
+    .navi-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top) + 10px) 12px 10px; background: rgba(244,248,249,0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid #e3ecef; }
+    .navi-head h2 { flex: 1; margin: 0; font-size: 16px; color: var(--theme-dark); }
+    .navi-icon-btn { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #fff; color: #555; display: grid; place-items: center; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .navi-body { max-width: 640px; margin: 0 auto; padding: 16px 16px 40px; box-sizing: border-box; }
+    .navi-lead { font-size: 13px; color: #5d6b70; margin: 0 0 14px; line-height: 1.6; }
+    .navi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    @media (min-width: 600px) { .navi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .navi-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 12px; border: 1px solid #dfe9ec; border-radius: 14px; background: #fff; text-align: left; font-family: inherit; font-size: 13.5px; font-weight: bold; color: #2b3a3f; line-height: 1.45; cursor: pointer; box-shadow: 0 1px 3px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; transition: transform 0.1s, border-color 0.2s; }
+    .navi-card:active { transform: scale(0.97); border-color: var(--theme-color); }
+    .navi-card .material-icons { font-size: 28px; color: var(--theme-color); background: var(--theme-light, #e8f4f7); border-radius: 10px; padding: 6px; }
+    .navi-q { display: flex; align-items: center; gap: 10px; margin: 2px 0 16px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #dfe9ec; }
+    .navi-q .material-icons { font-size: 26px; color: var(--theme-color); }
+    .navi-q b { font-size: 15px; color: #2b3a3f; line-height: 1.45; }
+    .navi-sub { font-size: 12px; font-weight: bold; color: #8a959a; margin: 0 0 8px 2px; letter-spacing: 0.04em; }
+    .navi-pick { background: #fff; border: 1px solid #d5e2e7; border-top: 3px solid var(--theme-color); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(16,40,52,0.06), 0 4px 12px rgba(16,40,52,0.06); }
+    .navi-pick-h { display: flex; align-items: center; gap: 10px; }
+    .navi-pick-h .material-icons { flex: none; font-size: 24px; color: var(--theme-color); }
+    .navi-pick-cat { font-size: 11px; color: #8a959a; }
+    .navi-pick-t { font-size: 15px; font-weight: 800; color: #1f2d33; line-height: 1.35; }
+    .navi-pick-r { font-size: 13px; color: #4a565b; line-height: 1.65; margin: 8px 0 12px; }
+    .navi-go { width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--theme-color); color: #fff; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .navi-go:active { filter: brightness(0.95); }
+    .navi-note { font-size: 11.5px; color: #7a888d; line-height: 1.6; margin-top: 18px; padding: 12px; border-radius: 10px; background: #eaf1f3; }
+    .navi-back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--theme-dark); font-family: inherit; font-size: 13px; font-weight: bold; padding: 4px 0 12px; cursor: pointer; }
+    #navi-applied { display: none; align-items: flex-start; gap: 8px; max-width: 600px; margin: 0 auto 10px; padding: 10px 12px; border-radius: 12px; background: #e9f5f8; border: 1px solid #c9e3ea; color: #2e5f6c; font-size: 12.5px; line-height: 1.5; box-sizing: border-box; }
+    #navi-applied.show { display: flex; }
+    #navi-applied .material-icons { font-size: 18px; color: var(--theme-color); margin-top: 1px; }
+    #navi-applied span.t { flex: 1; }
+    #navi-applied button { flex: none; border: 0; background: none; color: #6a8a93; font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
     .demo-badge { display: block; width: max-content; margin: -12px auto 16px; padding: 4px 12px; border-radius: 999px; background: #fff4e5; color: #b26a00; border: 1px solid #ffd59e; font-size: 12px; font-weight: bold; letter-spacing: 0.04em; }
     .customer-note { max-width: 600px; margin: 28px auto 0; padding: 12px 14px; border-radius: 10px; background: #f4f8f9; color: #6b7b80; font-size: 11.5px; line-height: 1.6; text-align: center; box-sizing: border-box; }
     #update-banner { position: fixed; top: calc(env(safe-area-inset-top) + 12px); left: 50%; z-index: 10001; display: flex; align-items: center; width: max-content; max-width: calc(100% - 32px); padding: 6px 6px 6px 8px; background: rgba(255,255,255,0.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; box-shadow: 0 8px 28px rgba(16,40,52,0.16), 0 2px 6px rgba(16,40,52,0.08); opacity: 0; visibility: hidden; transform: translate(-50%, -24px) scale(0.96); transition: transform 0.35s cubic-bezier(.2,.9,.3,1.2), opacity 0.25s ease, visibility 0s linear 0.35s; box-sizing: border-box; }
@@ -256,6 +295,15 @@
     </div>
   </div>
 
+  <div id="navi" role="dialog" aria-modal="true" aria-label="お困りごとから探す">
+    <div class="navi-head">
+      <button type="button" class="navi-icon-btn" onclick="naviBackStep()" aria-label="戻る"><span class="material-icons">arrow_back</span></button>
+      <h2>お困りごとから探す</h2>
+      <button type="button" class="navi-icon-btn" onclick="closeNavi()" aria-label="閉じる"><span class="material-icons">close</span></button>
+    </div>
+    <div class="navi-body" id="navi-body"></div>
+  </div>
+
   <div id="update-banner" role="status" aria-live="polite">
     <button type="button" class="ub-main" onclick="applyUpdateFromBanner()">
       <span class="ub-ico"><span class="material-icons">arrow_upward</span></span>
@@ -282,6 +330,11 @@
       </div>
     </div>
 
+    <button type="button" class="navi-entry" onclick="openNavi()">
+      <span class="ne-ico"><span class="material-icons">tips_and_updates</span></span>
+      <span><span class="ne-t">お困りごとから探す</span><span class="ne-s">症状や困りごとを選ぶと、合う福祉用具をご提案します</span></span>
+      <span class="material-icons ne-arrow">chevron_right</span>
+    </button>
     <div class="grid-container" id="panel-area">
       <div id="panel-特殊寝台" class="panel" onclick="showSearch('特殊寝台')">
         <span class="material-icons">bed</span>特殊寝台
@@ -642,6 +695,7 @@
     </div>
 
     <div id="shared-results-area">
+      <div id="navi-applied" role="status"><span class="material-icons">tips_and_updates</span><span class="t"></span><button type="button" onclick="hideNaviApplied()" aria-label="閉じる">×</button></div>
       <div id="results-anchor" style="position:relative; top:-20px;"></div>
       <div id="results-header" style="margin: 10px 0; font-size: 15px;"></div>
       <div id="results"></div>
@@ -2679,6 +2733,136 @@
     }
 
     // ===================================================
+    // お困りごとから探す（選定ナビ）
+    //  ★ 提案の中身はここで決めます。困りごとを足す・直すときは、この表を書き換えてください。
+    //    cat    ：開くカテゴリ（トップや「その他」メニューと同じ名前）
+    //    checks ：そのカテゴリの絞り込みで、最初からチェックを入れておく項目
+    //    title  ：提案の見出し　／ reason：なぜこの商品か（お客様向けのやさしい言葉で）
+    // ===================================================
+    const NAVI_ITEMS = [
+      { icon: 'hotel', title: 'ベッドから起き上がる・立ち上がるのがつらい', picks: [
+        { cat: '特殊寝台', checks: ['.motor-check[value="2"]', '.motor-check[value="3"]'], title: '背上げ・高さ調整ができるベッド', reason: '背中を起こしたり、ベッドの高さを上げたりできます。起き上がりや立ち上がりの負担を軽くします。' },
+        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'], title: 'ベッド用の手すり（介助バー）', reason: 'ベッドの横につかまる所ができ、立ち上がりや車いすへの乗り移りを支えます。' } ] },
+      { icon: 'warning_amber', title: 'ベッドからの転落が心配', picks: [
+        { cat: '特殊寝台', checks: ['#bed-low-20'], title: '床に近い高さまで下がるベッド', reason: '床面を低くでき、万一落ちたときのけがのリスクを小さくします。' },
+        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="サイドレール"]'], title: 'サイドレール', reason: '寝ている間にベッドから転がり落ちるのを防ぎます。' } ] },
+      { icon: 'healing', title: '床ずれが心配・寝ている時間が長い', picks: [
+        { cat: 'マットレス', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'], title: '床ずれを防ぐマットレス', reason: '体の重さを分散し、同じ場所に圧がかかり続けるのを防ぎます。' },
+        { cat: '体位変換器', checks: ['.pos-type-check[value="クッション"]'], title: '体の向きを変えるクッション', reason: '寝返りを助け、楽な姿勢を保ちやすくします。' } ] },
+      { icon: 'event_seat', title: '座っているとお尻が痛い・姿勢がくずれる', picks: [
+        { cat: 'クッション', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'], title: 'お尻の痛みをやわらげるクッション', reason: '座ったときにお尻にかかる圧を分散します。' },
+        { cat: 'クッション', checks: ['.cushion-func-check[value="姿勢保持"]'], title: '姿勢をささえるクッション', reason: '体が傾いたり、ずり落ちたりするのを防ぎます。' } ] },
+      { icon: 'directions_walk', title: '歩くときにふらつく', picks: [
+        { cat: '歩行器', checks: ['.walker-env-check[value="室内"]'], title: '室内用の歩行器', reason: '両手で体を支えながら、家の中を安定して歩けます。' },
+        { cat: '歩行補助杖', checks: [], title: '杖', reason: '片手で支えがほしい方に。高さや重さで選べます。' } ] },
+      { icon: 'park', title: '外出したいが、長く歩くのがつらい', picks: [
+        { cat: '歩行器', checks: ['.walker-env-check[value="室外"]'], title: '屋外用の歩行器', reason: '途中で座って休めるものや、買い物かご付きのものもあり、外出を支えます。' },
+        { cat: '車椅子', checks: ['.func-check[value="軽量"]'], title: '軽い車いす', reason: '長い距離の移動に。軽いので、車への積み下ろしも楽です。' } ] },
+      { icon: 'accessible', title: '車いすを押す家族の負担を減らしたい', picks: [
+        { cat: '車椅子', checks: ['.type-check[value="介助"]'], title: '介助用の車いす', reason: '押す人が扱いやすい作りで、小回りがききます。' },
+        { cat: '車椅子', checks: ['.func-check[value="軽量"]'], title: '軽い車いす', reason: '押すのも持ち上げるのも楽になります。' } ] },
+      { icon: 'swap_horiz', title: 'ベッドと車いすの乗り移りが大変', picks: [
+        { cat: '特殊寝台付属品', checks: ['.bed-acc-type-check[value="移乗ボード"]'], title: '移乗ボード', reason: '板の上をすべらせるようにして、座ったまま乗り移れます。' },
+        { cat: '移動用リフト', checks: ['.lift-type-check[value="移乗用リフト"]'], title: '移乗用リフト', reason: '抱え上げずに乗り移りでき、介助する方の腰の負担を減らします。' } ] },
+      { icon: 'wc', title: 'トイレでの立ち座りがつらい', picks: [
+        { cat: '室内手すり', checks: ['#in-handrail-func-toilet'], title: 'トイレ用の手すり', reason: '便器のまわりに置くだけで、立ち座りの支えになります。工事は不要です。' } ] },
+      { icon: 'chair', title: '部屋の中での立ち上がり・移動に支えがほしい', picks: [
+        { cat: '室内手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'], title: '置き型・突っ張り型の手すり', reason: '壁に穴を開けずに設置でき、ベッドやソファの横など好きな場所で使えます。' } ] },
+      { icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', picks: [
+        { cat: '室外玄関手すり', checks: ['.out-handrail-type-check[value="玄関"]'], title: '玄関用の手すり', reason: '上がりかまちの高さに合わせて置け、段差の上り下りを支えます。' } ] },
+      { icon: 'stairs', title: '家の外の段差・坂道がつらい', picks: [
+        { cat: '室外玄関手すり', checks: ['.out-handrail-type-check[value="屋外"]'], title: '屋外用の手すり', reason: '玄関先や庭の段差など、屋外の上り下りを支えます。' },
+        { cat: 'スロープ', checks: ['.slope-env-check[value="室外"]'], title: '段差をなくすスロープ', reason: '車いすや歩行器のまま段差を越えられます。' } ] }
+    ];
+    const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'grade', '移動用リフト': 'airline_seat_recline_extra' };
+    const NAVI_CAT_NAMES = { '車椅子': '車いす', '歩行補助杖': '杖' };
+    let naviStep = 0, naviCurrent = -1;
+
+    function escNavi(t) { return String(t).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function isNaviOpen() { return document.getElementById('navi').classList.contains('open'); }
+    function renderNavi() {
+      const body = document.getElementById('navi-body');
+      let h = '';
+      if (naviStep === 0) {
+        h += '<p class="navi-lead">ご本人の様子に近いものを選んでください。合う福祉用具の種類と、選ぶときのポイントをご提案します。</p><div class="navi-grid">';
+        NAVI_ITEMS.forEach(function(it, i) {
+          h += '<button type="button" class="navi-card" onclick="pickNavi(' + i + ')"><span class="material-icons">' + it.icon + '</span>' + escNavi(it.title) + '</button>';
+        });
+        h += '</div>';
+      } else {
+        const it = NAVI_ITEMS[naviCurrent];
+        h += '<button type="button" class="navi-back" onclick="naviBackStep()"><span class="material-icons" style="font-size:18px;">chevron_left</span>お困りごとを選び直す</button>';
+        h += '<div class="navi-q"><span class="material-icons">' + it.icon + '</span><b>' + escNavi(it.title) + '</b></div>';
+        h += '<div class="navi-sub">おすすめの福祉用具</div>';
+        it.picks.forEach(function(pk, j) {
+          const catName = NAVI_CAT_NAMES[pk.cat] || pk.cat;
+          h += '<div class="navi-pick"><div class="navi-pick-h"><span class="material-icons">' + (NAVI_CAT_ICONS[pk.cat] || 'inventory_2') + '</span><div><div class="navi-pick-cat">' + escNavi(catName) + '</div><div class="navi-pick-t">' + escNavi(pk.title) + '</div></div></div>'
+            + '<div class="navi-pick-r">' + escNavi(pk.reason) + '</div>'
+            + '<button type="button" class="navi-go" onclick="applyNavi(' + naviCurrent + ',' + j + ')">この条件で商品を見る<span class="material-icons" style="font-size:18px;">arrow_forward</span></button></div>';
+        });
+      }
+      h += '<div class="navi-note">ご提案は一般的な目安です。体の状態やお住まいの環境によって合う商品は変わります。最終的な選定は、ケアマネジャーや福祉用具専門相談員にご相談ください。</div>';
+      body.innerHTML = h;
+      document.getElementById('navi').scrollTop = 0;
+    }
+    function openNavi() {
+      naviStep = 0; naviCurrent = -1;
+      renderNavi();
+      document.getElementById('navi').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      ensureBackGuard();
+    }
+    function closeNavi() {
+      document.getElementById('navi').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function pickNavi(i) { naviCurrent = i; naviStep = 1; renderNavi(); }
+    function naviBackStep() {
+      if (naviStep === 1) { naviStep = 0; renderNavi(); }
+      else closeNavi();
+    }
+    function hideNaviApplied() { document.getElementById('navi-applied').classList.remove('show'); }
+    let naviApplying = false;
+    function applyNavi(i, j) {
+      const it = NAVI_ITEMS[i], pk = it.picks[j];
+      closeNavi();
+      naviApplying = true;
+      if (appMode !== 'home') switchView('home');
+      if (currentCategory === pk.cat) showSearch(pk.cat);   // いったん閉じて、絞り込みをまっさらにする
+      showSearch(pk.cat);
+      const checked = [];
+      pk.checks.forEach(function(sel) {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        el.checked = true;
+        if (el.closest('.lowfloor-chip') && typeof toggleChipVisual === 'function') toggleChipVisual(el);
+        checked.push(el);
+      });
+      filterData();
+      let msg = '「' + it.title + '」へのご提案：<b>' + escNavi(pk.title) + '</b> で絞り込んでいます。条件は上の絞り込みで変えられます。';
+      if (checked.length && filteredData.length === 0) {
+        // 条件に合う商品がなければ、カテゴリ全体を表示する
+        checked.forEach(function(el) { el.checked = false; if (el.closest('.lowfloor-chip') && typeof toggleChipVisual === 'function') toggleChipVisual(el); });
+        filterData();
+        msg = '「' + escNavi(pk.title) + '」に当てはまる商品が見つからなかったため、' + escNavi(NAVI_CAT_NAMES[pk.cat] || pk.cat) + 'をすべて表示しています。';
+      }
+      naviApplying = false;
+      const note = document.getElementById('navi-applied');
+      note.querySelector('.t').innerHTML = msg;
+      note.classList.add('show');
+      setTimeout(function() {
+        // 提案の説明と、その下の商品一覧が見える位置へ
+        const target = document.getElementById('navi-applied');
+        if (target && target.offsetParent) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
+    }
+    // 自分でカテゴリを選び直したら、提案の表示は消す
+    (function() {
+      const original = window.showSearch;
+      window.showSearch = function() { if (!naviApplying) hideNaviApplied(); return original.apply(this, arguments); };
+    })();
+
+    // ===================================================
     // 比較モードのカテゴリ選択（チップ）
     // ===================================================
     function syncSmChips() {
@@ -2707,7 +2891,7 @@
     function isModalOpen() { return document.getElementById('image-modal').style.display === 'flex'; }
     function isSideMenuOpen() { return document.getElementById('side-menu').classList.contains('active'); }
     function isDeepState() {
-      return isModalOpen() || isSideMenuOpen() || isCompareMode
+      return isNaviOpen() || isModalOpen() || isSideMenuOpen() || isCompareMode
         || appMode === 'side' || appMode === 'select'
         || (appMode === 'home' && !!currentCategory);
     }
@@ -2718,6 +2902,7 @@
     }
     // 一番手前の画面を1つだけ閉じる。閉じるものが無ければ false
     function closeTopLayer() {
+      if (isNaviOpen()) { naviBackStep(); return true; }
       if (isModalOpen()) { closeImageModal(); return true; }
       if (isSideMenuOpen()) { closeSideMenu(); return true; }
       if (isCompareMode) { exitCompare(); return true; }
