@@ -1836,6 +1836,11 @@
       }
 
       filteredData = masterData.filter(item => {
+        // お困りごとの提案で「除く」と決めた商品（商品名・タイプ・機能・タグで判定）
+        if (naviExclude.length) {
+          const ex = item._str.name + " " + item._str.type + " " + item._str.func + " " + item._str.tags;
+          if (naviExclude.some(w => ex.includes(w))) return false;
+        }
         const matchFreeWord = (freeWord === "") || item._searchStr.includes(freeWord);
         if (!matchFreeWord) return false;
 
@@ -2773,7 +2778,7 @@
       { cat: 'マットレス', items: [
         { short: '床ずれが心配', icon: 'healing', title: '床ずれのリスクが高い', suggest: '体圧を分散する床ずれ防止用具・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] },
         { short: '寝返りが打てない', icon: 'autorenew', title: '自力で寝返りが打てない・自動で体位変換をしたい', suggest: '体位変換機能つきのエアマット', checks: ['.mat-f-check[value="体位変換"]'] },
-        { short: '自分で動きやすくしたい', icon: 'accessibility_new', title: '自分で寝返りや起き上がりをしたい・動きやすさを重視したい', suggest: '体が沈みにくい、静止型のマットレス', checks: ['.mat-type-check[value="静止型"]'] } ] },
+        { short: '自分で動きやすくしたい', icon: 'accessibility_new', title: '自分で寝返りや起き上がりをしたい・動きやすさを重視したい', suggest: '体が沈みにくい、静止型のマットレス', checks: ['.mat-type-check[value="静止型"]'], exclude: ['床ずれ', 'エア', '体位変換'], excludeLabel: '床ずれ防止用具・エアマットは除いています' } ] },
       { cat: '車椅子', items: [
         { short: '長く歩くのがつらい', icon: 'park', title: '外出したいが、長く歩くのがつらい', suggest: '軽くて車への積み下ろしも楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
         { title: '家族が押して使いたい', suggest: '押す人が扱いやすい介助用の車いす', checks: ['.type-check[value="介助"]'] } ] },
@@ -2800,6 +2805,7 @@
     const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'trending_up', '移動用リフト': 'airline_seat_recline_extra' };
     const NAVI_CAT_NAMES = { '特殊寝台': 'ベッド', '車椅子': '車いす', '歩行補助杖': '杖', '室外玄関手すり': '玄関・屋外の手すり', '特殊寝台付属品': 'ベッドの付属品' };
     let naviStep = 0, naviCat = -1, naviSel = -1;
+    let naviExclude = [];   // 提案で除外する言葉（カテゴリを選び直す・お知らせを閉じると解除）
 
     function escNavi(t) { return String(t).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function naviName(cat) { return NAVI_CAT_NAMES[cat] || cat; }
@@ -2876,7 +2882,11 @@
       else closeNavi();
     }
     renderTroubleRail();
-    function hideNaviApplied() { document.getElementById('navi-applied').classList.remove('show'); }
+    function hideNaviApplied() {
+      document.getElementById('navi-applied').classList.remove('show');
+      // お知らせを閉じたら、提案で除いていた商品も元に戻す
+      if (naviExclude.length) { naviExclude = []; if (!naviApplying && currentCategory) filterData(); }
+    }
     let naviApplying = false;
     function setCheck(el, on) {
       el.checked = on;
@@ -2890,6 +2900,7 @@
       if (appMode !== 'home') switchView('home');
       if (currentCategory === g.cat) showSearch(g.cat);   // いったん閉じて、絞り込みをまっさらにする
       showSearch(g.cat);
+      naviExclude = (picked[0] && picked[0].exclude) ? picked[0].exclude.slice() : [];
       const checked = [];
       picked.forEach(function(it) {
         it.checks.forEach(function(sel) {
@@ -2900,10 +2911,11 @@
       filterData();
       let msg = '';
       if (picked.length) {
-        msg = '「' + escNavi(picked[0].title) + '」へのご提案：<b>' + escNavi(picked[0].suggest || '') + '</b> で絞り込んでいます。条件は上の絞り込みで変えられます。';
+        msg = '「' + escNavi(picked[0].title) + '」へのご提案：<b>' + escNavi(picked[0].suggest || '') + '</b> で絞り込んでいます。' + (picked[0].excludeLabel ? escNavi(picked[0].excludeLabel) + '。' : '') + '条件は上の絞り込みで変えられます。';
         if (checked.length && filteredData.length === 0) {
           // 条件に合う商品がなければ、カテゴリ全体を表示する
           checked.forEach(function(el) { setCheck(el, false); });
+          naviExclude = [];
           filterData();
           msg = '「' + escNavi(picked[0].suggest || '') + '」に当てはまる商品が見つからなかったため、' + escNavi(naviName(g.cat)) + 'をすべて表示しています。';
         }
