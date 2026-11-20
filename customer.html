@@ -2239,7 +2239,7 @@
 
       let bottomActionBtnHtml = "";
       if (mode === "home" || mode === "side") {
-        if (catDisplay === "車椅子" || catDisplay === "歩行器" || catDisplay === "歩行補助杖" || catDisplay === "クッション") {
+        if (false) {   // お客様版：「類似商品を比較」は出さない
           bottomActionBtnHtml = `<button class="btn-compare" style="flex:1; margin-top:0; background:var(--theme-color); color:#fff; border-color:var(--theme-color);" onclick="startCompare(${masterIndex})"><span class="material-icons" style="font-size:16px;">balance</span> 類似商品を比較</button>`;
         }
       } else if (mode === "select") {
