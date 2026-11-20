@@ -2780,8 +2780,14 @@
         { short: '寝返りが打てない', icon: 'autorenew', title: '自力で寝返りが打てない・自動で体位変換をしたい', suggest: '体位変換機能つきのエアマット', checks: ['.mat-f-check[value="体位変換"]'] },
         { short: '自分で動きやすくしたい', icon: 'accessibility_new', title: '自分で寝返りや起き上がりをしたい・動きやすさを重視したい', suggest: '体が沈みにくい、静止型のマットレス', checks: ['.mat-type-check[value="静止型"]'], exclude: ['床ずれ', 'エア', '体位変換'], excludeLabel: '床ずれ防止用具・エアマットは除いています' } ] },
       { cat: '車椅子', items: [
-        { short: '長く歩くのがつらい', icon: 'park', title: '外出したいが、長く歩くのがつらい', suggest: '軽くて車への積み下ろしも楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
-        { title: '家族が押して使いたい', suggest: '押す人が扱いやすい介助用の車いす', checks: ['.type-check[value="介助"]'] } ] },
+        { short: '車に積んで外出したい', icon: 'directions_car', title: '通院や外出のときに、車に積んで運びたい', suggest: '軽くて積み下ろしが楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
+        { short: '乗り移りが不安定', icon: 'swap_horiz', title: 'ベッド・車いす・トイレの間の乗り移りが不安定', suggest: '肘掛けやフットレストを外したり跳ね上げたりできる、多機能の車いす', checks: ['.func-check[value="多機能"]'] },
+        { short: 'ブレーキのかけ忘れが心配', icon: 'front_hand', title: '認知機能や注意力が低下していて、ブレーキのかけ忘れが心配', suggest: '自動でブレーキがかかる、自動ブレーキつきの車いす', checks: ['.func-check[value="自動ブレーキ"]'] },
+        { icon: 'airline_seat_legroom_normal', title: '足で床をこいで移動したい（片足こぎなど）', suggest: '座面が低く、かかとが床に届きやすい低床の車いす', checks: ['.func-check[value="低床"]'] },
+        { icon: 'height', title: '身長が高く、普通の車いすではフットレストの位置が合わない', suggest: '座面が高く、足を置く位置にゆとりがある高床の車いす', checks: ['.func-check[value="高床"]'] },
+        { icon: 'tune', title: '体格や体の状態に合わせて、座面の高さ・幅・肘掛けなどを細かく調整したい', suggest: '部品を組み替えて体に合わせられる、モジュール型の車いす', checks: ['.func-check[value="モジュール"]'] },
+        { icon: 'u_turn_left', title: '家の中など、狭い場所で小回りをきかせたい', suggest: 'その場で回りやすい、六輪の車いす', checks: ['.func-check[value="六輪"]'] },
+        { short: '座ると姿勢がくずれる', icon: 'airline_seat_recline_extra', title: '普通の車いすでは姿勢がくずれる・長く座っていられない', suggest: '背もたれや座面ごと角度を変えられる、ティルト・リクライニングの車いす', checks: ['.func-check[value="ティルト/リクライニング"]'] } ] },
       { cat: 'クッション', items: [
         { short: '座るとお尻が痛い', icon: 'event_seat', title: '座っているとお尻が痛い', suggest: '圧を分散する除圧・エアークッション', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'] },
         { title: '座っていると姿勢がくずれる', suggest: '体の傾きやずり落ちを防ぐ姿勢保持クッション', checks: ['.cushion-func-check[value="姿勢保持"]'] } ] },
