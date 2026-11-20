@@ -658,7 +658,6 @@
           <div class="filter-group"><strong>設置箇所：</strong>
             <div class="checkbox-grid">
               <label><input type="checkbox" class="out-handrail-type-check" value="玄関" onchange="filterData()"> 玄関</label>
-              <label><input type="checkbox" class="out-handrail-type-check" value="屋内" onchange="filterData()"> 屋内</label>
               <label><input type="checkbox" class="out-handrail-type-check" value="屋外" onchange="filterData()"> 屋外</label>
             </div>
           </div>
@@ -2804,18 +2803,12 @@
         { icon: 'masks', title: '在宅酸素療法をしていて、酸素ボンベを持って歩きたい', suggest: 'ボンベを載せて歩ける、酸素ボンベ対応の歩行器', checks: ['.walker-func-check[value="酸素ボンベ"]'] },
         { icon: 'electric_bolt', title: '坂道の上り下りがつらい・押す力が弱い', suggest: '上り坂は押す力をアシストし、下り坂はスピードを抑える電動アシストの歩行器', checks: ['.walker-func-check[value="電動アシスト"]'] } ] },
       { cat: '室内手すり', items: [
-        { top: true, short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用手すり', checks: ['#in-handrail-func-toilet'] },
-        { title: '壁に穴を開けずに設置したい', suggest: '置き型・突っ張り型の手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
+        { icon: 'chair', title: 'ベッドやソファ、椅子からの立ち上がりがつらい', suggest: '床に置くだけで使え、場所も移せる置き型の手すり', checks: ['#in-handrail-func-okigata'] },
+        { icon: 'vertical_align_center', title: 'ベッドの横や廊下などで、縦につかまれる所がほしい', suggest: '床と天井で突っ張って固定する、突っ張り型の縦手すり', checks: ['#in-handrail-func-tsuppari'] },
+        { top: true, short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用の手すり', checks: ['#in-handrail-func-toilet'] } ] },
       { cat: '室外玄関手すり', items: [
-        { top: true, short: '玄関の段差がつらい', icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', suggest: '玄関用の手すり', checks: ['.out-handrail-type-check[value="玄関"]'] },
-        { title: '家の外の段差がつらい', suggest: '屋外用の手すり', checks: ['.out-handrail-type-check[value="屋外"]'] } ] },
-      { cat: '特殊寝台付属品', items: [
-        { title: 'ベッドからの立ち上がりを支えたい', suggest: '介助バー・グリップ', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'] },
-        { title: 'ベッドからの転落を防ぎたい', suggest: 'サイドレール', checks: ['.bed-acc-type-check[value="サイドレール"]'] },
-        { title: 'ベッドと車いすの乗り移りが大変', suggest: '移乗ボード', checks: ['.bed-acc-type-check[value="移乗ボード"]'] } ] },
-      { cat: 'スロープ', items: [
-        { title: '屋外の段差を車いすで越えたい', suggest: '屋外用のスロープ', checks: ['.slope-env-check[value="室外"]'] },
-        { title: '室内の段差を車いすで越えたい', suggest: '室内用のスロープ', checks: ['.slope-env-check[value="室内"]'] } ] }
+        { top: true, short: '玄関の段差がつらい', icon: 'meeting_room', title: '玄関の中の段差（上がりかまち）の上り下りがつらい', suggest: '上がりかまちの段差に合わせて置ける、玄関用の手すり', checks: ['.out-handrail-type-check[value="玄関"]'] },
+        { icon: 'stairs', title: '玄関先や庭など、家の外の段差・階段がつらい・玄関から道路までの通り道に手すりがほしい', suggest: '雨に強く、段差や通り道に合わせて外に置ける、屋外用の手すり', checks: ['.out-handrail-type-check[value="屋外"]'] } ] }
     ];
     const NAVI_CAT_ICONS = { '特殊寝台': 'bed', 'マットレス': 'layers', '車椅子': 'accessible_forward', 'クッション': 'chair', '歩行器': 'directions_walk', '歩行補助杖': 'elderly', '室内手すり': 'horizontal_rule', '室外玄関手すり': 'fence', '特殊寝台付属品': 'bed', '車椅子付属品': 'accessible', '体位変換器': 'swap_horiz', 'スロープ': 'trending_up', '移動用リフト': 'airline_seat_recline_extra' };
     const NAVI_CAT_NAMES = { '特殊寝台': 'ベッド', '車椅子': '車いす', '歩行補助杖': '杖', '室外玄関手すり': '玄関・屋外の手すり', '特殊寝台付属品': 'ベッドの付属品' };
