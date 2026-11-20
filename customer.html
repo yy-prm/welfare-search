@@ -530,6 +530,7 @@
             <div class="checkbox-grid">
               <label><input type="checkbox" class="mat-f-check" value="通気" onchange="filterData()"> 通気</label>
               <label><input type="checkbox" class="mat-f-check" value="清拭" onchange="filterData()"> 清拭(防水)</label>
+              <label><input type="checkbox" class="mat-f-check" value="体位変換" onchange="filterData()"> 体位変換</label>
             </div>
           </div>
         </div>
@@ -1976,6 +1977,7 @@
           const matchFunc = selectedF.length === 0 ? true : selectedF.some(f => {
             if (f === "清拭") return isSeishiki;
             if (f === "通気") return itemFunc.includes("通気") || !isSeishiki;
+            if (f === "体位変換") return (itemFunc + " " + itemTags + " " + item._str.name).includes("体位変換");
             return itemFunc.includes(f);
           });
           return matchType && matchWidth && matchLength && matchFunc;
@@ -2769,7 +2771,9 @@
         { short: '部屋がせまい', icon: 'close_fullscreen', title: 'スペースがなく、できるだけ小さめのベッドがいい', suggest: '幅83cm・ショートサイズのベッド', checks: ['.bed-width-check[value="83ショート"]'] } ] },
       // ↓ ここから下はたたき台（内容を決めたら書き換えてください）
       { cat: 'マットレス', items: [
-        { short: '床ずれが心配', icon: 'healing', title: '床ずれが心配・寝ている時間が長い', suggest: '体圧を分散する床ずれ防止・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] } ] },
+        { short: '床ずれが心配', icon: 'healing', title: '床ずれのリスクが高い', suggest: '体圧を分散する床ずれ防止用具・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] },
+        { short: '寝返りが打てない', icon: 'autorenew', title: '自力で寝返りが打てない・自動で体位変換をしたい', suggest: '体位変換機能つきのエアマット', checks: ['.mat-f-check[value="体位変換"]'] },
+        { short: '自分で動きやすくしたい', icon: 'accessibility_new', title: '自分で寝返りや起き上がりをしたい・動きやすさを重視したい', suggest: '体が沈みにくい、静止型のマットレス', checks: ['.mat-type-check[value="静止型"]'] } ] },
       { cat: '車椅子', items: [
         { short: '長く歩くのがつらい', icon: 'park', title: '外出したいが、長く歩くのがつらい', suggest: '軽くて車への積み下ろしも楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
         { title: '家族が押して使いたい', suggest: '押す人が扱いやすい介助用の車いす', checks: ['.type-check[value="介助"]'] } ] },

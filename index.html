@@ -455,6 +455,7 @@
             <div class="checkbox-grid">
               <label><input type="checkbox" class="mat-f-check" value="通気" onchange="filterData()"> 通気</label>
               <label><input type="checkbox" class="mat-f-check" value="清拭" onchange="filterData()"> 清拭(防水)</label>
+              <label><input type="checkbox" class="mat-f-check" value="体位変換" onchange="filterData()"> 体位変換</label>
             </div>
           </div>
         </div>
@@ -1875,6 +1876,7 @@
           const matchFunc = selectedF.length === 0 ? true : selectedF.some(f => {
             if (f === "清拭") return isSeishiki;
             if (f === "通気") return itemFunc.includes("通気") || !isSeishiki;
+            if (f === "体位変換") return (itemFunc + " " + itemTags + " " + item._str.name).includes("体位変換");
             return itemFunc.includes(f);
           });
           return matchType && matchWidth && matchLength && matchFunc;
