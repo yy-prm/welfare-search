@@ -39,14 +39,16 @@
     .home-sec .more { border: 0; background: none; padding: 4px 0 4px 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--theme-color); cursor: pointer; display: inline-flex; align-items: center; }
     .home-sec .more .material-icons { font-size: 18px; margin-right: -4px; }
     #navi-home { max-width: 600px; margin: 18px auto 6px; }
-    .trouble-rail { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 15px; margin: 0 -15px; padding: 2px 15px 14px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-    .trouble-rail::-webkit-scrollbar { display: none; }
-    .trouble-card { flex: none; scroll-snap-align: start; width: 136px; min-height: 128px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 12px 12px; border: 1px solid #e3ecef; border-radius: 16px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 4px 12px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; transition: transform 0.12s; box-sizing: border-box; }
-    .trouble-card:active { transform: scale(0.97); }
-    .trouble-card .ic { width: 38px; height: 38px; border-radius: 12px; background: #eaf5f8; display: grid; place-items: center; }
-    .trouble-card .ic .material-icons { font-size: 22px; color: var(--theme-color); }
-    .trouble-card .lb { font-size: 13.5px; font-weight: 800; color: #1f2d33; line-height: 1.4; }
-    .trouble-card .ct { margin-top: auto; font-size: 11px; color: #8a959a; }
+    .navi-entry { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 14px 14px 16px; border: 1px solid #e3ecef; border-radius: 16px; background: #fff; text-align: left; font-family: inherit; cursor: pointer; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 4px 12px rgba(16,40,52,0.05); -webkit-tap-highlight-color: transparent; transition: transform 0.12s, box-shadow 0.15s; box-sizing: border-box; }
+    .navi-entry:active { transform: scale(0.985); }
+    @media (hover: hover) { .navi-entry:hover { box-shadow: 0 2px 4px rgba(16,40,52,0.05), 0 8px 20px rgba(16,40,52,0.08); } }
+    .navi-entry .ic { width: 44px; height: 44px; border-radius: 14px; background: var(--theme-light); display: grid; place-items: center; flex: none; }
+    .navi-entry .ic .material-icons { font-size: 24px; color: var(--theme-color); }
+    .navi-entry .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .navi-entry .tx b { font-size: 15px; font-weight: 800; color: #1f2d33; letter-spacing: 0.02em; }
+    .navi-entry .tx small { font-size: 12px; color: #7b878c; line-height: 1.5; }
+    .navi-entry .go { width: 30px; height: 30px; border-radius: 50%; background: #f2f6f7; display: grid; place-items: center; flex: none; }
+    .navi-entry .go .material-icons { font-size: 20px; color: #9aa6ab; }
     #navi { position: fixed; inset: 0; z-index: 10002; background: #f4f8f9; overflow-y: auto; -webkit-overflow-scrolling: touch; opacity: 0; visibility: hidden; transform: translateY(18px); transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0.28s; }
     #navi.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.24s ease, transform 0.28s cubic-bezier(.2,.8,.2,1), visibility 0s; }
     .navi-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 14px 6px; background: linear-gradient(180deg, #f4f8f9 70%, rgba(244,248,249,0) 100%); }
@@ -345,7 +347,6 @@
     <div class="header">
       <img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';">
     </div>
-    <div class="demo-badge">お客様向け版（見本）</div>
 
     <div id="top-search-container" style="max-width: 600px; margin: 0 auto 15px auto;">
       <div class="search-wrapper" id="main-search-wrap">
@@ -382,8 +383,7 @@
       </div>
     </div>
     <div id="navi-home">
-      <div class="home-sec"><h3>お困りごとから探す</h3><button type="button" class="more" onclick="openNavi()">すべて見る<span class="material-icons">chevron_right</span></button></div>
-      <div class="trouble-rail" id="trouble-rail"></div>
+      <button type="button" class="navi-entry" onclick="openNavi()"><span class="ic"><span class="material-icons">manage_search</span></span><span class="tx"><b>お困りごとから探す</b><small>症状やご希望から用具をご提案します</small></span><span class="go"><span class="material-icons">chevron_right</span></span></button>
     </div>
     <div id="normal-filter-injection">
       <div id="filter-wrapper">
@@ -2865,7 +2865,7 @@
       NAVI.forEach(function(g, i) {
         g.items.forEach(function(it, j) {
           if (!it.top || !it.short) return;
-          h += '<button type="button" class="trouble-card" onclick="openNaviAt(' + i + ',' + j + ')"><span class="ic"><span class="material-icons">' + (it.icon || NAVI_CAT_ICONS[g.cat] || 'help_outline') + '</span></span><span class="lb">' + escNavi(it.short) + '</span><span class="ct">' + escNavi(naviName(g.cat)) + '</span></button>';
+          h += '<button type="button" class="trouble-card" onclick="openNaviAt(' + i + ',' + j + ')"><span class="ic"><span class="material-icons">' + (it.icon || NAVI_CAT_ICONS[g.cat] || 'help_outline') + '</span></span><span class="lb">' + escNavi(it.short) + '</span></button>';
         });
       });
       rail.innerHTML = h;
