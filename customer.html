@@ -2765,22 +2765,23 @@
     //    checks ：そのカテゴリの絞り込みで、最初からチェックを入れておく項目
     //    title  ：提案の見出し　／ reason：なぜこの商品か（お客様向けのやさしい言葉で）
     // ===================================================
-    // short：トップの「お困りごとから探す」に出す短い言葉（無ければトップには出さない）
+    // top  ：true にしたものだけ、トップの「お困りごとから探す」にカードで出す（各種類1〜2個まで）
+    // short：そのカードに出す短い言葉
     // icon ：トップのカードのアイコン　／ title：症状・ご希望　／ suggest：ご提案する商品
     const NAVI = [
       { cat: '特殊寝台', items: [
-        { short: 'ベッドからの転落が心配', icon: 'warning_amber', title: 'ベッドから転落するリスクがある・就寝時に床面を低くしたい', suggest: '低床ベッド（床面20cm以下・超低床を含む）', checks: ['#bed-low-20'] },
-        { short: '誤嚥・呼吸が心配', icon: 'air', title: '誤嚥のリスクが高い・呼吸がしにくい・ベッド上で食事をすることが多い', suggest: '背中を高く起こせるハイバックのベッド', checks: ['.bed-func-check[value="ハイバック"]'] },
+        { top: true, short: 'ベッドからの転落が心配', icon: 'warning_amber', title: 'ベッドから転落するリスクがある・就寝時に床面を低くしたい', suggest: '低床ベッド（床面20cm以下・超低床を含む）', checks: ['#bed-low-20'] },
+        { top: true, short: '誤嚥・呼吸が心配', icon: 'air', title: '誤嚥のリスクが高い・呼吸がしにくい・ベッド上で食事をすることが多い', suggest: '背中を高く起こせるハイバックのベッド', checks: ['.bed-func-check[value="ハイバック"]'] },
         { short: '離床・楽な姿勢をとりたい', icon: 'airline_seat_recline_normal', title: '離床しやすくしたい・圧迫感の少ない安楽な姿勢をとりたい', suggest: '足側が下がって座った姿勢に近づく、ラクリアモーションのベッド', checks: ['.bed-func-check[value="ラクリア"]'] },
         { short: '大きめのベッドがいい', icon: 'open_in_full', title: '高身長・なるべく大きめのベッドがいい', suggest: '幅100cm・ロングサイズのベッド', checks: ['.bed-width-check[value="100ロング"]'] },
         { short: '部屋がせまい', icon: 'close_fullscreen', title: 'スペースがなく、できるだけ小さめのベッドがいい', suggest: '幅83cm・ショートサイズのベッド', checks: ['.bed-width-check[value="83ショート"]'] } ] },
       // ↓ ここから下はたたき台（内容を決めたら書き換えてください）
       { cat: 'マットレス', items: [
-        { short: '床ずれが心配', icon: 'healing', title: '床ずれのリスクが高い', suggest: '体圧を分散する床ずれ防止用具・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] },
+        { top: true, short: '床ずれが心配', icon: 'healing', title: '床ずれのリスクが高い', suggest: '体圧を分散する床ずれ防止用具・エアマット', checks: ['.mat-type-check[value="床ずれ防止"]', '.mat-type-check[value="エアマット"]'] },
         { short: '寝返りが打てない', icon: 'autorenew', title: '自力で寝返りが打てない・自動で体位変換をしたい', suggest: '体位変換機能つきのエアマット', checks: ['.mat-f-check[value="体位変換"]'] },
         { short: '自分で動きやすくしたい', icon: 'accessibility_new', title: '自分で寝返りや起き上がりをしたい・動きやすさを重視したい', suggest: '体が沈みにくい、静止型のマットレス', checks: ['.mat-type-check[value="静止型"]'], exclude: ['床ずれ', 'エア', '体位変換'], excludeLabel: '床ずれ防止用具・エアマットは除いています' } ] },
       { cat: '車椅子', items: [
-        { short: '車に積んで外出したい', icon: 'directions_car', title: '通院や外出のときに、車に積んで運びたい', suggest: '軽くて積み下ろしが楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
+        { top: true, short: '車に積んで外出したい', icon: 'directions_car', title: '通院や外出のときに、車に積んで運びたい', suggest: '軽くて積み下ろしが楽な、軽量の車いす', checks: ['.func-check[value="軽量"]'] },
         { short: '乗り移りが不安定', icon: 'swap_horiz', title: 'ベッド・車いす・トイレの間の乗り移りが不安定', suggest: '肘掛けやフットレストを外したり跳ね上げたりできる、多機能の車いす', checks: ['.func-check[value="多機能"]'] },
         { short: 'ブレーキのかけ忘れが心配', icon: 'front_hand', title: '認知機能や注意力が低下していて、ブレーキのかけ忘れが心配', suggest: '自動でブレーキがかかる、自動ブレーキつきの車いす', checks: ['.func-check[value="自動ブレーキ"]'] },
         { icon: 'airline_seat_legroom_normal', title: '足で床をこいで移動したい（片足こぎなど）', suggest: '座面が低く、かかとが床に届きやすい低床の車いす', checks: ['.func-check[value="低床"]'] },
@@ -2789,16 +2790,18 @@
         { icon: 'u_turn_left', title: '家の中など、狭い場所で小回りをきかせたい', suggest: 'その場で回りやすい、六輪の車いす', checks: ['.func-check[value="六輪"]'] },
         { short: '座ると姿勢がくずれる', icon: 'airline_seat_recline_extra', title: '普通の車いすでは姿勢がくずれる・長く座っていられない', suggest: '背もたれや座面ごと角度を変えられる、ティルト・リクライニングの車いす', checks: ['.func-check[value="ティルト/リクライニング"]'] } ] },
       { cat: 'クッション', items: [
-        { short: '座るとお尻が痛い', icon: 'event_seat', title: '座っているとお尻が痛い', suggest: '圧を分散する除圧・エアークッション', checks: ['.cushion-func-check[value="除圧"]', '.cushion-func-check[value="エアー"]'] },
-        { title: '座っていると姿勢がくずれる', suggest: '体の傾きやずり落ちを防ぐ姿勢保持クッション', checks: ['.cushion-func-check[value="姿勢保持"]'] } ] },
+        { top: true, short: '車いすで姿勢がくずれる', icon: 'accessible', title: '車いすに座っていると、姿勢がくずれる・ずり落ちる', suggest: '骨盤や体幹を支えて姿勢を安定させる、姿勢保持クッション', checks: ['.cushion-func-check[value="姿勢保持"]'] },
+        { icon: 'compare_arrows', title: '座っていると、体が左右に傾く・横にずれる', suggest: '背中と体の横を支える背クッション', checks: ['.cushion-func-check[value="背クッション"]'] },
+        { icon: 'air', title: '長く座っているとお尻が痛くなる・床ずれを予防したい', suggest: '空気で体圧を分散し、空気の量で硬さを調整できるエアークッション', checks: ['.cushion-func-check[value="エアー"]'] },
+        { icon: 'healing', title: '床ずれのリスクが著しく高い・すでに床ずれがある', suggest: '骨の出っぱった部分の圧を抜く、除圧タイプのクッション', checks: ['.cushion-func-check[value="除圧"]'] } ] },
       { cat: '歩行器', items: [
-        { short: '家の中でふらつく', icon: 'directions_walk', title: '家の中でふらつく', suggest: '室内用の歩行器', checks: ['.walker-env-check[value="室内"]'] },
+        { top: true, short: '家の中でふらつく', icon: 'directions_walk', title: '家の中でふらつく', suggest: '室内用の歩行器', checks: ['.walker-env-check[value="室内"]'] },
         { title: '外出したい・買い物に行きたい', suggest: '屋外用の歩行器', checks: ['.walker-env-check[value="室外"]'] } ] },
       { cat: '室内手すり', items: [
-        { short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用手すり', checks: ['#in-handrail-func-toilet'] },
+        { top: true, short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用手すり', checks: ['#in-handrail-func-toilet'] },
         { title: '壁に穴を開けずに設置したい', suggest: '置き型・突っ張り型の手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
       { cat: '室外玄関手すり', items: [
-        { short: '玄関の段差がつらい', icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', suggest: '玄関用の手すり', checks: ['.out-handrail-type-check[value="玄関"]'] },
+        { top: true, short: '玄関の段差がつらい', icon: 'meeting_room', title: '玄関の段差（上がりかまち）がつらい', suggest: '玄関用の手すり', checks: ['.out-handrail-type-check[value="玄関"]'] },
         { title: '家の外の段差がつらい', suggest: '屋外用の手すり', checks: ['.out-handrail-type-check[value="屋外"]'] } ] },
       { cat: '特殊寝台付属品', items: [
         { title: 'ベッドからの立ち上がりを支えたい', suggest: '介助バー・グリップ', checks: ['.bed-acc-type-check[value="介助バー・グリップ系"]'] },
@@ -2856,7 +2859,7 @@
       let h = '';
       NAVI.forEach(function(g, i) {
         g.items.forEach(function(it, j) {
-          if (!it.short) return;
+          if (!it.top || !it.short) return;
           h += '<button type="button" class="trouble-card" onclick="openNaviAt(' + i + ',' + j + ')"><span class="ic"><span class="material-icons">' + (it.icon || NAVI_CAT_ICONS[g.cat] || 'help_outline') + '</span></span><span class="lb">' + escNavi(it.short) + '</span><span class="ct">' + escNavi(naviName(g.cat)) + '</span></button>';
         });
       });
