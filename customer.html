@@ -2795,8 +2795,14 @@
         { icon: 'air', title: '長く座っているとお尻が痛くなる・床ずれを予防したい', suggest: '空気で体圧を分散し、空気の量で硬さを調整できるエアークッション', checks: ['.cushion-func-check[value="エアー"]'] },
         { icon: 'healing', title: '床ずれのリスクが著しく高い・すでに床ずれがある', suggest: '骨の出っぱった部分の圧を抜く、除圧タイプのクッション', checks: ['.cushion-func-check[value="除圧"]'] } ] },
       { cat: '歩行器', items: [
-        { top: true, short: '家の中でふらつく', icon: 'directions_walk', title: '家の中でふらつく', suggest: '室内用の歩行器', checks: ['.walker-env-check[value="室内"]'] },
-        { title: '外出したい・買い物に行きたい', suggest: '屋外用の歩行器', checks: ['.walker-env-check[value="室外"]'] } ] },
+        { icon: 'speed', title: '坂道で歩行器が進みすぎて怖い・歩くうちにスピードが速くなって前のめりになる', suggest: '速度が出すぎないようブレーキが効く、抑速機能つきの歩行器', checks: ['.walker-func-check[value="抑速"]'] },
+        { icon: 'back_hand', title: '握る力や腕の力が弱く、手で体を支えにくい・体を預けて歩きたい', suggest: 'ひじから先の腕全体で体を支える、前腕支持タイプの歩行器', checks: ['.walker-func-check[value="前腕支持"]'] },
+        { icon: 'shield', title: '前や左右へのふらつきが強く、体を囲むように支えてほしい（歩行練習など）', suggest: '体をコの字に囲んで支える、馬蹄型の歩行器', checks: ['.walker-func-check[value="馬蹄型"]'] },
+        { icon: 'front_hand', title: '座面に座るときに、ブレーキをかけ忘れてしまう', suggest: '座ると自動でブレーキがかかる、自動ブレーキつきの歩行器', checks: ['.walker-func-check[value="自動ブレーキ"]'] },
+        { icon: 'restaurant', title: '家の中で、食事や飲み物を運びながら移動したい', suggest: '物を載せて運べる、トレーつきの歩行器', checks: ['.walker-func-check[value="トレー"]'] },
+        { top: true, short: '買い物に出かけたい', icon: 'shopping_basket', title: '買い物に行きたい・荷物を持って外出したい', suggest: '荷物を入れられる、買い物かごつきの歩行器', checks: ['.walker-func-check[value="買い物かご"]'] },
+        { icon: 'masks', title: '在宅酸素療法をしていて、酸素ボンベを持って歩きたい', suggest: 'ボンベを載せて歩ける、酸素ボンベ対応の歩行器', checks: ['.walker-func-check[value="酸素ボンベ"]'] },
+        { icon: 'electric_bolt', title: '坂道の上り下りがつらい・押す力が弱い', suggest: '上り坂は押す力をアシストし、下り坂はスピードを抑える電動アシストの歩行器', checks: ['.walker-func-check[value="電動アシスト"]'] } ] },
       { cat: '室内手すり', items: [
         { top: true, short: 'トイレの立ち座り', icon: 'wc', title: 'トイレでの立ち座りがつらい', suggest: '便器のまわりに置くトイレ用手すり', checks: ['#in-handrail-func-toilet'] },
         { title: '壁に穴を開けずに設置したい', suggest: '置き型・突っ張り型の手すり', checks: ['#in-handrail-func-okigata', '#in-handrail-func-tsuppari'] } ] },
