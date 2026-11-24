@@ -290,6 +290,14 @@
 
     .table-responsive { overflow-x: auto; margin-bottom: 15px; border-radius: 8px; }
     .table-responsive table { border-collapse: collapse; }
+    /* ===== トップ画面のバランス調整 ===== */
+    #view-home .header { margin: 4px 0 22px; }
+    @media (max-width: 767px) { #view-home .header { display: flex; align-items: center; justify-content: center; min-height: max(70px, calc(100svh - 655px)); margin: 0 0 18px; } }
+    .logo-crop { position: relative; width: 210px; height: 55px; margin: 0 auto; overflow: hidden; }
+    .logo-crop .logo-img { position: absolute; max-width: none; width: 340px; left: -66px; top: -138px; margin: 0; }
+    #view-home .panel { border: 1px solid #e3ecef; border-top: 1px solid #e3ecef; border-radius: 16px; padding: 14px 2px 12px; gap: 8px; color: #33434a; white-space: nowrap; letter-spacing: -0.01em; box-shadow: 0 1px 2px rgba(16,40,52,0.04), 0 4px 12px rgba(16,40,52,0.05); }
+    #view-home .panel .material-icons { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: var(--theme-light); font-size: 23px; color: var(--theme-color); }
+    @media (min-width: 768px) { #view-home .panel { padding: 20px 6px 18px; border-top-width: 1px; } #view-home .panel:hover { border-color: #cbe5ec; } }
   </style>
 </head>
 <body>
@@ -345,7 +353,7 @@
 
   <div id="view-home" class="view-container active">
     <div class="header">
-      <img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';">
+      <div class="logo-crop"><img src="./ロゴ.jpg" alt="WelSync" class="logo-img" onerror="this.onerror=null;this.src='https://placehold.jp/40a4b5/ffffff/400x120.png?text=WelSync';"></div>
     </div>
 
     <div id="top-search-container" style="max-width: 600px; margin: 0 auto 15px auto;">
@@ -1048,6 +1056,7 @@
     function closeSideMenu() {
       document.getElementById('side-overlay').classList.remove('active');
       document.getElementById('side-menu').classList.remove('active');
+      document.getElementById('nav-other').classList.remove('active');
       if(appMode === "home") document.getElementById('nav-home').classList.add('active');
       if(appMode === "select") document.getElementById('nav-compare').classList.add('active');
     }
